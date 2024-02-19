@@ -2,6 +2,8 @@
 
 Bem-vindo ao PageTurner, uma plataforma online onde os apaixonados por livros podem partilhar as suas experiências de leitura, descobrir novos títulos e interagir com outros membros da comunidade literária.
 
+[![Banner PageTurner](https://github.com/hs1lva/PageTurner/raw/main/img/logos/banner.jpg)](https://link_para_seu_destino)
+
 ## Sobre o Projeto
 
 O PageTurner está em desenvolvimento com o objetivo de criar um espaço virtual onde os utilizadores podem criar perfis, registar os seus livros e partilhar as suas opiniões sobre os livros que leram. Além disso, a plataforma oferece recursos adicionais, como recomendações personalizadas com base nas preferências de leitura de cada utilizador e a possibilidade de trocar livros entre os membros da comunidade.
