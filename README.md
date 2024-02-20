@@ -18,7 +18,7 @@ O PageTurner está em desenvolvimento com o objetivo de criar um espaço virtual
 
 ## Tecnologias Utilizadas
 
-- **Backend**: Desenvolvido com .NET Core, o backend do PageTurner gere a lógica de negócios da aplicação, incluindo autenticação de utilizadores, gestão de perfil e armazenamento de dados.
+- **Backend**: Desenvolvido com XXXXXXX, o backend do PageTurner gere a lógica de negócios da aplicação, incluindo autenticação de utilizadores, gestão de perfil e armazenamento de dados.
 - **Frontend**: Utilizando React, o frontend do PageTurner oferece uma interface de utilizador dinâmica e responsiva, garantindo uma experiência de navegação agradável.
 - **Base de Dados**: Os dados da plataforma são armazenados de forma segura numa base de dados SQL, garantindo a integridade e confidencialidade das informações dos utilizadores.
 
