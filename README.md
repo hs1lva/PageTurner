@@ -16,12 +16,6 @@ O PageTurner está em desenvolvimento com o objetivo de criar um espaço virtual
 - **Recomendações Personalizadas**: Receba sugestões de leitura com base no histórico de leitura.
 - **Troca de Livros**: Participe na troca de livros entre os membros da comunidade para expandir a sua coleção e descobrir novos títulos.
 
-## Tecnologias Utilizadas
-
-- **Backend**: Desenvolvido com XXXXXXX, o backend do PageTurner gere a lógica de negócios da aplicação, incluindo autenticação de utilizadores, gestão de perfil e armazenamento de dados.
-- **Frontend**: Utilizando React, o frontend do PageTurner oferece uma interface de utilizador dinâmica e responsiva, garantindo uma experiência de navegação agradável.
-- **Base de Dados**: Os dados da plataforma são armazenados de forma segura numa base de dados SQL, garantindo a integridade e confidencialidade das informações dos utilizadores.
-
 ## Contribuições
 
 O PageTurner é um projeto em constante evolução e estamos sempre abertos a novas ideias e contribuições.
