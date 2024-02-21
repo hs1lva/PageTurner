@@ -10,10 +10,10 @@ O PageTurner está em desenvolvimento com o objetivo de criar um espaço virtual
 
 ## Funcionalidades Principais
 
-- **Registo de Utilizadores**: Crie o seu perfil pessoal no PageTurner para começar a registar as suas leituras e interagir com outros membros.
-- **Biblioteca Pessoal**: Mantenha um registo de todos os livros que já leu, está a ler ou deseja ler no futuro.
-- **Avaliações e Resumos**: Avalie os livros que leu, atribua classificações e escreva resumos detalhadas para partilhar as suas opiniões com a comunidade.
-- **Recomendações Personalizadas**: Receba sugestões de leitura com base nas suas avaliações e histórico de leitura.
+- **Registo de Leitores**: Crie o seu perfil pessoal no PageTurner para começar a registar as suas leituras e interagir com outros membros.
+- **Biblioteca Pessoal**: Mantenha um registo de todos os livros que já leu, está a ler ou deseja ler no futuro na sua "estante pessoal".
+- **Avaliações e Resumos**: Avalie os livros que leu, atribua classificações e escreva resumos/comentários detalhadas para partilhar as suas opiniões com a comunidade.
+- **Recomendações Personalizadas**: Receba sugestões de leitura com base no histórico de leitura.
 - **Troca de Livros**: Participe na troca de livros entre os membros da comunidade para expandir a sua coleção e descobrir novos títulos.
 
 ## Tecnologias Utilizadas
