@@ -1,0 +1,27 @@
+@startuml
+actor Leitor as U
+participant "EstanteTroca" AS EST
+participant "EstantePessoal" AS ESP
+participant "EstanteDesejos" AS ESD
+
+U -> EST: AdicionaLivro()
+EST -> ESP: VerificarLivroExisteEstante()
+ESP -> ESP: VerificaLivroExiste()
+alt Existe
+    ESP --> EST: "Existe"
+    EST -> ESD: VerificarLivroExisteEstante()
+    ESD -> ESD: VerificaLivroExiste()
+    alt existe
+        ESD --> EST: "Existe"
+        EST --> U: "Já tem o livro na estante de desejos"
+    else nao existe
+        ESD --> EST: "Não Existe"
+        EST -> EST: AdicionaLivro()
+        EST --> U: "Livro Adicionado"
+    end
+else Nao Existe
+    ESP --> EST: "Nao existe"
+    EST -> U: "Livro nao existe na estante pessoal."
+end
+
+@enduml

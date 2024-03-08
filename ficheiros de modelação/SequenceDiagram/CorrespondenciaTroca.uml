@@ -1,0 +1,33 @@
+@startuml
+actor Leitor as L
+participant "EstanteTroca" AS EST
+participant "Repositorio" as REP
+participant "SistemaMatching" as SM
+
+L -> EST: AdicionaLivroNaTroca()
+EST -> REP: VerificaListaDesejosLeitor()
+REP -> EST: ListaDesejosLeitor
+alt Leitor Tem Livros na Lista de Desejos
+    EST -> REP: VerificaExistenciaLivroEmDesejosDeOutros()
+    REP -> REP: VerificaLivro()
+    alt Livro Existe nos Desejos de Outro Leitor
+        REP --> EST: "LivroEncontradoNosDesejos"
+        EST -> SM: ProcurarMatchesTroca()
+        SM -> REP: ObtemLivrosDisponiveisParaTrocaDosLeitoresInteressados()
+        REP -> SM: LivrosDisponiveisParaTroca
+        SM -> SM: EncontrarMatches()
+        alt Existem Matches
+            SM --> EST: "MatchesEncontrados"
+            EST --> L: "NotificaMatchesEncontrados"
+        else Nenhum Match
+            SM --> EST: "NenhumMatch"
+            EST --> L: "LivroAdicionadoSemMatches"
+        end
+    else Livro Não Existe nos Desejos de Outros
+        REP --> EST: "NenhumLivroNosDesejos"
+        EST --> L: "LivroAdicionadoSemMatches"
+    end
+else Leitor Não Tem Livros na Lista de Desejos
+    EST --> L: "LivroAdicionadoMasSemLivrosDesejadosParaMatch"
+end
+@enduml

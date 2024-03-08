@@ -1,0 +1,33 @@
+@startuml
+actor Leitor as U
+participant "EstantePessoal" AS EST
+participant "ServicoAPI" as S
+participant "OpenLibrary" as API
+
+U -> EST: AdicionaLivro()
+EST -> EST: VerificaLivroExisteEstante()
+alt Livro Existe
+    EST --> U: "Livro ja existe"
+else Livro não existe
+    EST -> EST: VerificaExisteBD()
+    alt existe
+        EST -> EST: AdicionaLivro()
+        EST --> U: "Livro Adicionado"
+    else nao existe
+        EST -> S: VerificaLivroExisteAPI()
+        S -> API: ChamadaAPI()
+        API --> S: "Resposta"
+        S --> EST: "Resposta"
+        alt existe
+            EST -> EST: AdicionaLivro()
+            EST --> U: "Livro foi adicionado"
+        else nao existe
+            EST --> U: "Pede dados manualmente"
+            U -> EST : InsereLivroManual()
+            EST -> EST: AdicionaLivro()
+            EST --> U: "Livro adicionado"
+        end
+    end
+end
+@enduml
+
