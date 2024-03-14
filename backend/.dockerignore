@@ -1,0 +1,29 @@
+.dockerignore
+
+# Build
+**/bin/
+**/obj/
+
+# Packages
+**/node_modules/
+**/bower_components/
+
+# Visual Studio
+**/*.cache
+**/*.vspscc
+**/*.vssscc
+.vs/
+.vscode/
+
+# Other
+.env
+.gitattributes
+.gitignore
+.gitlab-ci.yml
+.npmignore
+.nuspec
+appsettings.Development.json
+appsettings.Production.json
+appsettings.json
+
+# User-specific files

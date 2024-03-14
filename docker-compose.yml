@@ -1,6 +1,18 @@
-version: '3.8'
+
+version: '3'
 
 services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    stdin_open: true
+    tty: true
+
   db:
     image: mysql:8.0
     environment:
