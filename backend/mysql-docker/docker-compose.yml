@@ -3,6 +3,7 @@ version: '3.8'
 services:
   db:
     image: mcr.microsoft.com/mssql/server:2019-latest
+    platform: linux/amd64
     environment:
       SA_PASSWORD: "admin"
       ACCEPT_EULA: "Y"
