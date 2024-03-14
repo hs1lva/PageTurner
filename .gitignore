@@ -365,3 +365,5 @@ FodyWeavers.xsd
 # Visual Paradigm backup and lock files
 *.bak
 *.lck
+
+*.DS_Store
