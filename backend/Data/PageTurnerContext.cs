@@ -8,7 +8,7 @@ public class PageTurnerContext:DbContext{
 
     }
 
-    //escrever aqui as tabelas
+    //escrever aqui as tabelas, sempre que fazemos uma migraçao de BD será visto aqui e só depois irá aos modelos.
     public DbSet<AutorLivro> AutorLivro { get; set; }
     public DbSet<AvaliacaoLivro> AvaliacaoLivro { get; set; }
     public DbSet<Cidade> Cidade { get; set; }

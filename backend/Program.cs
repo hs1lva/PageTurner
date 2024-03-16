@@ -13,7 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+#region Serviços adicionados
 //Adicionar servico para DbContext
 builder.Services.AddDbContext<PageTurnerContext>(options =>
 {
@@ -21,9 +21,15 @@ builder.Services.AddDbContext<PageTurnerContext>(options =>
 });
 
 //adiciona servico API
-builder.Services.AddScoped<ServicoAPI>();
+builder.Services.AddScoped<ServicoAPI>();//O add scoped cria uma instancia do serviço uma vez, por solicitação HTTP do cliente
+                                            //e será reutilizada em todas as injeçoes de dependência durante a mesma solicitação
 //adiciona servico email
-builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddTransient<IEmailSender, EmailSender>();//é ligeiramente diferente:
+                                                            // é criada uma instancia sempre que solicitado. 
+
+                            //no fundo acha que estão bem assim, cada um tem um proposito diferente.
+
+#endregion
 
 var app = builder.Build();
 

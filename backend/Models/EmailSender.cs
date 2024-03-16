@@ -9,23 +9,30 @@ using backend.Interface;
 
 namespace backend.Models
 {
+    /// <summary>
+    /// Modelo para a utilizacao do email
+    /// </summary>
     public class EmailSender:IEmailSender
     {
-        public Task SendEmailAsync(string email, string subject, string mensagem)
+        //Atributos
+        private string smtp = "smtp.office365.com";
+        private int porta = 587;
+        private string mail = "pageturner@outlook.pt";
+        private string pw = "ArthurJuliaHugo*2Pedro";
+
+
+
+        public Task SendEmailAsync(string emailTo, string subject, string mensagem)
         {
-            var mail = "pageturner@outlook.pt";
-            var pw = "ArthurJuliaHugo*2Pedro";
-
             // Lógica para enviar e-mails
-
-            var cliente = new SmtpClient("smtp.office365.com", 587)
+            var envio = new SmtpClient(smtp, porta)
             {
                 EnableSsl = true,
                 Credentials = new NetworkCredential(mail, pw)
             };
 
-            return cliente.SendMailAsync(
-                        new MailMessage(mail, email, subject, mensagem));
+            return envio.SendMailAsync(
+                        new MailMessage(mail, emailTo, subject, mensagem));
         }
     }
     
