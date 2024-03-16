@@ -1,4 +1,8 @@
+using backend.Interface;
+using backend.Models;
+using backend.Services;
 using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +20,10 @@ builder.Services.AddDbContext<PageTurnerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ServidorDB"));
 });
 
+//adiciona servico API
+builder.Services.AddScoped<ServicoAPI>();
+//adiciona servico email
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 

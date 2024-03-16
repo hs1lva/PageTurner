@@ -10,6 +10,12 @@ public class Cidade
     public int cidadeId { get; set; }
     public string nomeCidade { get; set; }
 
-    //chave estranjeira para  pais
+    //chave estranjeira para Pais
     public Pais paisCidade { get; set; }
+
+    //Construtor
+    public Cidade(){
+
+    }
+
 }
