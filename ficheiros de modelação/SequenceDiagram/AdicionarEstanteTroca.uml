@@ -4,24 +4,24 @@ participant "EstanteTroca" AS EST
 participant "EstantePessoal" AS ESP
 participant "EstanteDesejos" AS ESD
 
-U -> EST: AdicionaLivro()
-EST -> ESP: VerificarLivroExisteEstante()
-ESP -> ESP: VerificaLivroExiste()
-alt Existe
-    ESP --> EST: "Existe"
-    EST -> ESD: VerificarLivroExisteEstante()
-    ESD -> ESD: VerificaLivroExiste()
-    alt existe
-        ESD --> EST: "Existe"
-        EST --> U: "Já tem o livro na estante de desejos"
-    else nao existe
-        ESD --> EST: "Não Existe"
-        EST -> EST: AdicionaLivro()
-        EST --> U: "Livro Adicionado"
+U -> EST: AdicionaLivro(livro)
+EST -> ESP: VerificarLivroExisteNaEstante(livro)
+ESP -> ESP: VerificaLivroExiste(livro)
+alt Livro Existe na Pessoal
+    ESP --> EST: "Livro Existe"
+    EST -> ESD: VerificarLivroExisteNaEstante(livro)
+    ESD -> ESD: VerificaLivroExiste(livro)
+    alt Livro Existe nos Desejos
+        ESD --> EST: "Livro Existe nos Desejos"
+        EST --> U: "Já tem o livro na estante de desejos."
+    else Livro Não Existe nos Desejos
+        ESD --> EST: "Livro Não Existe nos Desejos"
+        EST -> EST: AdicionaLivro(livro)
+        EST --> U: "Livro Adicionado à Estante de Troca"
     end
-else Nao Existe
-    ESP --> EST: "Nao existe"
-    EST -> U: "Livro nao existe na estante pessoal."
+else Livro Não Existe na Pessoal
+    ESP --> EST: "Livro Não Existe"
+    EST --> U: "Livro não existe na estante pessoal."
 end
 
 @enduml

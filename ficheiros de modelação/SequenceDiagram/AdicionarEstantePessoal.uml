@@ -4,30 +4,30 @@ participant "EstantePessoal" AS EST
 participant "ServicoAPI" as S
 participant "OpenLibrary" as API
 
-U -> EST: AdicionaLivro()
-EST -> EST: VerificaLivroExisteEstante()
+U -> EST: AdicionaLivro(livro)
+EST -> EST: VerificaLivroExisteEstante(livro)
 alt Livro Existe
-    EST --> U: "Livro ja existe"
+    EST --> U: "Livro já existe"
 else Livro não existe
-    EST -> EST: VerificaExisteBD()
+    EST -> EST: VerificaExisteBD(livro)
     alt existe
-        EST -> EST: AdicionaLivro()
+        EST -> EST: AdicionaLivro(livro)
         EST --> U: "Livro Adicionado"
-    else nao existe
-        EST -> S: VerificaLivroExisteAPI()
-        S -> API: ChamadaAPI()
+    else não existe
+        EST -> S: VerificaLivroExisteAPI(livro)
+        S -> API: ChamadaAPI(livro)
         API --> S: "Resposta"
         S --> EST: "Resposta"
-        alt existe
-            EST -> EST: AdicionaLivro()
-            EST --> U: "Livro foi adicionado"
-        else nao existe
-            EST --> U: "Pede dados manualmente"
-            U -> EST : InsereLivroManual()
-            EST -> EST: AdicionaLivro()
-            EST --> U: "Livro adicionado"
-        end
+    alt livro encontrado na API
+        EST -> EST: AdicionaLivro(infoAPI)
+        EST --> U: "Livro foi adicionado com dados da API"
+    else livro não encontrado na API
+        EST --> U: "Livro não encontrado. Por favor, insira os detalhes manualmente."
+        U -> EST: InsereDetalhesLivroManualmente(detalhesManual)
+        EST -> EST: AdicionaLivro(detalhesManual)
+        EST --> U: "Livro manualmente"
+    end
+
     end
 end
 @enduml
-

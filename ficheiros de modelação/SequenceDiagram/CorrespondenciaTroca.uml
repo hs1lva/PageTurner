@@ -4,30 +4,33 @@ participant "EstanteTroca" AS EST
 participant "Repositorio" as REP
 participant "SistemaMatching" as SM
 
-L -> EST: AdicionaLivroNaTroca()
+L -> EST: AdicionaLivroNaTroca(livro)
 EST -> REP: VerificaListaDesejosLeitor()
-REP -> EST: ListaDesejosLeitor
+REP -> EST: ListaDesejosLeitor(livrosDesejados)
 alt Leitor Tem Livros na Lista de Desejos
-    EST -> REP: VerificaExistenciaLivroEmDesejosDeOutros()
-    REP -> REP: VerificaLivro()
+    EST -> REP: VerificaExistenciaLivroEmDesejosDeOutros(livro)
+    REP -> REP: VerificaLivro(livro)
     alt Livro Existe nos Desejos de Outro Leitor
         REP --> EST: "LivroEncontradoNosDesejos"
-        EST -> SM: ProcurarMatchesTroca()
-        SM -> REP: ObtemLivrosDisponiveisParaTrocaDosLeitoresInteressados()
-        REP -> SM: LivrosDisponiveisParaTroca
-        SM -> SM: EncontrarMatches()
+        EST -> SM: ProcurarMatchesTroca(livro)
+        SM -> REP: ObtemLivrosDisponiveisParaTrocaDosLeitoresInteressados(livro)
+        REP -> SM: LivrosDisponiveisParaTroca(livrosDisponiveis)
+        SM -> SM: EncontrarMatches(livrosDesejados, livrosDisponiveis)
         alt Existem Matches
             SM --> EST: "MatchesEncontrados"
-            EST --> L: "NotificaMatchesEncontrados"
+            EST --> L: "LivroAdicionadoNaTrocaComMatches" 
+            EST --> L: NotificaMatchesEncontrados(matches)
         else Nenhum Match
-            SM --> EST: "NenhumMatch"
-            EST --> L: "LivroAdicionadoSemMatches"
+            EST -> EST: AdicionaLivroNaTroca(livro)
+            EST --> L: "LivroAdicionadoNaTrocaSemMatches"
         end
     else Livro Não Existe nos Desejos de Outros
         REP --> EST: "NenhumLivroNosDesejos"
-        EST --> L: "LivroAdicionadoSemMatches"
+        EST -> EST: AdicionaLivroNaTroca(livro)
+        EST --> L: "LivroAdicionadoNaTrocaSemMatches"
     end
 else Leitor Não Tem Livros na Lista de Desejos
-    EST --> L: "LivroAdicionadoMasSemLivrosDesejadosParaMatch"
+    EST -> EST: AdicionaLivroNaTroca(livro)
+    EST --> L: "LivroAdicionadoNaTrocaMasSemLivrosDesejadosParaMatch"
 end
 @enduml

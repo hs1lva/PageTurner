@@ -14,17 +14,15 @@ services:
     tty: true
 
   db:
-    image: mysql:8.0
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    platform: linux/amd64
     environment:
-      MYSQL_ROOT_PASSWORD: 'admin'  
-      MYSQL_DATABASE: 'page_turner'
-      MYSQL_USER: 'admin'
-      MYSQL_PASSWORD: 'admin'
+      SA_PASSWORD: "admin"
+      ACCEPT_EULA: "Y"
     ports:
-      - "3306:3306"
+      - "1433:1433"
     volumes:
-      - db_data:/var/lib/mysql
-      - ./mysql-init:/docker-entrypoint-initdb.d
+      - db_data:/var/opt/mssql
 
 volumes:
   db_data:
