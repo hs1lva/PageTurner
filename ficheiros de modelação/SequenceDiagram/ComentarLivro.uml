@@ -3,16 +3,15 @@ actor Leitor as U
 participant "Livro" as S
 participant "ServicoBD" as BD
 
-U -> S: InsereComentario() 
-S -> BD: VerificaComentario()
-BD -> BD: VerificaListaDePalavras()
-BD --> S: "Resposta"
-alt Comentário não tem palavras na lista
-    S -> S: AdicionaComentario()
-    S --> U: Confirma adição do comentário
-else Comentário tem palavras na lista
-    S --> U: Mostra mensagem de erro
+U -> S: InsereComentario(comentario) 
+S -> BD: VerificaComentario(comentario)
+BD -> BD: VerificaListaDePalavras(comentario)
+alt Comentário não tem palavras proibidas
+    BD --> S: "Comentário Válido"
+    S -> S: AdicionaComentario(comentario)
+    S --> U: "Confirma adição do comentário"
+else Comentário tem palavras proibidas
+    BD --> S: "Comentário Inválido"
+    S --> U: "Mostra mensagem de erro"
 end
 @enduml
-
-"
