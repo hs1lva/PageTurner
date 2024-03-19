@@ -3,15 +3,15 @@ actor Leitor as U
 participant "EstanteDesejos" AS ESD
 participant "EstanteTroca" AS EST
 
-U -> ESD: AdicionaLivro()
-ESD -> EST: VerificarLivroExisteEstante()
-EST -> EST: VerificaLivroExiste()
+U -> ESD: AdicionaLivro(livro)
+ESD -> EST: VerificarLivroExisteEstante(livro)
+EST -> EST: VerificaLivroExiste(livro)
 alt Existe
     EST --> ESD: "Existe"
     ESD --> U:  "Livro já existe na estante de troca."
 else Nao Existe
     EST --> ESD: "Nao existe"
-    ESD -> ESD: AdicionaLivro()
+    ESD -> ESD: AdicionaLivro(livro)
     ESD --> U: "Livro Adicionado"
 end
 

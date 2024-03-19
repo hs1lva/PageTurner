@@ -4,30 +4,33 @@ participant "EstanteDesejos" AS ESD
 participant "Repositorio" as REP
 participant "SistemaMatching" as SM
 
-L -> ESD: AdicionaLivroNaListaDeDesejos()
+L -> ESD: AdicionaLivroNaListaDeDesejos(livro)
 ESD -> REP: VerificaListaTrocaLeitor()
-REP -> ESD: ListaTrocaLeitor
+REP -> ESD: ListaTrocaLeitor(livrosTroca)
 alt Leitor Tem Livros na Estante de Troca
-    ESD -> REP: VerificaExistenciaLivroEmTrocasDeOutros()
-    REP -> REP: VerificaLivro()
+    ESD -> REP: VerificaExistenciaLivroEmTrocasDeOutros(livro)
+    REP -> REP: VerificaLivro(livro)
     alt Livro Existe nas Trocas de Outro Leitor
         REP --> ESD: "LivroEncontradoNasTrocas"
-        ESD -> SM: ProcurarMatchesDesejo()
-        SM -> REP: ObtemLivrosDesejadosDosLeitoresInteressados()
-        REP -> SM: LivrosDesejadosDisponiveis
-        SM -> SM: EncontrarMatches()
+        ESD -> SM: ProcurarMatchesDesejo(livro)
+        SM -> REP: ObtemLivrosDesejadosDosLeitoresInteressados(livro)
+        REP -> SM: LivrosDesejadosDisponiveis(livrosDesejados)
+        SM -> SM: EncontrarMatches(livrosTroca, livrosDesejados)
         alt Existem Matches
             SM --> ESD: "MatchesEncontrados"
             ESD --> L: "NotificaMatchesEncontrados"
         else Nenhum Match
             SM --> ESD: "NenhumMatch"
+            ESD -> ESD: AdicionaLivro(livro) 
             ESD --> L: "LivroAdicionadoNaListaDeDesejosSemMatches"
         end
     else Livro Não Existe nas Trocas de Outros
         REP --> ESD: "NenhumLivroNasTrocas"
+        ESD -> ESD: AdicionaLivro(livro)
         ESD --> L: "LivroAdicionadoNaListaDeDesejosSemMatches"
     end
 else Leitor Não Tem Livros na Estante de Troca
+    ESD -> ESD: AdicionaLivro(livro)
     ESD --> L: "LivroAdicionadoNaListaDeDesejosMasSemLivrosParaTroca"
 end
 @enduml
