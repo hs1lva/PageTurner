@@ -67,6 +67,6 @@ dotnet ef database update
 
 Correr o código:
 ```
-dotnet ef database update
+dotnet run
 ```
 
