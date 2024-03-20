@@ -45,5 +45,5 @@ Password: Pageturner2024#
 
 4. Podemos também usar uma connection string:
 ```
-Server=localhost,1433; User Id=sa; Password=Pageturner2024#;
+Server=localhost,1433; User Id=sa; Password=Pageturner2024#;TrustServerCertificate=True;
 ```
