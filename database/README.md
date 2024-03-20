@@ -25,9 +25,9 @@ Este guia abrange a configuração e uso de uma instância do SQL Server num con
 Para a aplicação, usamos a seguinte connection string:
 
 ```json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=localhost,1433; Database=PageTurner; User Id=sa; Password=Pageturner2024#;"
-}
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost,1433; Database=PageTurner; User Id=sa; Password=Pageturner2024#; TrustServerCertificate=True;"
+  }
 ```
 
 ## Ligação Usando Azure Data Studio ou Outro Cliente SQL
