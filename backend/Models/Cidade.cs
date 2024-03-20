@@ -9,6 +9,7 @@ public class Cidade
     [Key]
     public int cidadeId { get; set; }
     public string nomeCidade { get; set; }
+    private PageTurnerContext _Bd;//apenas para testes (falar com o professor)
 
     //chave estranjeira para Pais
     public Pais paisCidade { get; set; }
@@ -16,6 +17,12 @@ public class Cidade
     //Construtor
     public Cidade(){
 
+    }
+
+    public Cidade(string nomeCidade, PageTurnerContext Bd)
+    {
+        _Bd = Bd;
+        this.nomeCidade = nomeCidade;
     }
 
 }

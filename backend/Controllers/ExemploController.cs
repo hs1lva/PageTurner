@@ -78,8 +78,31 @@ namespace backend.Controllers
                 var pais = new Pais(nomePais, _Db);
                 _Db.Pais.Add(pais);
                 await _Db.SaveChangesAsync();
-                
+
                 return Ok(pais);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nomeCidade"></param>
+        /// <returns></returns>
+        [HttpPost("/criar-cidade/{nomeCidade}")]
+        public async Task<IActionResult> PostCriarCidade(string nomeCidade)
+        {
+            try
+            {
+                var cidade = new Cidade(nomeCidade, _Db);
+                _Db.Cidade.Add(cidade);
+                await _Db.SaveChangesAsync();
+
+                return Ok(cidade);
             }
             catch (Exception ex)
             {
