@@ -52,7 +52,7 @@ Server=localhost,1433; User Id=sa; Password=Pageturner2024#;TrustServerCertifica
 
 Dentro da pasta "backend":
 ```
-dotnet reload
+dotnet restore
 ```
 
 Instalar o tool dotnet-ef:
