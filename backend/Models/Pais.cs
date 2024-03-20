@@ -12,16 +12,16 @@ public class Pais
     public int paisId { get; set; }
     public string nomePais { get; set; }
 
-    private PageTurnerContext _context;//apenas para testes (falar com o professor)
+    private PageTurnerContext _Bd;//apenas para testes (falar com o professor)
 
 
     //Construtor
-    public Pais(PageTurnerContext context) {
-        _context = context;
+    public Pais(PageTurnerContext Bd) {
+        _Bd = Bd;
      }
-    public Pais(string nomePais, PageTurnerContext context)
+    public Pais(string nomePais, PageTurnerContext Bd)
     {
-        _context = context;
+        _Bd = Bd;
         this.nomePais = nomePais;
     }
 
@@ -32,9 +32,9 @@ public class Pais
     /// Apenas para testar e vermos como podemos organizar o código
     /// </summary>
     /// <returns></returns>
-    public async Task<List<Pais>> VerTodosPaises()
+    public static async Task<List<Pais>> VerTodosPaises(PageTurnerContext Bd)
     {
-        var lista = await _context.Pais.ToListAsync();
+        var lista = await Bd.Pais.ToListAsync();
 
         if (lista == null)
         {
@@ -42,6 +42,7 @@ public class Pais
         }
         return lista;
     }
+
 
 
 }
