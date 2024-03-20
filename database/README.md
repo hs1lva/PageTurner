@@ -47,3 +47,26 @@ Password: Pageturner2024#
 ```
 Server=localhost,1433; User Id=sa; Password=Pageturner2024#;TrustServerCertificate=True;
 ```
+
+## Configuração para usar Migrations e criar tabelas no Azure
+
+Dentro da pasta "backend":
+```
+dotnet reload
+```
+
+Instalar o tool dotnet-ef:
+```
+dotnet tool install --global dotnet-ef
+```
+
+Update à database:
+```
+dotnet ef database update
+```
+
+Correr o código:
+```
+dotnet ef database update
+```
+
