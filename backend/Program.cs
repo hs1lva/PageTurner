@@ -17,7 +17,7 @@ builder.Services.AddSwaggerGen();
 //Adicionar servico para DbContext
 builder.Services.AddDbContext<PageTurnerContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ServidorDB"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 //adiciona servico API
