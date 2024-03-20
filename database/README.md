@@ -48,7 +48,7 @@ Password: Pageturner2024#
 Server=localhost,1433; User Id=sa; Password=Pageturner2024#;TrustServerCertificate=True;
 ```
 
-## Configuração para usar Migrations e criar tabelas no Azure
+## Configuração para usar Migrations e criar tabelas na BD
 
 Dentro da pasta "backend":
 ```
