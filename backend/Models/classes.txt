@@ -1,0 +1,17 @@
+AutorLivro
+AvaliacaoLivro
+Cidade
+ComentarioLivro
+ConteudoOfensivo
+EmailSender
+EstadoComentario
+EstadoConta
+EstadoTroca
+Estante
+GeneroLivro
+Livro
+Pais
+TipoEstante
+TipoUtilizador
+Troca
+Utilizador
