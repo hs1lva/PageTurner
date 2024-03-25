@@ -20,14 +20,21 @@ namespace backend.Controllers
             _context = context;
         }
 
-        // GET: api/Utilizador
+        /// <summary>
+        /// Obter todos os utilizadores
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Utilizador>>> GetUtilizador()
         {
             return await _context.Utilizador.ToListAsync();
         }
 
-        // GET: api/Utilizador/5
+        /// <summary>
+        /// Obter um utilizador pelo ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<Utilizador>> GetUtilizador(int id)
         {
@@ -41,17 +48,34 @@ namespace backend.Controllers
             return utilizador;
         }
 
-        // PUT: api/Utilizador/5
+        /// <summary>
+        /// Atualizar um utilizador pelo ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="utilizador"></param>
+        /// <returns></returns>
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUtilizador(int id, Utilizador utilizador)
         {
-            if (id != utilizador.utilizadorID)
+            var userToUpdate = await _context.Utilizador.FindAsync(id);
+
+            if (userToUpdate == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(utilizador).State = EntityState.Modified;
+            // Impedir a alteração do email -- Issue #40
+            if (utilizador.email != userToUpdate.email)
+            {
+                return BadRequest("Não é permitido alterar o email.");
+            }
+
+            // Atualizar os campos permitidos -- Issue #37
+            userToUpdate.nome = utilizador.nome;
+            userToUpdate.apelido = utilizador.apelido;
+            userToUpdate.dataNascimento = utilizador.dataNascimento;
+            userToUpdate.fotoPerfil = utilizador.fotoPerfil;
 
             try
             {
@@ -72,7 +96,11 @@ namespace backend.Controllers
             return NoContent();
         }
 
-        // POST: api/Utilizador
+        /// <summary>
+        /// Criar um novo utilizador
+        /// </summary>
+        /// <param name="utilizador"></param>
+        /// <returns></returns>
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Utilizador>> PostUtilizador(Utilizador utilizador)
@@ -83,7 +111,11 @@ namespace backend.Controllers
             return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, utilizador);
         }
 
-        // DELETE: api/Utilizador/5
+        /// <summary>
+        /// Eliminar um utilizador pelo ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUtilizador(int id)
         {
@@ -99,6 +131,11 @@ namespace backend.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Verificar se um utilizador existe
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private bool UtilizadorExists(int id)
         {
             return _context.Utilizador.Any(e => e.utilizadorID == id);
