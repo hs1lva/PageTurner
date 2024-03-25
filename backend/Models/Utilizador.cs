@@ -34,6 +34,60 @@ public class Utilizador
     //chave estranjeira para  estadoConta
     public EstadoConta estadoConta { get; set; }
     //chave estranjeira para  localizacao
-    public Cidade cidade { get; set; }
+
+
+    //Construtor
+    public Utilizador()
+    {
+    }
+
+
+    /// <summary>
+    /// Atualizar o nome do utilizador
+    /// </summary>
+    /// <param name="novoNome"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public async Task AtualizarNomeAsync(string novoNome, PageTurnerContext context)
+    {
+        this.nome = novoNome;
+        await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Atualizar o apelido do utilizador
+    /// </summary>
+    /// <param name="novoApelido"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public async Task AtualizarApelidoAsync(string novoApelido, PageTurnerContext context)
+    {
+        this.apelido = novoApelido;
+        await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Atualizar a data de nascimento do utilizador
+    /// </summary>
+    /// <param name="novaDataNascimento"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public async Task AtualizarDataNascimentoAsync(DateTime novaDataNascimento, PageTurnerContext context)
+    {
+        this.dataNascimento = novaDataNascimento;
+        await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Atualizar a foto de perfil do utilizador
+    /// </summary>
+    /// <param name="novaFotoPerfil"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public async Task AtualizarFotoPerfilAsync(string novaFotoPerfil, PageTurnerContext context)
+    {
+        this.fotoPerfil = novaFotoPerfil;
+        await context.SaveChangesAsync();
+    }
 
 }
