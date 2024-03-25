@@ -58,6 +58,7 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUtilizador(int id, Utilizador utilizador)
         {
+            // Verificar se o ID fornecido corresponde a um utilizador existente
             var userToUpdate = await _context.Utilizador.FindAsync(id);
 
             if (userToUpdate == null)
