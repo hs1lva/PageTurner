@@ -27,7 +27,8 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Utilizador>>> GetUtilizador()
         {
-            return await _context.Utilizador.ToListAsync();
+            // Validar se o utilizador tem dataRegisto != null (confirmou o email)
+            return await _context.Utilizador.Where(x=>x.dataRegisto != default(DateTime)).ToListAsync();
         }
 
         /// <summary>
@@ -43,6 +44,12 @@ namespace backend.Controllers
             if (utilizador == null)
             {
                 return NotFound();
+            }
+
+            // Se a data de registo for NULL, o utilizador ainda não confirmou o email
+            if (utilizador.dataRegisto == default(DateTime))
+            {
+                return BadRequest("Utilizador com email não confirmado.");
             }
 
             return utilizador;
@@ -61,6 +68,12 @@ namespace backend.Controllers
             if (utilizador == null)
             {
                 return NotFound();
+            }
+
+            // Se a data de registo for NULL, o utilizador ainda não confirmou o email
+            if (utilizador.dataRegisto == default(DateTime))
+            {
+                return BadRequest("Utilizador com email não confirmado.");
             }
 
             return utilizador;
@@ -136,6 +149,29 @@ namespace backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Confirmar o email do utilizador
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("ConfirmarEmail/{id}")]
+        public async Task<ActionResult<Utilizador>> ConfirmarEmail(int id)
+        {
+            var utilizador = await _context.Utilizador.FindAsync(id);
+
+            // Chamar funcao para confirmar email
+            // validar se é null
+            if (utilizador == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                await utilizador.AtualizarDataRegistoAsync(DateTime.Now, _context);
+
+                return Ok("Email confirmado com sucesso.");
+            }
+        }
 
         /// <summary>
         /// Criar um novo utilizador
@@ -146,8 +182,15 @@ namespace backend.Controllers
         [HttpPost]
         public async Task<ActionResult<Utilizador>> PostUtilizador(Utilizador utilizador)
         {
+            // Campo DataRegisto é preenchido NULL para conseguirmos verificar a confirmação do email
+            utilizador.dataRegisto = default(DateTime);
+
             _context.Utilizador.Add(utilizador);
             await _context.SaveChangesAsync();
+
+            // Enviar email de confirmação
+            EmailSender emailSender = new EmailSender();
+            emailSender.SendEmailConfirmationAsync(utilizador.email, utilizador.utilizadorID);
 
             return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, utilizador);
         }
