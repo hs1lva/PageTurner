@@ -28,7 +28,7 @@ namespace backend.Controllers
         public async Task<ActionResult<IEnumerable<Utilizador>>> GetUtilizador()
         {
             // Validar se o utilizador tem dataRegisto != null (confirmou o email)
-            return await _context.Utilizador.Where(x=>x.dataRegisto != default(DateTime)).ToListAsync();
+            return await _context.Utilizador.Where(x=>x.dataRegisto != null).ToListAsync();
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace backend.Controllers
             }
 
             // Se a data de registo for NULL, o utilizador ainda não confirmou o email
-            if (utilizador.dataRegisto == default(DateTime))
+            if (utilizador.dataRegisto == null)
             {
                 return BadRequest("Utilizador com email não confirmado.");
             }
@@ -71,7 +71,7 @@ namespace backend.Controllers
             }
 
             // Se a data de registo for NULL, o utilizador ainda não confirmou o email
-            if (utilizador.dataRegisto == default(DateTime))
+            if (utilizador.dataRegisto == null)
             {
                 return BadRequest("Utilizador com email não confirmado.");
             }
@@ -123,7 +123,7 @@ namespace backend.Controllers
                     }
                 }
 
-                if (utilizador.dataNascimento != default(DateTime))
+                if (utilizador.dataNascimento != null)
                 {
                     // Verificar se a data de nascimento é diferente da atual
                     if (utilizador.dataNascimento != userToUpdate.dataNascimento)
@@ -183,7 +183,7 @@ namespace backend.Controllers
         public async Task<ActionResult<Utilizador>> PostUtilizador(Utilizador utilizador)
         {
             // Campo DataRegisto é preenchido NULL para conseguirmos verificar a confirmação do email
-            utilizador.dataRegisto = default(DateTime);
+            utilizador.dataRegisto = null;
 
             _context.Utilizador.Add(utilizador);
             await _context.SaveChangesAsync();
