@@ -25,6 +25,10 @@ public class Pais
         this.nomePais = nomePais;
     }
 
+    public Pais()
+    {
+    }
+
 
     //Metodos
 
