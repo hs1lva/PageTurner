@@ -18,7 +18,7 @@ public class Utilizador
     [Required]
     public string email { get; set; }
     public string fotoPerfil { get; set; }
-    public DateTime dataRegisto { get; set; }
+    public DateTime? dataRegisto { get; set; }
     public DateTime ultimologin { get; set; }
     public bool notficacaoPedidoTroca { get; set; }
     public bool notficacaoAceiteTroca { get; set; }
@@ -90,4 +90,15 @@ public class Utilizador
         await context.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Atualizar a data de registo do utilizador
+    /// </summary>
+    /// <param name="novaDataRegisto"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public async Task AtualizarDataRegistoAsync(DateTime novaDataRegisto, PageTurnerContext context)
+    {
+        this.dataRegisto = novaDataRegisto;
+        await context.SaveChangesAsync();
+    }
 }
