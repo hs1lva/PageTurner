@@ -28,7 +28,7 @@ namespace backend.Controllers
         public async Task<ActionResult<IEnumerable<Utilizador>>> GetUtilizador()
         {
             // Validar se o utilizador tem dataRegisto != null (confirmou o email)
-            return await _context.Utilizador.Where(x=>x.dataRegisto != null).ToListAsync();
+            return await _context.Utilizador.Where(x => x.dataRegisto != null).ToListAsync();
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace backend.Controllers
                     {
                         await userToUpdate.AtualizarDataNascimentoAsync(utilizador.dataNascimento, _context);
                     }
-                }   
+                }
 
                 if (!string.IsNullOrEmpty(utilizador.fotoPerfil))
                 {
@@ -140,7 +140,7 @@ namespace backend.Controllers
                         await userToUpdate.AtualizarFotoPerfilAsync(utilizador.fotoPerfil, _context);
                     }
                 }
-                
+
                 return Ok("Alterado com sucesso.");
             }
             catch (Exception ex)
@@ -157,19 +157,26 @@ namespace backend.Controllers
         [HttpGet("ConfirmarEmail/{id}")]
         public async Task<ActionResult<Utilizador>> ConfirmarEmail(int id)
         {
-            var utilizador = await _context.Utilizador.FindAsync(id);
-
-            // Chamar funcao para confirmar email
-            // validar se é null
-            if (utilizador == null)
+            try
             {
-                return NotFound();
+                var utilizador = await _context.Utilizador.FindAsync(id);
+
+                // Chamar funcao para confirmar email
+                // validar se é null
+                if (utilizador == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    await utilizador.AtualizarDataRegistoAsync(DateTime.Now, _context);
+
+                    return Ok("Email confirmado com sucesso.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await utilizador.AtualizarDataRegistoAsync(DateTime.Now, _context);
-
-                return Ok("Email confirmado com sucesso.");
+                return StatusCode(500, $"Erro ao confirmar email: {ex.Message}");
             }
         }
 
@@ -185,12 +192,27 @@ namespace backend.Controllers
             // Campo DataRegisto é preenchido NULL para conseguirmos verificar a confirmação do email
             utilizador.dataRegisto = null;
 
-            _context.Utilizador.Add(utilizador);
-            await _context.SaveChangesAsync();
+            // try-catch para apanhar exceções
+            try
+            {
+                _context.Utilizador.Add(utilizador);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao criar utilizador: {ex.Message}");
+            }
 
-            // Enviar email de confirmação
-            EmailSender emailSender = new EmailSender();
-            emailSender.SendEmailConfirmationAsync(utilizador.email, utilizador.utilizadorID);
+            try
+            {
+                // Enviar email de confirmação
+                EmailSender emailSender = new EmailSender();
+                await emailSender.SendEmailConfirmationAsync(utilizador.email, utilizador.utilizadorID);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao enviar email de confirmação: {ex.Message}");
+            }
 
             return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, utilizador);
         }
@@ -203,14 +225,22 @@ namespace backend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUtilizador(int id)
         {
-            var utilizador = await _context.Utilizador.FindAsync(id);
-            if (utilizador == null)
+            try
             {
-                return NotFound();
-            }
+                var utilizador = await _context.Utilizador.FindAsync(id);
 
-            _context.Utilizador.Remove(utilizador);
-            await _context.SaveChangesAsync();
+                if (utilizador == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Utilizador.Remove(utilizador);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao eliminar utilizador: {ex.Message}");
+            }
 
             return NoContent();
         }
