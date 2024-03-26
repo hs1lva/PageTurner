@@ -36,11 +36,10 @@ public class Utilizador
     //chave estranjeira para  localizacao
 
 
-    //Construtor
+    // Construtor da classe Utilizador
     public Utilizador()
     {
     }
-
 
     /// <summary>
     /// Atualizar o nome do utilizador
