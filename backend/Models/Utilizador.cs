@@ -35,6 +35,9 @@ public class Utilizador
     public EstadoConta estadoConta { get; set; }
     //chave estranjeira para  localizacao
 
+    // Propriedade de navegação para as avaliações/comentarios
+    public ICollection<AvaliacaoLivro> Avaliacoes { get; set; }
+	public ICollection<ComentarioLivro> Comentarios { get; set; }
 
     // Construtor da classe Utilizador
     public Utilizador()
