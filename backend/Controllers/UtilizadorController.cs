@@ -1,11 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using System.Security.Claims;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace backend.Controllers
 {
@@ -19,6 +21,8 @@ namespace backend.Controllers
         {
             _context = context;
         }
+
+        #region Métodos GET
 
         /// <summary>
         /// Obter todos os utilizadores
@@ -78,6 +82,85 @@ namespace backend.Controllers
 
             return utilizador;
         }
+
+        /// <summary>
+        /// Confirmar o email do utilizador
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("ConfirmarEmail/{id}")]
+        public async Task<ActionResult<Utilizador>> ConfirmarEmail(int id)
+        {
+            try
+            {
+                var utilizador = await _context.Utilizador.FindAsync(id);
+
+                // Chamar funcao para confirmar email
+                // validar se é null
+                if (utilizador == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    await utilizador.AtualizarDataRegistoAsync(DateTime.Now, _context);
+
+                    return Ok("Email confirmado com sucesso.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao confirmar email: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Endpoint para autenticação com a Google
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("ExternalLogin")]
+        public IActionResult ExternalLogin()
+        {
+            var properties = new AuthenticationProperties { RedirectUri = Url.Action(nameof(ExternalLoginCallback)) };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        /// <summary>
+        /// Callback da autenticação com a Google
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("ExternalLoginCallback")]
+        public async Task<IActionResult> ExternalLoginCallback()
+        {
+            // Obter os dados do utilizador autenticado pela Google
+            var authenticateResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+            if (!authenticateResult.Succeeded)
+            {
+                // Se a autenticação não for bem-sucedida, redirecionar ou retornar um erro
+                return BadRequest("Falha na autenticação com a Google.");
+            }
+
+            // Criar as claims do utilizador
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, authenticateResult.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+                new Claim(ClaimTypes.Name, authenticateResult.Principal.FindFirst(ClaimTypes.Name)?.Value),
+                // Podes adicionar outras claims conforme necessário
+            };
+
+            // Criar a identidade do utilizador
+            var userIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Autenticar o utilizador no esquema de autenticação por cookies
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userIdentity));
+
+            // Redirecionar para a página principal ou para onde quer que o utilizador deva ser redirecionado após autenticação
+            return RedirectToAction("Index", "Home");
+        }
+
+        #endregion
+
+        #region Métodos PUT
 
         /// <summary>
         /// Atualizar um utilizador pelo ID
@@ -176,36 +259,9 @@ namespace backend.Controllers
             }
         }
 
-        /// <summary>
-        /// Confirmar o email do utilizador
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [HttpGet("ConfirmarEmail/{id}")]
-        public async Task<ActionResult<Utilizador>> ConfirmarEmail(int id)
-        {
-            try
-            {
-                var utilizador = await _context.Utilizador.FindAsync(id);
+        #endregion
 
-                // Chamar funcao para confirmar email
-                // validar se é null
-                if (utilizador == null)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    await utilizador.AtualizarDataRegistoAsync(DateTime.Now, _context);
-
-                    return Ok("Email confirmado com sucesso.");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Erro ao confirmar email: {ex.Message}");
-            }
-        }
+        #region Métodos POST
 
         /// <summary>
         /// Criar um novo utilizador
@@ -244,6 +300,10 @@ namespace backend.Controllers
             return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, utilizador);
         }
 
+        #endregion
+
+        #region Métodos DELETE
+
         /// <summary>
         /// Eliminar um utilizador pelo ID
         /// </summary>
@@ -272,6 +332,8 @@ namespace backend.Controllers
             return NoContent();
         }
 
+        #endregion
+        
         /// <summary>
         /// Verificar se um utilizador existe
         /// </summary>
