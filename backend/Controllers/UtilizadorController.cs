@@ -150,6 +150,33 @@ namespace backend.Controllers
         }
 
         /// <summary>
+        /// Atualizar a senha do utilizador pelo ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="novaSenha"></param>
+        /// <returns></returns>
+        [HttpPut("{id}/AlterarSenha")]
+        public async Task<IActionResult> AlterarSenha(int id, [FromBody] string novaSenha)
+        {
+            var userToUpdate = await _context.Utilizador.FindAsync(id);
+
+            if (userToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                await userToUpdate.AtualizarSenhaAsync(novaSenha, _context);
+                return Ok("Senha alterada com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao atualizar senha: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// Confirmar o email do utilizador
         /// </summary>
         /// <param name="id"></param>

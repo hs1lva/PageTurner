@@ -101,4 +101,16 @@ public class Utilizador
         this.dataRegisto = novaDataRegisto;
         await context.SaveChangesAsync();
     }
+
+    /// <summary>
+    /// Atualizar a senha do utilizador
+    /// </summary>
+    /// <param name="novaSenha"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public async Task AtualizarSenhaAsync(string novaSenha, PageTurnerContext context)
+    {
+        this.password = novaSenha;
+        await context.SaveChangesAsync();
+    }
 }
