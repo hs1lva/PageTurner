@@ -1,16 +1,19 @@
 
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace backend.Models;
 public class AvaliacaoLivro
 {
     [Key]
-    public int avaliacaoId { get; set; }
-    public int nota { get; set; }
-    public DateTime dataAvaliacao { get; set; }
+    public int AvaliacaoId { get; set; }
 
-    //chave estrangeira para  utilizador
-    public Utilizador utilizador { get; set; }
-    //chave estrangeira para  livro
-    public Livro livro { get; set; }
+	[Range(1, 5)] 
+    public int Nota { get; set; }
+
+    public DateTime DataAvaliacao { get; set; }
+
+    // Chaves estrangeiras
+    public int UtilizadorId { get; set; }
+    public int LivroId { get; set; }
 }

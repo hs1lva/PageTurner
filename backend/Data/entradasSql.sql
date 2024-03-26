@@ -56,11 +56,11 @@ INSERT INTO [dbo].[ConteudoOfensivo] ([especificacaoConteudoOfensivo]) VALUES ('
 INSERT INTO [dbo].[ConteudoOfensivo] ([especificacaoConteudoOfensivo]) VALUES ('Conteúdo sexual explícito');
 
 -- Utilizador
-INSERT INTO [dbo].[Utilizador] ([nome], [apelido], [dataNascimento], [username], [password], [email], [fotoPerfil], [dataRegisto], [ultimologin], [notficacaoPedidoTroca], [notficacaoAceiteTroca], [notficacaoCorrespondencia], [tipoUtilizadortipoUtilId], [estadoContaId], [cidadeId]) 
+INSERT INTO [dbo].[Utilizador] ([nome], [apelido], [dataNascimento], [username], [password], [email], [fotoPerfil], [dataRegisto], [ultimologin], [notficacaoPedidoTroca], [notficacaoAceiteTroca], [notficacaoCorrespondencia], [tipoUtilizadortipoUtilId], [estadoContaId]) 
 VALUES 
-('João', 'Silva', '1990-05-15', 'joaosilva', 'senha123', 'joao@example.com', 'perfil1.jpg', '2024-03-21 09:00:00', '2024-03-21 09:00:00', 1, 1, 1, 1, 1, 1),
-('Maria', 'Santos', '1985-08-20', 'msantos', 'segredo456', 'maria@example.com', 'perfil2.jpg', '2024-03-20 10:30:00', '2024-03-21 08:30:00', 1, 1, 0, 2, 1, 2),
-('Pedro', 'Oliveira', '1995-02-10', 'poliveira', '123456', 'pedro@example.com', 'perfil3.jpg', '2024-03-19 11:45:00', '2024-03-21 07:45:00', 0, 1, 1, 3, 2, 3);
+('João', 'Silva', '1990-05-15', 'joaosilva', 'senha123', 'joao@example.com', 'perfil1.jpg', '2024-03-21 09:00:00', '2024-03-21 09:00:00', 1, 1, 1, 1, 1),
+('Maria', 'Santos', '1985-08-20', 'msantos', 'segredo456', 'maria@example.com', 'perfil2.jpg', '2024-03-20 10:30:00', '2024-03-21 08:30:00', 1, 1, 0, 2, 1),
+('Pedro', 'Oliveira', '1995-02-10', 'poliveira', '123456', 'pedro@example.com', 'perfil3.jpg', '2024-03-19 11:45:00', '2024-03-21 07:45:00', 0, 1, 1, 3, 3);
 
 -- Livro
 INSERT INTO [dbo].[Livro] ([tituloLivro], [anoPrimeiraPublicacao], [idiomaOriginalLivro], [autorLivroId], [generoLivrogeneroId]) 
@@ -88,7 +88,6 @@ INSERT INTO [dbo].[Estante] ([ultimaAtualizacao],[tipoEstanteId],[utilizadorID],
 INSERT INTO [dbo].[Estante] ([ultimaAtualizacao],[tipoEstanteId],[utilizadorID],[livroId]) VALUES ('2024-03-21 11:00:00',2,2,2);
 INSERT INTO [dbo].[Estante] ([ultimaAtualizacao],[tipoEstanteId],[utilizadorID],[livroId]) VALUES ('2024-03-21 12:00:00',3,3,3);
 
-até aqui já foi falta esta
 
 -- Inserção de dados na tabela Troca
 INSERT INTO [dbo].[Troca] ([dataPedidoTroca], [dataAceiteTroca], [estanteId], [estadoTrocaId])

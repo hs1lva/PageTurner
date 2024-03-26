@@ -13,4 +13,8 @@ public class Livro
     public AutorLivro autorLivro { get; set; }
     //chave estranjeira para  generoLivro
     public GeneroLivro generoLivro { get; set; }
+    
+    // Propriedade de navegação para as avaliações
+    public ICollection<AvaliacaoLivro> Avaliacoes { get; set; }
+	public ICollection<ComentarioLivro> Comentarios { get; set; }
 }

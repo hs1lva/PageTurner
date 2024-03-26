@@ -12,7 +12,7 @@ public class PageTurnerContext:DbContext{
     public DbSet<AutorLivro> AutorLivro { get; set; }
     public DbSet<AvaliacaoLivro> AvaliacaoLivro { get; set; }
     public DbSet<Cidade> Cidade { get; set; }
-    public DbSet<ComentarioLivro> CommentLivro { get; set; }
+    public DbSet<ComentarioLivro> ComentarioLivro { get; set; }
     public DbSet<ConteudoOfensivo> ConteudoOfensivo { get; set; }
     public DbSet<EstadoComentario> EstadoComentario { get; set; }
     public DbSet<EstadoConta> EstadoConta { get; set; }
@@ -26,5 +26,4 @@ public class PageTurnerContext:DbContext{
     public DbSet<Troca> Troca { get; set; }
     public DbSet<Utilizador> Utilizador { get; set; }
 
-    
 }
