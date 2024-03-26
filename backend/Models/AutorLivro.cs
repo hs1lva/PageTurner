@@ -8,5 +8,4 @@ public class AutorLivro
     public string nomeAutorNome { get; set; }
 
     List<Utilizador> utilizadores { get; } = [];
-    
 }

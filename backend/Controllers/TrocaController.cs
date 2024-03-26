@@ -20,6 +20,7 @@ namespace backend.Controllers
             _context = context;
         }
 
+        #region CRUD
         // GET: api/Troca
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Troca>>> GetTroca()
@@ -75,8 +76,20 @@ namespace backend.Controllers
         // POST: api/Troca
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Troca>> PostTroca(Troca troca)
+        public async Task<ActionResult<Troca>> PostTroca()
         {
+            #region Dados para teste
+            DateTime dataPedido = DateTime.Now;
+            Estante estanteId2 = await _context.Estante
+                            .Where(x => x.estanteId == 12)
+                            .FirstOrDefaultAsync();
+            var estanteId = 13;
+            EstadoTroca estadoTroca = await _context.EstadoTroca
+                                        .Where(x => x.estadoTrocaId == 1)
+                                        .FirstOrDefaultAsync();
+            Troca troca = new Troca(dataPedido, estanteId2, estanteId, estadoTroca);
+            #endregion
+
             _context.Troca.Add(troca);
             await _context.SaveChangesAsync();
 
@@ -102,6 +115,15 @@ namespace backend.Controllers
         private bool TrocaExists(int id)
         {
             return _context.Troca.Any(e => e.trocaId == id);
+        }
+        #endregion
+
+
+        //funcionalidade de solicitação de troca de um livro a partir da estante de trocas no perfil de um leitor
+        [HttpPost("solicita-troca")]
+        public Task<IActionResult> PostAdicionaTroca()
+        {
+            throw new NotImplementedException();
         }
     }
 }
