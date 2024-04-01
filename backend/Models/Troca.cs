@@ -1,5 +1,6 @@
 
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,4 +41,37 @@ public class Troca
     {   
         throw new NotImplementedException();
     }
+
+    /// <summary>
+    /// Faz a procura de um livro em qql estante
+    /// </summary>
+    /// <param name="livroId"></param>
+    /// <param name="estanteId"></param>
+    /// <param name="_bd"></param>
+    /// <returns></returns>
+        public async Task<ActionResult<List<Utilizador>>> ProcuraLivroEmEstante(int livroId, string estanteProcura, PageTurnerContext _bd)
+        {
+
+            // verifica se o livro existe na APIexterna
+
+            //verifica se o livro existe na estante
+            //procura livro na estante, se existir devolve ou os utilizadores 
+            //temos de corrigir a base de dados primeiro.
+            List<Estante> resp = await _bd.Estante
+                .Include(x => x.tipoEstante)
+                .Include(x => x.utilizador)
+                .Where(x => x.tipoEstante.descricaoTipoEstante == estanteProcura && 
+                            x.livro.livroId == livroId)
+                .ToListAsync();
+            
+            //converte a lista de estantes em uma lista de utilizadores
+            List<Utilizador> listUser = new List<Utilizador>();
+            foreach (var item in resp)
+            {
+                listUser.Add(item.utilizador);
+            }
+            return listUser;
+        }
+
+
 }

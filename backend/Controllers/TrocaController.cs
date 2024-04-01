@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
+using System.ComponentModel;
 
 namespace backend.Controllers
 {
@@ -124,6 +125,44 @@ namespace backend.Controllers
         public Task<IActionResult> PostAdicionaTroca()
         {
             throw new NotImplementedException();
+        }
+
+        [HttpGet("get-lista-users")]
+        public async Task<IActionResult> GetUser()
+        {
+            string estanteProcura = "Estante Desejos";
+            int livroId = 3;
+
+            //verifica se a estante existe
+            // TODO substituir por funcao de estante
+            Estante? estanteExiste = await _context.Estante
+                .Include(x => x.tipoEstante)
+                .Where(x => x.tipoEstante.descricaoTipoEstante == estanteProcura)
+                .FirstOrDefaultAsync();
+
+            if (estanteExiste == null)
+            {
+                return NotFound("Estante não existe");
+            }
+
+            //verifica se o livro existe na bd 
+            // TODO substituir por funcao de livro
+            Livro? livr = await _context.Livro
+                .Where(x => x.livroId == livroId)
+                .FirstOrDefaultAsync();
+            
+            if (livr == null)
+            {
+                return NotFound("Livro não existe");
+            }
+
+            Troca b = new Troca();
+            var res = await b.ProcuraLivroEmEstante(livroId, estanteProcura, _context);
+            if (res == null)
+            {
+                return NotFound("Livro não existe em nenhuma estante");
+            }
+            return Ok(res);
         }
     }
 }
