@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace backend.Controllers
 {
@@ -81,11 +82,11 @@ namespace backend.Controllers
         {
             #region Dados para teste
             DateTime dataPedido = DateTime.Now;
-            Estante estanteId2 = await _context.Estante
+            Estante? estanteId2 = await _context.Estante
                             .Where(x => x.estanteId == 12)
                             .FirstOrDefaultAsync();
             var estanteId = 13;
-            EstadoTroca estadoTroca = await _context.EstadoTroca
+            EstadoTroca? estadoTroca = await _context.EstadoTroca
                                         .Where(x => x.estadoTrocaId == 1)
                                         .FirstOrDefaultAsync();
             Troca troca = new Troca(dataPedido, estanteId2, estanteId, estadoTroca);
@@ -127,9 +128,14 @@ namespace backend.Controllers
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Faz a procura de um livro em qql estante issue 74
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("get-lista-users")]
         public async Task<IActionResult> GetUser()
         {
+            //apenas para testar
             string estanteProcura = "Estante Desejos";
             int livroId = 3;
 
@@ -162,6 +168,12 @@ namespace backend.Controllers
             {
                 return NotFound("Livro não existe em nenhuma estante");
             }
+
+            // verifica se utilizadores tem o livros na estante de 
+
+            // envia email com a lista de utilizadores que tem o livro
+            
+
             return Ok(res);
         }
     }
