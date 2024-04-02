@@ -367,3 +367,5 @@ FodyWeavers.xsd
 *.lck
 
 *.DS_Store
+
+.idea/

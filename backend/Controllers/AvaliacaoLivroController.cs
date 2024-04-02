@@ -20,14 +20,18 @@ namespace backend.Controllers
             _context = context;
         }
 
-        // GET: api/AvaliacaoLivro
+        /// <summary>
+        /// Obtém todas as avaliações de livros.
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AvaliacaoLivro>>> GetAvaliacaoLivro()
         {
             return await _context.AvaliacaoLivro.ToListAsync();
         }
 
-        // GET: api/AvaliacaoLivro/5
+        /// <summary>
+        /// Obtém uma avaliação de livro específica pelo seu id.
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<AvaliacaoLivro>> GetAvaliacaoLivro(int id)
         {
@@ -41,12 +45,13 @@ namespace backend.Controllers
             return avaliacaoLivro;
         }
 
-        // PUT: api/AvaliacaoLivro/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // <summary>
+        // Atualiza uma avaliação específica.
+        // </summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAvaliacaoLivro(int id, AvaliacaoLivro avaliacaoLivro)
         {
-            if (id != avaliacaoLivro.avaliacaoId)
+            if (id != avaliacaoLivro.AvaliacaoId)
             {
                 return BadRequest();
             }
@@ -70,20 +75,46 @@ namespace backend.Controllers
             }
 
             return NoContent();
+            // ou 
+            // return Ok(new { Message = "Avaliação atualizada com sucesso!" }); 
         }
 
-        // POST: api/AvaliacaoLivro
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // <summary>
+        // Insere uma nova avaliação.
+        // </summary>
         [HttpPost]
         public async Task<ActionResult<AvaliacaoLivro>> PostAvaliacaoLivro(AvaliacaoLivro avaliacaoLivro)
         {
+            // Validações
+            // Validar se o user já fez uma avaliação para este livro
+            bool avaliacaoExistente = await _context.AvaliacaoLivro.AnyAsync(a => a.LivroId == avaliacaoLivro.LivroId && a.UtilizadorId == avaliacaoLivro.UtilizadorId);
+            if (avaliacaoExistente)
+            {
+                return BadRequest(new { Message = "O utilizador já fez uma avaliação para este livro." });
+            }
+
+            // Verificar se o livro existe
+            Livro livro = await _context.Livro.FindAsync(avaliacaoLivro.LivroId);
+            if (livro == null)
+            {
+                return NotFound(new { Message = "Livro não encontrado" });
+            }
+
+            // Verifica se ModelState é válido
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+    
             _context.AvaliacaoLivro.Add(avaliacaoLivro);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetAvaliacaoLivro", new { id = avaliacaoLivro.avaliacaoId }, avaliacaoLivro);
+            return CreatedAtAction("GetAvaliacaoLivro", new { id = avaliacaoLivro.AvaliacaoId }, avaliacaoLivro);
         }
 
-        // DELETE: api/AvaliacaoLivro/5
+        // <summary>
+        // Elimina uma avaliação específica.
+        // </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAvaliacaoLivro(int id)
         {
@@ -101,7 +132,7 @@ namespace backend.Controllers
 
         private bool AvaliacaoLivroExists(int id)
         {
-            return _context.AvaliacaoLivro.Any(e => e.avaliacaoId == id);
+            return _context.AvaliacaoLivro.Any(e => e.AvaliacaoId == id);
         }
     }
 }
