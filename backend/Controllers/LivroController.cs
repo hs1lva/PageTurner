@@ -31,8 +31,12 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Livro>> GetLivro(int id)
         {
-            var livro = await _context.Livro.FindAsync(id);
-
+            var livro = await _context.Livro
+                .Include(x => x.Comentarios)
+                .Include(x => x.Avaliacoes)
+                .Where(x => x.livroId == id)
+                .FirstOrDefaultAsync();            
+            
             if (livro == null)
             {
                 return NotFound();
