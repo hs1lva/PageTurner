@@ -80,7 +80,7 @@ public class Troca
     /// <param name="minhaEstante"></param>
     /// <param name="_bd"></param>
     /// <returns>Retorna uma lista de utilizadores que tem o livro</returns>
-    public async Task<ActionResult<List<Utilizador>>> ProcuraEstanteEm (List<Utilizador> listUser, Estante minhaEstante
+    public async Task<ActionResult<List<Utilizador>>> ProcuraLivroEmUtilizadores (List<Utilizador> listUser, Estante minhaEstante
                                                         , string estanteProcura, PageTurnerContext _bd)
     {   
         //cria nova lista de utilizadores
