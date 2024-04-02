@@ -64,7 +64,7 @@ namespace backend.Controllers
         /// </summary>
         /// <param name="nome"></param>
         /// <returns></returns>
-        [HttpGet("nome/{nome}")]
+        [HttpGet("nome/{nome}")] // -- Issue #39
         public async Task<ActionResult<Utilizador>> GetUtilizadorNome(string nome)
         {
             var utilizador = await _context.Utilizador.FirstOrDefaultAsync(u => u.nome == nome);
@@ -88,7 +88,7 @@ namespace backend.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("ConfirmarEmail/{id}")]
+        [HttpGet("ConfirmarEmail/{id}")] // -- Issue #42
         public async Task<ActionResult<Utilizador>> ConfirmarEmail(int id)
         {
             try
@@ -118,7 +118,7 @@ namespace backend.Controllers
         /// Endpoint para autenticação com a Google
         /// </summary>
         /// <returns></returns>
-        [HttpGet("ExternalLogin")]
+        [HttpGet("ExternalLogin")] // -- Issue #41
         public IActionResult ExternalLogin()
         {
             var properties = new AuthenticationProperties { RedirectUri = Url.Action(nameof(ExternalLoginCallback)) };
@@ -129,7 +129,7 @@ namespace backend.Controllers
         /// Callback da autenticação com a Google
         /// </summary>
         /// <returns></returns>
-        [HttpGet("ExternalLoginCallback")]
+        [HttpGet("ExternalLoginCallback")] // -- Issue #41
         public async Task<IActionResult> ExternalLoginCallback()
         {
             // Obter os dados do utilizador autenticado pela Google
@@ -238,7 +238,7 @@ namespace backend.Controllers
         /// <param name="id"></param>
         /// <param name="novaSenha"></param>
         /// <returns></returns>
-        [HttpPut("{id}/AlterarSenha")]
+        [HttpPut("{id}/AlterarSenha")] // -- Issue #43
         public async Task<IActionResult> AlterarSenha(int id, [FromBody] string novaSenha)
         {
             var userToUpdate = await _context.Utilizador.FindAsync(id);
@@ -270,7 +270,7 @@ namespace backend.Controllers
         /// <returns></returns>
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Utilizador>> PostUtilizador(Utilizador utilizador)
+        public async Task<ActionResult<Utilizador>> PostUtilizador(Utilizador utilizador) // -- Issue #36
         {
             // Campo DataRegisto é preenchido NULL para conseguirmos verificar a confirmação do email
             utilizador.dataRegisto = null;
@@ -288,7 +288,7 @@ namespace backend.Controllers
 
             try
             {
-                // Enviar email de confirmação
+                // Enviar email de confirmação - Issue #42
                 EmailSender emailSender = new EmailSender();
                 await emailSender.SendEmailConfirmationAsync(utilizador.email, utilizador.utilizadorID);
             }
@@ -309,7 +309,7 @@ namespace backend.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}")] // -- Issue #38
         public async Task<IActionResult> DeleteUtilizador(int id)
         {
             try
