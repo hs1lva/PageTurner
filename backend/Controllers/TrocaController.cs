@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
+using System.ComponentModel;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace backend.Controllers
 {
@@ -20,6 +22,7 @@ namespace backend.Controllers
             _context = context;
         }
 
+        #region CRUD
         // GET: api/Troca
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Troca>>> GetTroca()
@@ -75,8 +78,20 @@ namespace backend.Controllers
         // POST: api/Troca
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Troca>> PostTroca(Troca troca)
+        public async Task<ActionResult<Troca>> PostTroca()
         {
+            #region Dados para teste
+            DateTime dataPedido = DateTime.Now;
+            Estante? estanteId2 = await _context.Estante
+                            .Where(x => x.estanteId == 12)
+                            .FirstOrDefaultAsync();
+            var estanteId = 13;
+            EstadoTroca? estadoTroca = await _context.EstadoTroca
+                                        .Where(x => x.estadoTrocaId == 1)
+                                        .FirstOrDefaultAsync();
+            Troca troca = new Troca(dataPedido, estanteId2, estanteId, estadoTroca);
+            #endregion
+
             _context.Troca.Add(troca);
             await _context.SaveChangesAsync();
 
@@ -102,6 +117,64 @@ namespace backend.Controllers
         private bool TrocaExists(int id)
         {
             return _context.Troca.Any(e => e.trocaId == id);
+        }
+        #endregion
+
+
+        //funcionalidade de solicitação de troca de um livro a partir da estante de trocas no perfil de um leitor
+        [HttpPost("solicita-troca")]
+        public Task<IActionResult> PostAdicionaTroca()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Faz a procura de um livro em qql estante issue 74
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("get-lista-users")]
+        public async Task<IActionResult> GetUser()
+        {
+            //apenas para testar
+            string estanteProcura = "Estante Desejos";
+            int livroId = 3;
+
+            //verifica se a estante existe
+            // TODO substituir por funcao de estante
+            Estante? estanteExiste = await _context.Estante
+                .Include(x => x.tipoEstante)
+                .Where(x => x.tipoEstante.descricaoTipoEstante == estanteProcura)
+                .FirstOrDefaultAsync();
+
+            if (estanteExiste == null)
+            {
+                return NotFound("Estante não existe");
+            }
+
+            //verifica se o livro existe na bd 
+            // TODO substituir por funcao de livro
+            Livro? livr = await _context.Livro
+                .Where(x => x.livroId == livroId)
+                .FirstOrDefaultAsync();
+            
+            if (livr == null)
+            {
+                return NotFound("Livro não existe");
+            }
+
+            Troca b = new Troca();
+            var res = await b.ProcuraLivroEmEstante(livroId, estanteProcura, _context);
+            if (res == null)
+            {
+                return NotFound("Livro não existe em nenhuma estante");
+            }
+
+            // verifica se utilizadores tem o livros na estante de 
+
+            // envia email com a lista de utilizadores que tem o livro
+            
+
+            return Ok(res);
         }
     }
 }

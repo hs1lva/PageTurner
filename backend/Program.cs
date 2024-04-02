@@ -20,6 +20,21 @@ builder.Services.AddDbContext<PageTurnerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+// cors
+// cors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAnyOriginPolicy",
+        builder =>
+        {
+            builder.AllowAnyOrigin() // Permite acesso de qualquer origem
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
+
+
+
 //adiciona servico API
 builder.Services.AddScoped<ServicoAPI>();//O add scoped cria uma instancia do serviço uma vez, por solicitação HTTP do cliente
                                             //e será reutilizada em todas as injeçoes de dependência durante a mesma solicitação
@@ -39,6 +54,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AllowAnyOriginPolicy");
 
 app.UseHttpsRedirection();
 
