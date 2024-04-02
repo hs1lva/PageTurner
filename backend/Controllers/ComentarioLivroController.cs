@@ -104,6 +104,15 @@ namespace backend.Controllers
                 return BadRequest("Estado padrão 'Pendente' não encontrado.");
             }
 
+            var livro = await _context.Livro
+                .Include(l => l.Comentarios)
+                .FirstOrDefaultAsync(l => l.livroId == comentarioDto.LivroId);
+    
+            if (livro == null)
+            {
+                return NotFound($"Livro com ID {comentarioDto.LivroId} não encontrado.");
+            }
+
             ComentarioLivro novoComentario = new ComentarioLivro
             {
                 Comentario = comentarioDto.Comentario,
@@ -113,7 +122,11 @@ namespace backend.Controllers
                 EstadoComentario = estadoInicial 
             };
 
+            livro.Comentarios.Add(novoComentario);
+
             _context.ComentarioLivro.Add(novoComentario);
+            
+            // comentario no livro nao está a ser guardado aqui
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetComentarioLivro", new { id = novoComentario.ComentarioId }, novoComentario);
