@@ -132,6 +132,8 @@ namespace PageTurnerAPI.Migrations
 
                     b.HasIndex("LivroId");
 
+                    b.HasIndex("UtilizadorId");
+
                     b.HasIndex("estadoComentarioId");
 
                     b.ToTable("ComentarioLivro");
@@ -270,8 +272,9 @@ namespace PageTurnerAPI.Migrations
                     b.Property<int>("generoLivrogeneroId")
                         .HasColumnType("int");
 
-                    b.Property<int>("idiomaOriginalLivro")
-                        .HasColumnType("int");
+                    b.Property<string>("idiomaOriginalLivro")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("tituloLivro")
                         .IsRequired()
@@ -480,6 +483,12 @@ namespace PageTurnerAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("backend.Models.Utilizador", null)
+                        .WithMany("Comentarios")
+                        .HasForeignKey("UtilizadorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("backend.Models.EstadoComentario", "EstadoComentario")
                         .WithMany()
                         .HasForeignKey("estadoComentarioId")
@@ -583,6 +592,8 @@ namespace PageTurnerAPI.Migrations
             modelBuilder.Entity("backend.Models.Utilizador", b =>
                 {
                     b.Navigation("Avaliacoes");
+
+                    b.Navigation("Comentarios");
                 });
 #pragma warning restore 612, 618
         }
