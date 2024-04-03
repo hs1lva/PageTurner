@@ -123,61 +123,17 @@ public class Troca
     public async Task<ActionResult<bool>> SolicitaTroca(Troca troca, PageTurnerContext _bd)
     {   
         #region Verificações
-        //verifica se o utilizador existe
-        Utilizador? utilizadorSolicitaTroca = await _bd.Utilizador
-                                    .Where(x => x.utilizadorID == troca.estanteId2.utilizador.utilizadorID)
-                                    .FirstOrDefaultAsync();
-        
+        var validacao = await ValidaTroca(troca, _bd);
 
-        Estante? estante1 = await _bd.Estante
-                                    .Where(x => x.estanteId == troca.estanteId)
-                                    .FirstOrDefaultAsync();
-        if (estante1 == null)
+        var trocaValidada = validacao.Value.Item1;
+        var utilizadorSolicitaTroca = validacao.Value.Item2;
+        var utilizadorRecebeTroca = validacao.Value.Item3;
+
+        if (trocaValidada == null)
         {
-            throw new Exception("Estante não existe");
+            throw new Exception("Troca não existe");
         }
 
-        Utilizador? utilizadorRecebeTroca = await _bd.Utilizador
-                                    .Where(x => x.utilizadorID == estante1.utilizador.utilizadorID)
-                                    .FirstOrDefaultAsync();
-        if (utilizadorRecebeTroca == null || utilizadorSolicitaTroca == null)
-        {
-            throw new Exception("Utilizador não existe");
-        }
-        //verifica se o utilizador tem a conta suspensa
-        if(utilizadorSolicitaTroca.estadoConta.descricaoEstadoConta == "Suspensa" || 
-            utilizadorRecebeTroca.estadoConta.descricaoEstadoConta == "Suspensa")
-        {
-            throw new Exception($"Utilizador não pode fazer trocas");
-        }
-        
-        // verifica se o livro existe
-        var livro = await _bd.Livro
-            .Where(x => x.livroId == troca.estanteId2.livro.livroId)
-            .FirstOrDefaultAsync();
-        if (livro == null)
-        {
-            throw new Exception("Livro não existe");
-        }
-        /// verifica se a estante existe
-        var estante = await _bd.Estante
-            .Where(x => x.estanteId == troca.estanteId)
-            .FirstOrDefaultAsync();
-        if (estante == null)
-        {
-            throw new Exception("Estante não existe");
-        }
-
-        // verifica se troca já existe
-        var trocaExistente = await _bd.Troca
-            .Where(x => x.estanteId == troca.estanteId && x.estanteId2 == troca.estanteId2)
-            .FirstOrDefaultAsync();
-
-        if (trocaExistente != null)
-        {
-            throw new Exception("Troca já existe");
-        }
-        
 
         #endregion
 
@@ -190,7 +146,7 @@ public class Troca
             .FirstOrDefaultAsync();
         if (estado == null)
         {
-            throw new Exception("Estado não existe");
+            throw new Exception("Estado não existe");// TODO -> Criar estado caso nao exista na bd
         }
         troca.estadoTroca = estado;
 
@@ -226,7 +182,8 @@ public class Troca
     {
         #region Valida Troca
         var validacao = await ValidaTroca(troca, _bd);
-        if (!validacao.Value)
+
+        if (validacao.Value.Item1 != null)
         {
             throw new Exception("Troca não existe");
         }
@@ -238,7 +195,7 @@ public class Troca
             .FirstOrDefaultAsync();
         if (estado == null)
         {
-            throw new Exception("Estado não existe");
+            throw new Exception("Estado não existe"); // TODO -> Criar estado caso nao exista na bd
         }
         troca.estadoTroca = estado;
         try
@@ -260,7 +217,7 @@ public class Troca
     /// <param name="_bd"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    private async Task<ActionResult<bool>> ValidaTroca(Troca troca, PageTurnerContext _bd){
+    private async Task<ActionResult<(Troca?, Utilizador?, Utilizador?)>> ValidaTroca(Troca troca, PageTurnerContext _bd){
 
         Utilizador? utilizadorSolicitaTroca = await _bd.Utilizador
                                     .Where(x => x.utilizadorID == troca.estanteId2.utilizador.utilizadorID)
@@ -271,7 +228,7 @@ public class Troca
                                     .Where(x => x.estanteId == troca.estanteId)
                                     .FirstOrDefaultAsync();
         if (estante1 == null)
-        {   return false;
+        {   return (null, null, null);
             throw new Exception("Estante não existe");
         }
 
@@ -280,14 +237,14 @@ public class Troca
                                     .FirstOrDefaultAsync();
         if (utilizadorRecebeTroca == null || utilizadorSolicitaTroca == null)
         {
-            return false;
+            return (null, null, null);
             throw new Exception("Utilizador não existe");
         }
         //verifica se o utilizador tem a conta suspensa
         if(utilizadorSolicitaTroca.estadoConta.descricaoEstadoConta == "Suspensa" || 
             utilizadorRecebeTroca.estadoConta.descricaoEstadoConta == "Suspensa")
         {
-            return false;
+            return (null, null, null);
             throw new Exception($"Utilizador não pode fazer trocas");
         }
         
@@ -297,7 +254,7 @@ public class Troca
             .FirstOrDefaultAsync();
         if (livro == null)
         {
-            return false;
+            return ( null, null, null);
             throw new Exception("Livro não existe");
         }
         /// verifica se a estante existe
@@ -306,7 +263,7 @@ public class Troca
             .FirstOrDefaultAsync();
         if (estante == null)
         {
-            return false;
+            return ( null, null, null);
             throw new Exception("Estante não existe");
         }
 
@@ -317,12 +274,12 @@ public class Troca
 
         if (trocaExistente != null)
         {
-            return false;
+            return ( null, null, null);
             throw new Exception("Troca já existe");
         }
         
 
-        return true;
+        return (troca, utilizadorSolicitaTroca, utilizadorRecebeTroca);
 
     }
 
