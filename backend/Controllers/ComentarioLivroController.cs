@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
+using backend.Services;
 
 namespace backend.Controllers
 {
@@ -14,10 +15,13 @@ namespace backend.Controllers
     public class ComentarioLivroController : ControllerBase
     {
         private readonly PageTurnerContext _context;
+        private readonly ComentarioService _comentarioService;
 
         public ComentarioLivroController(PageTurnerContext context)
         {
             _context = context;
+            
+            _comentarioService = new ComentarioService(context);
         }
 
         /// <summary>
@@ -128,7 +132,10 @@ namespace backend.Controllers
             
             // comentario no livro nao está a ser guardado aqui
             await _context.SaveChangesAsync();
-
+            
+            // Inicia a verificação de palavras ofensivas em background #Issue 83
+            await this.VerificarEAtualizarComentarioAsync(novoComentario.ComentarioId);
+            
             return CreatedAtAction("GetComentarioLivro", new { id = novoComentario.ComentarioId }, novoComentario);
         }
 
@@ -179,5 +186,86 @@ namespace backend.Controllers
         {
             return _context.ComentarioLivro.Any(e => e.ComentarioId == id);
         }
-    }
+
+        
+        /// <summary>
+        /// Verifica o conteúdo de um comentário para identificar a presença de conteúdo ofensivo e atualiza o estado do comentário conforme necessário.
+        /// Também gere as relações entre comentários e conteúdos ofensivos identificados.
+        /// </summary>
+        /// <param name="comentarioId">ID do comentário a ser verificado e atualizado.</param>
+        /// <returns>Uma tarefa que representa a operação assíncrona. #Issue 83</returns>
+        /// </remarks>
+        private async Task VerificarEAtualizarComentarioAsync(int comentarioId)
+        {
+            try
+            {
+                var comentario = await _context.ComentarioLivro
+                    .Include(c => c.EstadoComentario)
+                    .FirstOrDefaultAsync(c => c.ComentarioId == comentarioId);
+
+                if (comentario == null) 
+                {
+                    throw new Exception("Comentário não encontrado.");
+                }
+
+                var estadoAtivo = await ObterEstadoComentarioAsync("Ativo");
+                var estadoEliminado = await ObterEstadoComentarioAsync("Removido");
+
+                if (estadoAtivo == null || estadoEliminado == null)
+                {
+                    throw new Exception("Estados de comentário necessários não foram encontrados.");
+                }
+
+                // Identificar conteúdo ofensivo antes de alterar o estado do comentário
+                var conteudosOfensivos = await _comentarioService.IdentificarConteudoOfensivoAsync(comentario.Comentario);
+
+                // Se houver conteúdos ofensivos identificados, atualiza o estado e adicione à tabela pivot
+                if (conteudosOfensivos.Any())
+                {
+                    comentario.EstadoComentario = estadoEliminado;
+
+                    foreach (var conteudoOfensivoId in conteudosOfensivos)
+                    {
+                        // Adicionar a relação na tabela pivot apenas se ela ainda não existir
+                        if (!_context.ComentarioLivroConteudoOfensivo.Any(co => co.ComentarioId == comentarioId && co.ConteudoOfensivoId == conteudoOfensivoId))
+                        {
+                            _context.ComentarioLivroConteudoOfensivo.Add(new ComentarioLivroConteudoOfensivo
+                            {
+                                ComentarioId = comentarioId,
+                                ConteudoOfensivoId = conteudoOfensivoId
+                            });
+                        }
+                    }
+                }
+                // Se não houver conteúdo ofensivo, o comentário é marcado como ativo
+                else
+                {
+                    comentario.EstadoComentario = estadoAtivo;
+                }
+
+                // Salvar as alterações na BD
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Obtém um estado de comentário pelo nome da descrição.
+        /// </summary>
+        /// <param name="descricao">A descrição do estado do comentário a ser obtido.</param>
+        /// <returns>O estado do comentário correspondente à descrição fornecida.</returns>
+        /// <remarks>
+        /// Este método é usado internamente para obter os estados de comentário necessários
+        /// para a atualização do estado do comentário baseado na presença de conteúdo ofensivo.
+        /// #Issue 83
+        /// </remarks>
+        private async Task<EstadoComentario> ObterEstadoComentarioAsync(string descricao)
+            {
+                return await _context.EstadoComentario
+                    .FirstOrDefaultAsync(e => e.descricaoEstadoComentario == descricao);
+            }
+        }
 }
