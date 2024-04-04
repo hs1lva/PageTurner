@@ -176,11 +176,11 @@ namespace backend.Controllers
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        [HttpPut("rejeita-troca/{id}")]
-        public async Task<IActionResult> PutRejeitaTroca(int id)
+        [HttpPut("rejeita-troca/{trocaId}")]
+        public async Task<IActionResult> PutRejeitaTroca(int trocaId)
         {
             Troca troca = new Troca();
-            var res = await troca.RejeitaTroca(id, _context);
+            var res = await troca.RejeitaTroca(trocaId, _context);
             
             if (res == null)
             {
@@ -188,6 +188,27 @@ namespace backend.Controllers
             }
 
             return Ok(res);
+        }
+
+        /// <summary>
+        /// Cria uma troca direta entre dois utilizadores issue 74
+        /// </summary>
+        /// <param name="userName">Username do utilizador que pretende a troca</param>
+        /// <param name="estanteDoLivroDesejado">self explanatory</param>
+        /// <returns></returns>
+        [HttpPost("solicita-troca-direta/{userName}/{estanteDoLivroDesejado}")]
+        public async Task<IActionResult> SolicitaTrocaDireta(string userName, int estanteDoLivroDesejado){
+            Troca a = new Troca();
+
+            var troca = await a.TrocaDireta(userName, estanteDoLivroDesejado, _context);
+
+            if (troca == null)
+            {
+                return NotFound("Livro não existe");
+            }
+
+            return Ok(troca);
+
         }
     }
 }

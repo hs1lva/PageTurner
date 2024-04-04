@@ -4,6 +4,7 @@ using backend.Interface;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models;
@@ -13,7 +14,7 @@ public class Troca
     public int trocaId { get; set; }
     public DateTime dataPedidoTroca { get; set; }
     public DateTime? dataAceiteTroca { get; set; }
-    public Estante estanteId2 { get; set; }
+    public Estante estanteId2 { get; set; } //estante de quem solicita a troca!
     public int estanteId { get; set; } //FK, não foi possivel definir o tipo como classe, porque já existe uma ligacao na BD com essa classe
     public EstadoTroca estadoTroca { get; set; }
     private IEmailSender _emailSender;
@@ -43,6 +44,7 @@ public class Troca
     public async Task<ActionResult> ProcuraMatchEstante(int estanteOrigem, int estanteProcura, Livro livro, PageTurnerContext _bd)
     {   
         throw new NotImplementedException();
+        //ver se vale a pena juntar numa função só
     }
 
     /// <summary>
@@ -173,6 +175,122 @@ public class Troca
         return troca;
     }
 
+
+    /// <summary>
+    /// Cria uma troca
+    /// </summary>
+    /// <param name="userName">username do user que prretende a troca</param>
+    /// <param name="estanteId">estante onde está o livro que o user quer</param>
+    /// <param name="_bd"></param>
+    /// <returns></returns>
+    public async Task<ActionResult<Troca?>> CriaTroca(string userName, int estanteId, PageTurnerContext _bd)
+    {
+        // procura o estado de troca pendente na BD 
+        EstadoTroca estadoTroca = await EstadoTroca.ProcEstadoTroca("Pendente", _bd);
+
+        // Procura a estante com o livro pretendido
+        var estanteComLivro = await _bd.Estante
+                            .Where(x => x.estanteId == estanteId)
+                            .FirstOrDefaultAsync();
+
+        if (estanteComLivro == null)
+        {
+            throw new Exception("Estante não existe");
+        }
+
+        //Cria troca
+        var troca = new Troca(
+            dataPedidoTroca: DateTime.Now,
+            estanteId: estanteComLivro.estanteId,
+            estanteId2: null, //ver se é preciso mudar a BD.
+            estadoTroca: estadoTroca
+        );
+
+        if (troca == null)
+        {
+            throw new Exception("Troca não foi criada");
+        }
+
+        // Guarda a troca na bd
+        try
+        {
+            _bd.Add(troca);
+            await _bd.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+
+        return troca;
+    }
+
+    /// <summary>
+    /// Troca direta
+    /// </summary>
+    /// <param name="userName">User que solicita a troca</param>
+    /// <param name="estanteId">Estante onde está o livro que o user quer</param>
+    /// <param name="_bd"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<ActionResult<Troca?>> TrocaDireta(string userName, int estanteId, PageTurnerContext _bd)
+    {
+        //cria uma nova troca
+        Troca troca = new Troca();
+        var resultado = await troca.CriaTroca(userName, estanteId, _bd);
+        if (resultado.Value != null)
+        {
+            Troca? trocaResult = resultado.Value;
+            troca = trocaResult;
+        }
+        else
+        {
+            throw new Exception("Não foi possivel criar a troca");
+        }
+
+        //Procura a estante do livro pedido
+        Estante? estanteDoLivroPedido = await _bd.Estante
+                            .Where(x => x.estanteId == troca.estanteId)
+                            .FirstOrDefaultAsync();
+        if (estanteDoLivroPedido == null)
+        {
+            throw new Exception("Estante não existe");
+        }
+        //user que solicita a troca
+        var user = await _bd.Utilizador
+            .Where(x => x.username == userName)
+            .FirstOrDefaultAsync();
+        //user que recebe a troca
+        var user2 = await _bd.Utilizador
+            .Where(x => x.utilizadorID == estanteDoLivroPedido.utilizador.utilizadorID)
+            .FirstOrDefaultAsync();
+        if (user == null || user2 == null)
+        {
+            throw new Exception("Utilizador não existe");//não é suposto ter esta resposta, "trabalho academico".
+        }
+
+        //grava na bd
+        try
+        {
+            _bd.Update(troca);
+            await _bd.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+
+        // envia email para o utilizador que solicita a troca
+        await _emailSender.SendEmailAsync(user.email, "Solicitacão de troca",
+                                        $"O pedido de troca foi efetuado com o numero: {troca.trocaId}");
+
+        // envia email para o utilizador que recebe a troca
+        await _emailSender.SendEmailAsync(user2.email, "Solicitacão de troca",
+                                        "O pedido de troca foi efetuado com o numero: " + troca.trocaId);
+
+        return troca;
+
+    }
     /// <summary>
     /// Aceita troca
     /// </summary>
@@ -213,6 +331,13 @@ public class Troca
 
     }
 
+    /// <summary>
+    /// Rejeita troca
+    /// </summary>
+    /// <param name="trocaID"></param>
+    /// <param name="_bd"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<ActionResult<Troca>> RejeitaTroca(int trocaID, PageTurnerContext _bd)
     {
 

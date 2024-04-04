@@ -10,7 +10,7 @@ public class EstadoTroca
     [Required]
     public string descricaoEstadoTroca { get; set; }
 
-    public async Task<EstadoTroca> ProcEstadoTroca(string estado, PageTurnerContext _bd)
+    public static async Task<EstadoTroca> ProcEstadoTroca(string estado, PageTurnerContext _bd)
     {
         if (estado == null)
         {
