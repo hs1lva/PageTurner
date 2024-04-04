@@ -27,7 +27,9 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Troca>>> GetTroca()
         {
-            return await _context.Troca.ToListAsync();
+            return await _context.Troca
+                            .Include(x => x.estadoTroca)     
+                            .ToListAsync();
         }
 
         // GET: api/Troca/5
@@ -120,14 +122,6 @@ namespace backend.Controllers
         }
         #endregion
 
-
-        //funcionalidade de solicitação de troca de um livro a partir da estante de trocas no perfil de um leitor
-        [HttpPost("solicita-troca")]
-        public Task<IActionResult> PostAdicionaTroca()
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Faz a procura de um livro em qql estante issue 74
         /// </summary>
@@ -173,6 +167,25 @@ namespace backend.Controllers
 
             // envia email com a lista de utilizadores que tem o livro
             
+
+            return Ok(res);
+        }
+
+        /// <summary>
+        /// Rejeita uma troca issue 75
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        [HttpPut("rejeita-troca/{id}")]
+        public async Task<IActionResult> PutRejeitaTroca(int id)
+        {
+            Troca troca = new Troca();
+            var res = await troca.RejeitaTroca(id, _context);
+            
+            if (res == null)
+            {
+                return NotFound("Troca não existe");
+            }
 
             return Ok(res);
         }

@@ -213,6 +213,69 @@ public class Troca
 
     }
 
+    public async Task<ActionResult<Troca>> RejeitaTroca(int trocaID, PageTurnerContext _bd)
+    {
+
+                // vale a penas validar se a troca ja está recusada?
+
+
+        //rejeita a troca.
+        var troca = await ProcID(trocaID, _bd);
+        
+        if (troca == null)
+        {
+            throw new Exception("Troca não existe");
+        }
+        #region Estado da troca
+        var estado = await _bd.EstadoTroca
+            .Where(x => x.descricaoEstadoTroca == "Recusada")
+            .FirstOrDefaultAsync();
+        if (estado == null)
+        {
+            throw new Exception("Estado não existe"); // TODO -> Criar estado caso nao exista na bd
+        }
+        troca.estadoTroca = estado;
+        #endregion
+
+        troca.dataAceiteTroca = null;
+
+
+
+        try
+        {
+            _bd.Update(troca);
+            await _bd.SaveChangesAsync(); 
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+
+        return troca;
+    }
+
+    /// <summary>
+    /// Procura troca pelo ID
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="_bd"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    private async Task<Troca?> ProcID(int id, PageTurnerContext _bd)
+    {
+
+        Troca troca = await _bd.Troca
+            .Where(x => x.trocaId == id)
+            .FirstOrDefaultAsync();
+        if (troca == null)
+        {
+            throw new Exception("Troca não existe");
+        }
+
+        return troca;
+
+    }
+
     /// <summary>
     /// Valida troca
     /// </summary>
