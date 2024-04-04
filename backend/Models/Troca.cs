@@ -116,14 +116,15 @@ public class Troca
     }
 
     /// <summary>
-    /// Solicita troca
+    /// Solicita troca, envia email aos users, guarda a troca
     /// </summary>
     /// <param name="troca"></param>
     /// <param name="_bd"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     public async Task<ActionResult<Troca?>> SolicitaTroca(Troca troca, PageTurnerContext _bd)
-    {   
+    {   // talvez seja melhor que a troca seja criada aqui dentro. Ver necessidades
+
         #region Verificações
         var validacao = await ValidaTroca(troca, _bd);
 
@@ -175,9 +176,8 @@ public class Troca
         return troca;
     }
 
-
     /// <summary>
-    /// Cria uma troca
+    /// Cria uma troca, guarda a troca na bd
     /// </summary>
     /// <param name="userName">username do user que prretende a troca</param>
     /// <param name="estanteId">estante onde está o livro que o user quer</param>
@@ -226,7 +226,7 @@ public class Troca
     }
 
     /// <summary>
-    /// Troca direta
+    /// Troca direta, guarda na BD
     /// </summary>
     /// <param name="userName">User que solicita a troca</param>
     /// <param name="estanteId">Estante onde está o livro que o user quer</param>
@@ -291,8 +291,9 @@ public class Troca
         return troca;
 
     }
+
     /// <summary>
-    /// Aceita troca
+    /// Aceita troca, guarda na BD
     /// </summary>
     /// <param name="troca"></param>
     /// <param name="_bd"></param>
@@ -340,31 +341,24 @@ public class Troca
     /// <exception cref="Exception"></exception>
     public async Task<ActionResult<Troca>> RejeitaTroca(int trocaID, PageTurnerContext _bd)
     {
-
-                // vale a penas validar se a troca ja está recusada?
-
-
         //rejeita a troca.
         var troca = await ProcID(trocaID, _bd);
+
+        if (troca.estadoTroca.descricaoEstadoTroca == "Recusada")
+        {
+            throw new Exception("Troca já foi recusada");
+        }
         
         if (troca == null)
         {
             throw new Exception("Troca não existe");
         }
-        #region Estado da troca
-        var estado = await _bd.EstadoTroca
-            .Where(x => x.descricaoEstadoTroca == "Recusada")
-            .FirstOrDefaultAsync();
-        if (estado == null)
-        {
-            throw new Exception("Estado não existe"); // TODO -> Criar estado caso nao exista na bd
-        }
+
+        //atualiza estado da troca
+        EstadoTroca estado = EstadoTroca.ProcEstadoTroca("Recusada", _bd).Result;
         troca.estadoTroca = estado;
-        #endregion
-
+        //garante que a data de aceite da troca seja nula, aka, não aceite
         troca.dataAceiteTroca = null;
-
-
 
         try
         {
@@ -380,7 +374,7 @@ public class Troca
     }
 
     /// <summary>
-    /// Procura troca pelo ID
+    /// Procura, na BD, troca pelo numero do ID
     /// </summary>
     /// <param name="id"></param>
     /// <param name="_bd"></param>
