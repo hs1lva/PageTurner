@@ -114,13 +114,13 @@ public class Troca
     }
 
     /// <summary>
-    /// Solicita troca, a um utilizador
+    /// Solicita troca
     /// </summary>
     /// <param name="troca"></param>
     /// <param name="_bd"></param>
-    /// <returns>boolean</returns>
+    /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<ActionResult<bool>> SolicitaTroca(Troca troca, PageTurnerContext _bd)
+    public async Task<ActionResult<Troca?>> SolicitaTroca(Troca troca, PageTurnerContext _bd)
     {   
         #region Verificações
         var validacao = await ValidaTroca(troca, _bd);
@@ -133,10 +133,12 @@ public class Troca
         {
             throw new Exception("Troca não existe");
         }
-
+        if (utilizadorSolicitaTroca == null || utilizadorRecebeTroca == null)
+        {
+            throw new Exception("Utilizador não existe");
+        }
 
         #endregion
-
 
         //cria a troca, garante que a data é a atual e o estado é pendente
         troca.dataPedidoTroca = DateTime.Now;
@@ -168,7 +170,7 @@ public class Troca
             throw new Exception(e.Message);
         }
 
-        return true;
+        return troca;
     }
 
     /// <summary>
@@ -178,7 +180,7 @@ public class Troca
     /// <param name="_bd"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<ActionResult<bool>> AceitaTroca(Troca troca, PageTurnerContext _bd)
+    public async Task<ActionResult<Troca?>> AceitaTroca(Troca troca, PageTurnerContext _bd)
     {
         #region Valida Troca
         var validacao = await ValidaTroca(troca, _bd);
@@ -205,17 +207,18 @@ public class Troca
         catch (Exception e)
         {
             throw new Exception(e.Message);
+            
         }
-        return true;
+        return troca;
 
     }
 
     /// <summary>
-    /// Valida se a troca existe
+    /// Valida troca
     /// </summary>
     /// <param name="troca"></param>
     /// <param name="_bd"></param>
-    /// <returns></returns>
+    /// <returns>Retorna a troca, o utilizador que solicita a troca e o utilizador que recebe a troca</returns>
     /// <exception cref="Exception"></exception>
     private async Task<ActionResult<(Troca?, Utilizador?, Utilizador?)>> ValidaTroca(Troca troca, PageTurnerContext _bd){
 
