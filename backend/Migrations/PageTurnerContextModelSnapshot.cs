@@ -21,21 +21,6 @@ namespace PageTurnerAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ComentarioLivroConteudoOfensivo", b =>
-                {
-                    b.Property<int>("comentariosComentarioId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("conteudoOfensivoId")
-                        .HasColumnType("int");
-
-                    b.HasKey("comentariosComentarioId", "conteudoOfensivoId");
-
-                    b.HasIndex("conteudoOfensivoId");
-
-                    b.ToTable("ComentarioLivroConteudoOfensivo");
-                });
-
             modelBuilder.Entity("backend.Models.AutorLivro", b =>
                 {
                     b.Property<int>("autorLivroId")
@@ -137,6 +122,21 @@ namespace PageTurnerAPI.Migrations
                     b.HasIndex("estadoComentarioId");
 
                     b.ToTable("ComentarioLivro");
+                });
+
+            modelBuilder.Entity("backend.Models.ComentarioLivroConteudoOfensivo", b =>
+                {
+                    b.Property<int>("ComentarioId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ConteudoOfensivoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ComentarioId", "ConteudoOfensivoId");
+
+                    b.HasIndex("ConteudoOfensivoId");
+
+                    b.ToTable("ComentarioLivroConteudoOfensivo");
                 });
 
             modelBuilder.Entity("backend.Models.ConteudoOfensivo", b =>
@@ -434,21 +434,6 @@ namespace PageTurnerAPI.Migrations
                     b.ToTable("Utilizador");
                 });
 
-            modelBuilder.Entity("ComentarioLivroConteudoOfensivo", b =>
-                {
-                    b.HasOne("backend.Models.ComentarioLivro", null)
-                        .WithMany()
-                        .HasForeignKey("comentariosComentarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Models.ConteudoOfensivo", null)
-                        .WithMany()
-                        .HasForeignKey("conteudoOfensivoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("backend.Models.AvaliacaoLivro", b =>
                 {
                     b.HasOne("backend.Models.Livro", null)
@@ -496,6 +481,25 @@ namespace PageTurnerAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("EstadoComentario");
+                });
+
+            modelBuilder.Entity("backend.Models.ComentarioLivroConteudoOfensivo", b =>
+                {
+                    b.HasOne("backend.Models.ComentarioLivro", "ComentarioLivro")
+                        .WithMany("ComentarioConteudoOfensivo")
+                        .HasForeignKey("ComentarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Models.ConteudoOfensivo", "ConteudoOfensivo")
+                        .WithMany("ComentarioConteudoOfensivo")
+                        .HasForeignKey("ConteudoOfensivoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ComentarioLivro");
+
+                    b.Navigation("ConteudoOfensivo");
                 });
 
             modelBuilder.Entity("backend.Models.Estante", b =>
@@ -580,6 +584,16 @@ namespace PageTurnerAPI.Migrations
                     b.Navigation("estadoConta");
 
                     b.Navigation("tipoUtilizador");
+                });
+
+            modelBuilder.Entity("backend.Models.ComentarioLivro", b =>
+                {
+                    b.Navigation("ComentarioConteudoOfensivo");
+                });
+
+            modelBuilder.Entity("backend.Models.ConteudoOfensivo", b =>
+                {
+                    b.Navigation("ComentarioConteudoOfensivo");
                 });
 
             modelBuilder.Entity("backend.Models.Livro", b =>

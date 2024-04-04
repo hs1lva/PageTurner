@@ -19,14 +19,14 @@ namespace backend.Models
         public DateTime DataComentario { get; set; }
 
         /// <summary>
-        /// Estado atual do comentário (por exemplo, pendente, aprovado).
+        /// Estado atual do comentário (por exemplo, pendente, ativo, removido).
         /// </summary>
         public EstadoComentario EstadoComentario { get; set; }
 
         /// <summary>
         /// Lista de conteúdos ofensivos associados a este comentário, se houver.
         /// </summary>
-        public List<ConteudoOfensivo> ConteudoOfensivo { get; } = new List<ConteudoOfensivo>();
+        public ICollection<ComentarioLivroConteudoOfensivo> ComentarioConteudoOfensivo { get; set; }
 
         /// <summary>
         /// Identificador do utilizador que submeteu o comentário.
