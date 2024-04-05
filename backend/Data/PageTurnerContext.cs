@@ -31,17 +31,17 @@ public class PageTurnerContext:DbContext{
     {
         // Configuração de chave primária composta
         modelBuilder.Entity<ComentarioLivroConteudoOfensivo>()
-            .HasKey(c => new { c.ComentarioId, c.ConteudoOfensivoId });
+            .HasKey(c => new { c.comentarioId, c.conteudoOfensivoId });
 
         modelBuilder.Entity<ComentarioLivroConteudoOfensivo>()
-            .HasOne(cco => cco.ComentarioLivro)
-            .WithMany(cl => cl.ComentarioConteudoOfensivo)
-            .HasForeignKey(cco => cco.ComentarioId);
+            .HasOne(cco => cco.comentarioLivro)
+            .WithMany(cl => cl.comentarioConteudoOfensivo)
+            .HasForeignKey(cco => cco.comentarioId);
 
         modelBuilder.Entity<ComentarioLivroConteudoOfensivo>()
-            .HasOne(cco => cco.ConteudoOfensivo)
-            .WithMany(c => c.ComentarioConteudoOfensivo)
-            .HasForeignKey(cco => cco.ConteudoOfensivoId);
+            .HasOne(cco => cco.conteudoOfensivo)
+            .WithMany(c => c.comentarioConteudoOfensivo)
+            .HasForeignKey(cco => cco.conteudoOfensivoId);
 
 
     }

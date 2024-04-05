@@ -59,11 +59,11 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutComentarioLivro(int id, ComentarioLivroDTO comentarioDto)
         {
-            if (id != comentarioDto.ComentarioId)
+            if (id != comentarioDto.comentarioId)
             {
                 return BadRequest();
             }
-
+            
             // Encontrar o comentário existente
             var comentarioExistente = await _context.ComentarioLivro.FindAsync(id);
             if (comentarioExistente == null)
@@ -72,8 +72,8 @@ namespace backend.Controllers
             }
 
             // Atualizar as propriedades do comentário existente com os valores do DTO
-            comentarioExistente.Comentario = comentarioDto.Comentario;
-            comentarioExistente.DataComentario = comentarioDto.DataComentario;
+            comentarioExistente.comentario = comentarioDto.comentario;
+            comentarioExistente.dataComentario = comentarioDto.dataComentario;
 
             try
             {
@@ -110,20 +110,27 @@ namespace backend.Controllers
 
             var livro = await _context.Livro
                 .Include(l => l.Comentarios)
-                .FirstOrDefaultAsync(l => l.livroId == comentarioDto.LivroId);
+                .FirstOrDefaultAsync(l => l.livroId == comentarioDto.livroId);
+            
+            var user = await _context.Utilizador.FindAsync(comentarioDto.utilizadorId);
+
+            if (user is null)
+            {
+                return NotFound($"Utilizador com ID {comentarioDto.utilizadorId} não encontrado.");
+            }
     
             if (livro == null)
             {
-                return NotFound($"Livro com ID {comentarioDto.LivroId} não encontrado.");
+                return NotFound($"Livro com ID {comentarioDto.livroId} não encontrado.");
             }
 
             ComentarioLivro novoComentario = new ComentarioLivro
             {
-                Comentario = comentarioDto.Comentario,
-                DataComentario = comentarioDto.DataComentario,
-                UtilizadorId = comentarioDto.UtilizadorId,
-                LivroId = comentarioDto.LivroId,
-                EstadoComentario = estadoInicial 
+                comentario = comentarioDto.comentario,
+                dataComentario = comentarioDto.dataComentario,
+                utilizadorId = comentarioDto.utilizadorId,
+                livroId = comentarioDto.livroId,
+                estadoComentario = estadoInicial 
             };
 
             livro.Comentarios.Add(novoComentario);
@@ -134,9 +141,9 @@ namespace backend.Controllers
             await _context.SaveChangesAsync();
             
             // Inicia a verificação de palavras ofensivas em background #Issue 83
-            await this.VerificarEAtualizarComentarioAsync(novoComentario.ComentarioId);
+            await this.VerificarEAtualizarComentarioAsync(novoComentario.comentarioId);
             
-            return CreatedAtAction("GetComentarioLivro", new { id = novoComentario.ComentarioId }, novoComentario);
+            return CreatedAtAction("GetComentarioLivro", new { id = novoComentario.comentarioId }, novoComentario);
         }
 
 
@@ -167,7 +174,7 @@ namespace backend.Controllers
         public async Task<ActionResult<IEnumerable<ComentarioLivro>>> GetComentariosByLivro(int livroId)
         {
             var comentariosDoLivro = await _context.ComentarioLivro
-                .Where(cl => cl.LivroId == livroId)
+                .Where(cl => cl.livroId == livroId)
                 .ToListAsync();
 
             if (!comentariosDoLivro.Any())
@@ -184,7 +191,7 @@ namespace backend.Controllers
         /// </summary>
         private bool ComentarioLivroExists(int id)
         {
-            return _context.ComentarioLivro.Any(e => e.ComentarioId == id);
+            return _context.ComentarioLivro.Any(e => e.comentarioId == id);
         }
 
         
@@ -200,8 +207,8 @@ namespace backend.Controllers
             try
             {
                 var comentario = await _context.ComentarioLivro
-                    .Include(c => c.EstadoComentario)
-                    .FirstOrDefaultAsync(c => c.ComentarioId == comentarioId);
+                    .Include(c => c.estadoComentario)
+                    .FirstOrDefaultAsync(c => c.comentarioId == comentarioId);
 
                 if (comentario == null) 
                 {
@@ -217,22 +224,22 @@ namespace backend.Controllers
                 }
 
                 // Identificar conteúdo ofensivo antes de alterar o estado do comentário
-                var conteudosOfensivos = await _comentarioService.IdentificarConteudoOfensivoAsync(comentario.Comentario);
+                var conteudosOfensivos = await _comentarioService.IdentificarConteudoOfensivoAsync(comentario.comentario);
 
                 // Se houver conteúdos ofensivos identificados, atualiza o estado e adicione à tabela pivot
                 if (conteudosOfensivos.Any())
                 {
-                    comentario.EstadoComentario = estadoEliminado;
+                    comentario.estadoComentario = estadoEliminado;
 
                     foreach (var conteudoOfensivoId in conteudosOfensivos)
                     {
                         // Adicionar a relação na tabela pivot apenas se ela ainda não existir
-                        if (!_context.ComentarioLivroConteudoOfensivo.Any(co => co.ComentarioId == comentarioId && co.ConteudoOfensivoId == conteudoOfensivoId))
+                        if (!_context.ComentarioLivroConteudoOfensivo.Any(co => co.comentarioId == comentarioId && co.conteudoOfensivoId == conteudoOfensivoId))
                         {
                             _context.ComentarioLivroConteudoOfensivo.Add(new ComentarioLivroConteudoOfensivo
                             {
-                                ComentarioId = comentarioId,
-                                ConteudoOfensivoId = conteudoOfensivoId
+                                comentarioId = comentarioId,
+                                conteudoOfensivoId = conteudoOfensivoId
                             });
                         }
                     }
@@ -240,7 +247,7 @@ namespace backend.Controllers
                 // Se não houver conteúdo ofensivo, o comentário é marcado como ativo
                 else
                 {
-                    comentario.EstadoComentario = estadoAtivo;
+                    comentario.estadoComentario = estadoAtivo;
                 }
 
                 // Salvar as alterações na BD

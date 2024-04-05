@@ -9,6 +9,6 @@ public class ConteudoOfensivo
     public string especificacaoConteudoOfensivo { get; set; }
 
     //chave estrangeira para lista comentario de livro
-    public ICollection<ComentarioLivroConteudoOfensivo> ComentarioConteudoOfensivo { get; set; }
+    public ICollection<ComentarioLivroConteudoOfensivo> comentarioConteudoOfensivo { get; set; }
 
 }

@@ -5,9 +5,9 @@ namespace backend.Models;
 /// </summary>
 public class ComentarioLivroDTO
 {
-    public int ComentarioId { get; set; }
-    public string Comentario { get; set; }
-    public DateTime DataComentario { get; set; }
-    public int UtilizadorId { get; set; }
-    public int LivroId { get; set; }
+    public int comentarioId { get; set; }
+    public string comentario { get; set; }
+    public DateTime dataComentario { get; set; }
+    public int utilizadorId { get; set; }
+    public int livroId { get; set; }
 }

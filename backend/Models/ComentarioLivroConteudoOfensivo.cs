@@ -7,24 +7,24 @@ public class ComentarioLivroConteudoOfensivo
     /// <summary>
     /// Identificador do comentário associado.
     /// </summary>
-    public int ComentarioId { get; set; }
+    public int comentarioId { get; set; }
     
     /// <summary>
     /// Identificador do conteúdo ofensivo associado.
     /// </summary>
-    public int ConteudoOfensivoId { get; set; }
+    public int conteudoOfensivoId { get; set; }
     
     /// <summary>
     /// A propriedade de navegação para o comentário associado.
     /// Ignorada na serialização para evitar referências circulares.
     /// </summary>
     [JsonIgnore]
-    public ComentarioLivro ComentarioLivro { get; set; }
+    public ComentarioLivro comentarioLivro { get; set; }
     
     /// <summary>
     /// A propriedade de navegação para o conteúdo ofensivo associado.
     /// Ignorada na serialização para evitar referências circulares.
     /// </summary>
     [JsonIgnore]
-    public ConteudoOfensivo ConteudoOfensivo { get; set; }
+    public ConteudoOfensivo conteudoOfensivo { get; set; }
 }
