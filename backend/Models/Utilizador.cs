@@ -1,5 +1,5 @@
 
-
+using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
 
 namespace backend.Models;
@@ -25,13 +25,22 @@ public class Utilizador
     public bool notficacaoCorrespondencia { get; set; }
 
     //ligacao de muitos para muitos é feita desta forma
+    [JsonIgnore]
     List<GeneroLivro> generosLivro { get; } = [];
+    [JsonIgnore]
     List<AutorLivro> autoresLivro { get; } = [];
 
     //chave estranjeira para  tipoUtilizador
+    public int tipoUtilizadorId { get; set; }
+    // ignore no request
+    [JsonIgnore]
     public TipoUtilizador tipoUtilizador { get; set; }
 
     //chave estranjeira para  estadoConta
+    public int estadoContaId { get; set; }
+    
+    // ignore no request
+    [JsonIgnore]
     public EstadoConta estadoConta { get; set; }
     //chave estranjeira para  localizacao
 

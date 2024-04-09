@@ -77,6 +77,13 @@ namespace backend.Controllers
         [HttpPost]
         public async Task<ActionResult<Cidade>> PostCidade(Cidade cidade)
         {
+            // procura pelo Pais da cidade
+            var pais = await _context.Pais.FindAsync(cidade.paisId);
+            if (pais == null)
+            {
+                return BadRequest(new { Message = "País não encontrado." });
+            }
+            
             _context.Cidade.Add(cidade);
             await _context.SaveChangesAsync();
 

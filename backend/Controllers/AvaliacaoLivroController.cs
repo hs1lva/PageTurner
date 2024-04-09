@@ -49,34 +49,54 @@ namespace backend.Controllers
         // Atualiza uma avaliação específica.
         // </summary>
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAvaliacaoLivro(int id, AvaliacaoLivro avaliacaoLivro)
+        public async Task<IActionResult> PutAvaliacaoLivro(int id, AvaliacaoLivro avaliacaoLivroDTO)
         {
-            if (id != avaliacaoLivro.AvaliacaoId)
+            // Verifica se o ID na URL corresponde ao ID no request
+            if (id != avaliacaoLivroDTO.AvaliacaoId)
             {
-                return BadRequest();
+                return BadRequest(new { Message = "O ID da avaliação na URL não corresponde ao ID no corpo da requisição." });
             }
 
-            _context.Entry(avaliacaoLivro).State = EntityState.Modified;
+            // Busca a avaliação existente pelo ID
+            var avaliacaoExistente = await _context.AvaliacaoLivro.FindAsync(id);
+            if (avaliacaoExistente == null)
+            {
+                return NotFound(new { Message = "Avaliação não encontrada." });
+            }
+
+            // Verifica se a avaliação corresponde ao livro correto
+            if (avaliacaoExistente.LivroId != avaliacaoLivroDTO.LivroId)
+            {
+                return BadRequest(new { Message = "A avaliação não corresponde ao livro fornecido." });
+            }
+
+            // Verifica se o utilizador existe
+            var utilizadorExistente = await _context.Utilizador.FindAsync(avaliacaoLivroDTO.UtilizadorId);
+            if (utilizadorExistente == null)
+            {
+                return NotFound(new { Message = "Utilizador não encontrado." });
+            }
+
+            // Atualiza a avaliação existente com os dados do DTO 
+            _context.Entry(avaliacaoExistente).CurrentValues.SetValues(avaliacaoLivroDTO);
 
             try
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
                 if (!AvaliacaoLivroExists(id))
                 {
-                    return NotFound();
+                    return NotFound(new { Message = "Avaliação não encontrada ao tentar salvar as alterações." });
                 }
                 else
                 {
-                    throw;
+                    return StatusCode(500, new { Message = "Ocorreu um erro ao salvar as alterações." });
                 }
             }
 
-            return NoContent();
-            // ou 
-            // return Ok(new { Message = "Avaliação atualizada com sucesso!" }); 
+            return NoContent(); 
         }
 
         // <summary>
@@ -86,6 +106,15 @@ namespace backend.Controllers
         public async Task<ActionResult<AvaliacaoLivro>> PostAvaliacaoLivro(AvaliacaoLivro avaliacaoLivro)
         {
             // Validações
+            
+            // Verifica se o user existe
+            var user = await _context.Utilizador.FindAsync(avaliacaoLivro.UtilizadorId);
+
+            if (user is null)
+            {
+                return NotFound($"Utilizador com ID {avaliacaoLivro.UtilizadorId} não encontrado.");
+            }
+            
             // Validar se o user já fez uma avaliação para este livro
             bool avaliacaoExistente = await _context.AvaliacaoLivro.AnyAsync(a => a.LivroId == avaliacaoLivro.LivroId && a.UtilizadorId == avaliacaoLivro.UtilizadorId);
             if (avaliacaoExistente)
@@ -99,8 +128,8 @@ namespace backend.Controllers
             {
                 return NotFound(new { Message = "Livro não encontrado" });
             }
-
-            // Verifica se ModelState é válido
+            
+             // Verifica se ModelState é válido
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

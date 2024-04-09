@@ -15,6 +15,7 @@ public class PageTurnerContext:DbContext{
     public DbSet<ComentarioLivro> ComentarioLivro { get; set; }
     public DbSet<ConteudoOfensivo> ConteudoOfensivo { get; set; }
     public DbSet<EstadoComentario> EstadoComentario { get; set; }
+    public DbSet<ComentarioLivroConteudoOfensivo> ComentarioLivroConteudoOfensivo { get; set; }
     public DbSet<EstadoConta> EstadoConta { get; set; }
     public DbSet<EstadoTroca> EstadoTroca { get; set; }
     public DbSet<Estante> Estante { get; set; }
@@ -26,4 +27,22 @@ public class PageTurnerContext:DbContext{
     public DbSet<Troca> Troca { get; set; }
     public DbSet<Utilizador> Utilizador { get; set; }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Configuração de chave primária composta
+        modelBuilder.Entity<ComentarioLivroConteudoOfensivo>()
+            .HasKey(c => new { c.comentarioId, c.conteudoOfensivoId });
+
+        modelBuilder.Entity<ComentarioLivroConteudoOfensivo>()
+            .HasOne(cco => cco.comentarioLivro)
+            .WithMany(cl => cl.comentarioConteudoOfensivo)
+            .HasForeignKey(cco => cco.comentarioId);
+
+        modelBuilder.Entity<ComentarioLivroConteudoOfensivo>()
+            .HasOne(cco => cco.conteudoOfensivo)
+            .WithMany(c => c.comentarioConteudoOfensivo)
+            .HasForeignKey(cco => cco.conteudoOfensivoId);
+
+
+    }
 }
