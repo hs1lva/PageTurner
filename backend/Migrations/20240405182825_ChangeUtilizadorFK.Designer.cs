@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PageTurnerAPI.Migrations
 {
     [DbContext(typeof(PageTurnerContext))]
-    [Migration("20240325222847_valordataRegistoNull")]
-    partial class valordataRegistoNull
+    [Migration("20240405182825_ChangeUtilizadorFK")]
+    partial class ChangeUtilizadorFK
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,21 +23,6 @@ namespace PageTurnerAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("ComentarioLivroConteudoOfensivo", b =>
-                {
-                    b.Property<int>("comentarioscomentarioId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("conteudoOfensivoId")
-                        .HasColumnType("int");
-
-                    b.HasKey("comentarioscomentarioId", "conteudoOfensivoId");
-
-                    b.HasIndex("conteudoOfensivoId");
-
-                    b.ToTable("ComentarioLivroConteudoOfensivo");
-                });
 
             modelBuilder.Entity("backend.Models.AutorLivro", b =>
                 {
@@ -58,29 +43,29 @@ namespace PageTurnerAPI.Migrations
 
             modelBuilder.Entity("backend.Models.AvaliacaoLivro", b =>
                 {
-                    b.Property<int>("avaliacaoId")
+                    b.Property<int>("AvaliacaoId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("avaliacaoId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AvaliacaoId"));
 
-                    b.Property<DateTime>("dataAvaliacao")
+                    b.Property<DateTime>("DataAvaliacao")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("livroId")
+                    b.Property<int>("LivroId")
                         .HasColumnType("int");
 
-                    b.Property<int>("nota")
+                    b.Property<int>("Nota")
                         .HasColumnType("int");
 
-                    b.Property<int>("utilizadorID")
+                    b.Property<int>("UtilizadorId")
                         .HasColumnType("int");
 
-                    b.HasKey("avaliacaoId");
+                    b.HasKey("AvaliacaoId");
 
-                    b.HasIndex("livroId");
+                    b.HasIndex("LivroId");
 
-                    b.HasIndex("utilizadorID");
+                    b.HasIndex("UtilizadorId");
 
                     b.ToTable("AvaliacaoLivro");
                 });
@@ -97,12 +82,10 @@ namespace PageTurnerAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("paisCidadepaisId")
+                    b.Property<int>("paisId")
                         .HasColumnType("int");
 
                     b.HasKey("cidadeId");
-
-                    b.HasIndex("paisCidadepaisId");
 
                     b.ToTable("Cidade");
                 });
@@ -128,7 +111,7 @@ namespace PageTurnerAPI.Migrations
                     b.Property<int>("livroId")
                         .HasColumnType("int");
 
-                    b.Property<int>("utilizadorID")
+                    b.Property<int>("utilizadorId")
                         .HasColumnType("int");
 
                     b.HasKey("comentarioId");
@@ -137,9 +120,24 @@ namespace PageTurnerAPI.Migrations
 
                     b.HasIndex("livroId");
 
-                    b.HasIndex("utilizadorID");
+                    b.HasIndex("utilizadorId");
 
-                    b.ToTable("CommentLivro");
+                    b.ToTable("ComentarioLivro");
+                });
+
+            modelBuilder.Entity("backend.Models.ComentarioLivroConteudoOfensivo", b =>
+                {
+                    b.Property<int>("comentarioId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("conteudoOfensivoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("comentarioId", "conteudoOfensivoId");
+
+                    b.HasIndex("conteudoOfensivoId");
+
+                    b.ToTable("ComentarioLivroConteudoOfensivo");
                 });
 
             modelBuilder.Entity("backend.Models.ConteudoOfensivo", b =>
@@ -275,8 +273,9 @@ namespace PageTurnerAPI.Migrations
                     b.Property<int>("generoLivrogeneroId")
                         .HasColumnType("int");
 
-                    b.Property<int>("idiomaOriginalLivro")
-                        .HasColumnType("int");
+                    b.Property<string>("idiomaOriginalLivro")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("tituloLivro")
                         .IsRequired()
@@ -417,7 +416,7 @@ namespace PageTurnerAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("tipoUtilizadortipoUtilId")
+                    b.Property<int>("tipoUtilizadorId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ultimologin")
@@ -431,54 +430,24 @@ namespace PageTurnerAPI.Migrations
 
                     b.HasIndex("estadoContaId");
 
-                    b.HasIndex("tipoUtilizadortipoUtilId");
+                    b.HasIndex("tipoUtilizadorId");
 
                     b.ToTable("Utilizador");
                 });
 
-            modelBuilder.Entity("ComentarioLivroConteudoOfensivo", b =>
-                {
-                    b.HasOne("backend.Models.ComentarioLivro", null)
-                        .WithMany()
-                        .HasForeignKey("comentarioscomentarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Models.ConteudoOfensivo", null)
-                        .WithMany()
-                        .HasForeignKey("conteudoOfensivoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("backend.Models.AvaliacaoLivro", b =>
                 {
-                    b.HasOne("backend.Models.Livro", "livro")
-                        .WithMany()
-                        .HasForeignKey("livroId")
+                    b.HasOne("backend.Models.Livro", null)
+                        .WithMany("Avaliacoes")
+                        .HasForeignKey("LivroId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Models.Utilizador", "utilizador")
-                        .WithMany()
-                        .HasForeignKey("utilizadorID")
+                    b.HasOne("backend.Models.Utilizador", null)
+                        .WithMany("Avaliacoes")
+                        .HasForeignKey("UtilizadorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("livro");
-
-                    b.Navigation("utilizador");
-                });
-
-            modelBuilder.Entity("backend.Models.Cidade", b =>
-                {
-                    b.HasOne("backend.Models.Pais", "paisCidade")
-                        .WithMany()
-                        .HasForeignKey("paisCidadepaisId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("paisCidade");
                 });
 
             modelBuilder.Entity("backend.Models.ComentarioLivro", b =>
@@ -489,23 +458,38 @@ namespace PageTurnerAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Models.Livro", "livro")
-                        .WithMany()
+                    b.HasOne("backend.Models.Livro", null)
+                        .WithMany("Comentarios")
                         .HasForeignKey("livroId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Models.Utilizador", "utilizador")
-                        .WithMany()
-                        .HasForeignKey("utilizadorID")
+                    b.HasOne("backend.Models.Utilizador", null)
+                        .WithMany("Comentarios")
+                        .HasForeignKey("utilizadorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("estadoComentario");
+                });
 
-                    b.Navigation("livro");
+            modelBuilder.Entity("backend.Models.ComentarioLivroConteudoOfensivo", b =>
+                {
+                    b.HasOne("backend.Models.ComentarioLivro", "comentarioLivro")
+                        .WithMany("comentarioConteudoOfensivo")
+                        .HasForeignKey("comentarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("utilizador");
+                    b.HasOne("backend.Models.ConteudoOfensivo", "conteudoOfensivo")
+                        .WithMany("comentarioConteudoOfensivo")
+                        .HasForeignKey("conteudoOfensivoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("comentarioLivro");
+
+                    b.Navigation("conteudoOfensivo");
                 });
 
             modelBuilder.Entity("backend.Models.Estante", b =>
@@ -583,13 +567,37 @@ namespace PageTurnerAPI.Migrations
 
                     b.HasOne("backend.Models.TipoUtilizador", "tipoUtilizador")
                         .WithMany()
-                        .HasForeignKey("tipoUtilizadortipoUtilId")
+                        .HasForeignKey("tipoUtilizadorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("estadoConta");
 
                     b.Navigation("tipoUtilizador");
+                });
+
+            modelBuilder.Entity("backend.Models.ComentarioLivro", b =>
+                {
+                    b.Navigation("comentarioConteudoOfensivo");
+                });
+
+            modelBuilder.Entity("backend.Models.ConteudoOfensivo", b =>
+                {
+                    b.Navigation("comentarioConteudoOfensivo");
+                });
+
+            modelBuilder.Entity("backend.Models.Livro", b =>
+                {
+                    b.Navigation("Avaliacoes");
+
+                    b.Navigation("Comentarios");
+                });
+
+            modelBuilder.Entity("backend.Models.Utilizador", b =>
+                {
+                    b.Navigation("Avaliacoes");
+
+                    b.Navigation("Comentarios");
                 });
 #pragma warning restore 612, 618
         }

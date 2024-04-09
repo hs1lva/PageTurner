@@ -16,10 +16,14 @@ namespace backend.Controllers
     public class UtilizadorController : ControllerBase
     {
         private readonly PageTurnerContext _context;
+        private readonly JwtTokenGenerator _jwtTokenGenerator; // Declaração da variável para gerar o token JWT
+
 
         public UtilizadorController(PageTurnerContext context)
         {
             _context = context;
+            _jwtTokenGenerator = new JwtTokenGenerator(); // Inicialização da variável para gerar o token JWT
+
         }
 
         #region Métodos GET
@@ -32,7 +36,9 @@ namespace backend.Controllers
         public async Task<ActionResult<IEnumerable<Utilizador>>> GetUtilizador()
         {
             // Validar se o utilizador tem dataRegisto != null (confirmou o email)
-            return await _context.Utilizador.Where(x => x.dataRegisto != null).ToListAsync();
+            // @TODO: fazer isto no get?
+            // return await _context.Utilizador.Where(x => x.dataRegisto != null).ToListAsync();
+            return await _context.Utilizador.ToListAsync();
         }
 
         /// <summary>
@@ -43,18 +49,23 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Utilizador>> GetUtilizador(int id)
         {
-            var utilizador = await _context.Utilizador.FindAsync(id);
+            var utilizador = await _context.Utilizador
+                .Include(u => u.Comentarios)
+                .ThenInclude(c => c.estadoComentario)
+                .Include(u => u.Avaliacoes)
+                .FirstOrDefaultAsync(u => u.utilizadorID == id);
 
             if (utilizador == null)
             {
                 return NotFound();
             }
 
+            // @TODO: faz sentido no get?
             // Se a data de registo for NULL, o utilizador ainda não confirmou o email
-            if (utilizador.dataRegisto == null)
-            {
-                return BadRequest("Utilizador com email não confirmado.");
-            }
+            //if (utilizador.dataRegisto == null)
+            //{
+            //    return BadRequest("Utilizador com email não confirmado.");
+            // }
 
             return utilizador;
         }
@@ -64,7 +75,7 @@ namespace backend.Controllers
         /// </summary>
         /// <param name="nome"></param>
         /// <returns></returns>
-        [HttpGet("nome/{nome}")]
+        [HttpGet("nome/{nome}")] // -- Issue #39
         public async Task<ActionResult<Utilizador>> GetUtilizadorNome(string nome)
         {
             var utilizador = await _context.Utilizador.FirstOrDefaultAsync(u => u.nome == nome);
@@ -75,10 +86,11 @@ namespace backend.Controllers
             }
 
             // Se a data de registo for NULL, o utilizador ainda não confirmou o email
-            if (utilizador.dataRegisto == null)
-            {
-                return BadRequest("Utilizador com email não confirmado.");
-            }
+            // @TODO: faz sentido no get?
+            //if (utilizador.dataRegisto == null)
+            //{
+            //  return BadRequest("Utilizador com email não confirmado.");
+            //}
 
             return utilizador;
         }
@@ -88,7 +100,7 @@ namespace backend.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("ConfirmarEmail/{id}")]
+        [HttpGet("ConfirmarEmail/{id}")] // -- Issue #42
         public async Task<ActionResult<Utilizador>> ConfirmarEmail(int id)
         {
             try
@@ -118,7 +130,7 @@ namespace backend.Controllers
         /// Endpoint para autenticação com a Google
         /// </summary>
         /// <returns></returns>
-        [HttpGet("ExternalLogin")]
+        [HttpGet("ExternalLogin")] // -- Issue #41
         public IActionResult ExternalLogin()
         {
             var properties = new AuthenticationProperties { RedirectUri = Url.Action(nameof(ExternalLoginCallback)) };
@@ -129,7 +141,7 @@ namespace backend.Controllers
         /// Callback da autenticação com a Google
         /// </summary>
         /// <returns></returns>
-        [HttpGet("ExternalLoginCallback")]
+        [HttpGet("ExternalLoginCallback")] // -- Issue #41
         public async Task<IActionResult> ExternalLoginCallback()
         {
             // Obter os dados do utilizador autenticado pela Google
@@ -143,7 +155,8 @@ namespace backend.Controllers
             // Criar as claims do utilizador
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, authenticateResult.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+                new Claim(ClaimTypes.NameIdentifier,
+                    authenticateResult.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value),
                 new Claim(ClaimTypes.Name, authenticateResult.Principal.FindFirst(ClaimTypes.Name)?.Value),
                 // Podes adicionar outras claims conforme necessário
             };
@@ -152,7 +165,8 @@ namespace backend.Controllers
             var userIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
             // Autenticar o utilizador no esquema de autenticação por cookies
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userIdentity));
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(userIdentity));
 
             // Redirecionar para a página principal ou para onde quer que o utilizador deva ser redirecionado após autenticação
             return RedirectToAction("Index", "Home");
@@ -170,7 +184,7 @@ namespace backend.Controllers
         /// <returns></returns>
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUtilizador(int id, [FromBody] Utilizador utilizador)
+        public async Task<IActionResult> PutUtilizador(int id, [FromBody] UtilizadorUpdateDTO utilizadorDTO)
         {
             var userToUpdate = await _context.Utilizador.FindAsync(id);
 
@@ -180,49 +194,37 @@ namespace backend.Controllers
             }
 
             // Impedir a alteração do email -- Issue #40
-            if (utilizador.email != userToUpdate.email)
-            {
-                return BadRequest("Não é permitido alterar o email.");
-            }
+            //if (utilizadorDTO.email != userToUpdate.email)
+            //{
+            //    return BadRequest("Não é permitido alterar o email.");
+            //}
 
             try
             {
-                // Atualizar os campos permitidos -- Issue #37
-                if (!string.IsNullOrEmpty(utilizador.nome))
+                // Atualizar os campos permitidos
+                if (!string.IsNullOrEmpty(utilizadorDTO.Nome) && utilizadorDTO.Nome != userToUpdate.nome)
                 {
-                    // Verificar se o nome é diferente do atual
-                    if (utilizador.nome != userToUpdate.nome)
-                    {
-                        await userToUpdate.AtualizarNomeAsync(utilizador.nome, _context);
-                    }
+                    userToUpdate.nome = utilizadorDTO.Nome;
                 }
 
-                if (!string.IsNullOrEmpty(utilizador.apelido))
+                if (!string.IsNullOrEmpty(utilizadorDTO.Apelido) && utilizadorDTO.Apelido != userToUpdate.apelido)
                 {
-                    // Verificar se o apelido é diferente do atual
-                    if (utilizador.apelido != userToUpdate.apelido)
-                    {
-                        await userToUpdate.AtualizarApelidoAsync(utilizador.apelido, _context);
-                    }
+                    userToUpdate.apelido = utilizadorDTO.Apelido;
                 }
 
-                if (utilizador.dataNascimento != null)
+                if (utilizadorDTO.DataNascimento.HasValue &&
+                    utilizadorDTO.DataNascimento != userToUpdate.dataNascimento)
                 {
-                    // Verificar se a data de nascimento é diferente da atual
-                    if (utilizador.dataNascimento != userToUpdate.dataNascimento)
-                    {
-                        await userToUpdate.AtualizarDataNascimentoAsync(utilizador.dataNascimento, _context);
-                    }
+                    userToUpdate.dataNascimento = utilizadorDTO.DataNascimento.Value;
                 }
 
-                if (!string.IsNullOrEmpty(utilizador.fotoPerfil))
+                if (!string.IsNullOrEmpty(utilizadorDTO.FotoPerfil) &&
+                    utilizadorDTO.FotoPerfil != userToUpdate.fotoPerfil)
                 {
-                    // Verificar se a foto de perfil é diferente da atual
-                    if (utilizador.fotoPerfil != userToUpdate.fotoPerfil)
-                    {
-                        await userToUpdate.AtualizarFotoPerfilAsync(utilizador.fotoPerfil, _context);
-                    }
+                    userToUpdate.fotoPerfil = utilizadorDTO.FotoPerfil;
                 }
+
+                await _context.SaveChangesAsync();
 
                 return Ok("Alterado com sucesso.");
             }
@@ -231,6 +233,7 @@ namespace backend.Controllers
                 return StatusCode(500, $"Erro ao atualizar utilizador: {ex.Message}");
             }
         }
+    
 
         /// <summary>
         /// Atualizar a senha do utilizador pelo ID
@@ -239,10 +242,14 @@ namespace backend.Controllers
         /// <param name="novaSenha"></param>
         /// <returns></returns>
         [HttpPut("{id}/AlterarSenha")]
-        public async Task<IActionResult> AlterarSenha(int id, [FromBody] string novaSenha)
+        public async Task<IActionResult> AlterarSenha(int id, [FromBody] UtilizadorUpdateSenhaDTO alterarSenhaDTO)
         {
-            var userToUpdate = await _context.Utilizador.FindAsync(id);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
+            var userToUpdate = await _context.Utilizador.FindAsync(id);
             if (userToUpdate == null)
             {
                 return NotFound();
@@ -250,7 +257,7 @@ namespace backend.Controllers
 
             try
             {
-                await userToUpdate.AtualizarSenhaAsync(novaSenha, _context);
+                await userToUpdate.AtualizarSenhaAsync(alterarSenhaDTO.NovaSenha, _context);
                 return Ok("Senha alterada com sucesso.");
             }
             catch (Exception ex)
@@ -258,6 +265,7 @@ namespace backend.Controllers
                 return StatusCode(500, $"Erro ao atualizar senha: {ex.Message}");
             }
         }
+
 
         #endregion
 
@@ -270,35 +278,47 @@ namespace backend.Controllers
         /// <returns></returns>
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Utilizador>> PostUtilizador(Utilizador utilizador)
+        public async Task<ActionResult<Utilizador>> PostUtilizador(UtilizadorCreateDTO utilizadorDTO)
         {
-            // Campo DataRegisto é preenchido NULL para conseguirmos verificar a confirmação do email
-            utilizador.dataRegisto = null;
+            var utilizador = new Utilizador
+            {
+                nome = utilizadorDTO.nome,
+                apelido = utilizadorDTO.apelido,
+                dataNascimento = utilizadorDTO.dataNascimento,
+                username = utilizadorDTO.username,
+                password = utilizadorDTO.password,
+                email = utilizadorDTO.email,
+                fotoPerfil = utilizadorDTO.fotoPerfil,
+                dataRegisto = null, // DataRegisto é preenchido NULL inicialmente
+                ultimologin = utilizadorDTO.ultimologin,
+                notficacaoPedidoTroca = utilizadorDTO.notficacaoPedidoTroca,
+                notficacaoAceiteTroca = utilizadorDTO.notficacaoAceiteTroca,
+                notficacaoCorrespondencia = utilizadorDTO.notficacaoCorrespondencia,
+                tipoUtilizadorId = utilizadorDTO.tipoUtilizadorId,
+                estadoContaId = utilizadorDTO.estadoContaId
+            };
 
-            // try-catch para apanhar exceções
             try
             {
                 _context.Utilizador.Add(utilizador);
                 await _context.SaveChangesAsync();
+
+                EmailSender emailSender = new EmailSender();
+                await emailSender.SendEmailConfirmationAsync(utilizador.email, utilizador.utilizadorID);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Erro ao criar utilizador: {ex.Message}");
             }
 
-            try
-            {
-                // Enviar email de confirmação
-                EmailSender emailSender = new EmailSender();
-                await emailSender.SendEmailConfirmationAsync(utilizador.email, utilizador.utilizadorID);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Erro ao enviar email de confirmação: {ex.Message}");
-            }
+            // Gerar token JWT após a criação bem-sucedida do utilizador
+            var token = _jwtTokenGenerator.GenerateToken(utilizador.utilizadorID.ToString());
+            
+            // Retornar o token JWT junto com o utilizador criado
+            return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, new { Utilizador = utilizador, Token = token });
 
-            return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, utilizador);
         }
+
 
         #endregion
 
@@ -309,7 +329,7 @@ namespace backend.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}")] // -- Issue #38
         public async Task<IActionResult> DeleteUtilizador(int id)
         {
             try

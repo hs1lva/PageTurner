@@ -12,7 +12,7 @@ public class Cidade
     private PageTurnerContext _Bd;//apenas para testes (falar com o professor)
 
     //chave estranjeira para Pais
-    public Pais paisCidade { get; set; }
+    public int paisId { get; set; }
 
     //Construtor
     public Cidade(){

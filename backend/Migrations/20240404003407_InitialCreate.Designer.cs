@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PageTurnerAPI.Migrations
 {
     [DbContext(typeof(PageTurnerContext))]
-    [Migration("20240326093642_add_one_to_many_relationships_avaliacao_livros")]
-    partial class add_one_to_many_relationships_avaliacao_livros
+    [Migration("20240404003407_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,21 +23,6 @@ namespace PageTurnerAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("ComentarioLivroConteudoOfensivo", b =>
-                {
-                    b.Property<int>("comentarioscomentarioId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("conteudoOfensivoId")
-                        .HasColumnType("int");
-
-                    b.HasKey("comentarioscomentarioId", "conteudoOfensivoId");
-
-                    b.HasIndex("conteudoOfensivoId");
-
-                    b.ToTable("ComentarioLivroConteudoOfensivo");
-                });
 
             modelBuilder.Entity("backend.Models.AutorLivro", b =>
                 {
@@ -109,37 +94,52 @@ namespace PageTurnerAPI.Migrations
 
             modelBuilder.Entity("backend.Models.ComentarioLivro", b =>
                 {
-                    b.Property<int>("comentarioId")
+                    b.Property<int>("ComentarioId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("comentarioId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ComentarioId"));
 
-                    b.Property<string>("comentario")
+                    b.Property<string>("Comentario")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("dataComentario")
+                    b.Property<DateTime>("DataComentario")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("LivroId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UtilizadorId")
+                        .HasColumnType("int");
 
                     b.Property<int>("estadoComentarioId")
                         .HasColumnType("int");
 
-                    b.Property<int>("livroId")
-                        .HasColumnType("int");
+                    b.HasKey("ComentarioId");
 
-                    b.Property<int>("utilizadorID")
-                        .HasColumnType("int");
+                    b.HasIndex("LivroId");
 
-                    b.HasKey("comentarioId");
+                    b.HasIndex("UtilizadorId");
 
                     b.HasIndex("estadoComentarioId");
 
-                    b.HasIndex("livroId");
+                    b.ToTable("ComentarioLivro");
+                });
 
-                    b.HasIndex("utilizadorID");
+            modelBuilder.Entity("backend.Models.ComentarioLivroConteudoOfensivo", b =>
+                {
+                    b.Property<int>("ComentarioId")
+                        .HasColumnType("int");
 
-                    b.ToTable("CommentLivro");
+                    b.Property<int>("ConteudoOfensivoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ComentarioId", "ConteudoOfensivoId");
+
+                    b.HasIndex("ConteudoOfensivoId");
+
+                    b.ToTable("ComentarioLivroConteudoOfensivo");
                 });
 
             modelBuilder.Entity("backend.Models.ConteudoOfensivo", b =>
@@ -275,8 +275,9 @@ namespace PageTurnerAPI.Migrations
                     b.Property<int>("generoLivrogeneroId")
                         .HasColumnType("int");
 
-                    b.Property<int>("idiomaOriginalLivro")
-                        .HasColumnType("int");
+                    b.Property<string>("idiomaOriginalLivro")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("tituloLivro")
                         .IsRequired()
@@ -436,38 +437,19 @@ namespace PageTurnerAPI.Migrations
                     b.ToTable("Utilizador");
                 });
 
-            modelBuilder.Entity("ComentarioLivroConteudoOfensivo", b =>
-                {
-                    b.HasOne("backend.Models.ComentarioLivro", null)
-                        .WithMany()
-                        .HasForeignKey("comentarioscomentarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Models.ConteudoOfensivo", null)
-                        .WithMany()
-                        .HasForeignKey("conteudoOfensivoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("backend.Models.AvaliacaoLivro", b =>
                 {
-                    b.HasOne("backend.Models.Livro", "Livro")
+                    b.HasOne("backend.Models.Livro", null)
                         .WithMany("Avaliacoes")
                         .HasForeignKey("LivroId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Models.Utilizador", "Utilizador")
+                    b.HasOne("backend.Models.Utilizador", null)
                         .WithMany("Avaliacoes")
                         .HasForeignKey("UtilizadorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Livro");
-
-                    b.Navigation("Utilizador");
                 });
 
             modelBuilder.Entity("backend.Models.Cidade", b =>
@@ -483,29 +465,44 @@ namespace PageTurnerAPI.Migrations
 
             modelBuilder.Entity("backend.Models.ComentarioLivro", b =>
                 {
-                    b.HasOne("backend.Models.EstadoComentario", "estadoComentario")
+                    b.HasOne("backend.Models.Livro", null)
+                        .WithMany("Comentarios")
+                        .HasForeignKey("LivroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Models.Utilizador", null)
+                        .WithMany("Comentarios")
+                        .HasForeignKey("UtilizadorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Models.EstadoComentario", "EstadoComentario")
                         .WithMany()
                         .HasForeignKey("estadoComentarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Models.Livro", "livro")
-                        .WithMany()
-                        .HasForeignKey("livroId")
+                    b.Navigation("EstadoComentario");
+                });
+
+            modelBuilder.Entity("backend.Models.ComentarioLivroConteudoOfensivo", b =>
+                {
+                    b.HasOne("backend.Models.ComentarioLivro", "ComentarioLivro")
+                        .WithMany("ComentarioConteudoOfensivo")
+                        .HasForeignKey("ComentarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Models.Utilizador", "utilizador")
-                        .WithMany()
-                        .HasForeignKey("utilizadorID")
+                    b.HasOne("backend.Models.ConteudoOfensivo", "ConteudoOfensivo")
+                        .WithMany("ComentarioConteudoOfensivo")
+                        .HasForeignKey("ConteudoOfensivoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("estadoComentario");
+                    b.Navigation("ComentarioLivro");
 
-                    b.Navigation("livro");
-
-                    b.Navigation("utilizador");
+                    b.Navigation("ConteudoOfensivo");
                 });
 
             modelBuilder.Entity("backend.Models.Estante", b =>
@@ -592,14 +589,28 @@ namespace PageTurnerAPI.Migrations
                     b.Navigation("tipoUtilizador");
                 });
 
+            modelBuilder.Entity("backend.Models.ComentarioLivro", b =>
+                {
+                    b.Navigation("ComentarioConteudoOfensivo");
+                });
+
+            modelBuilder.Entity("backend.Models.ConteudoOfensivo", b =>
+                {
+                    b.Navigation("ComentarioConteudoOfensivo");
+                });
+
             modelBuilder.Entity("backend.Models.Livro", b =>
                 {
                     b.Navigation("Avaliacoes");
+
+                    b.Navigation("Comentarios");
                 });
 
             modelBuilder.Entity("backend.Models.Utilizador", b =>
                 {
                     b.Navigation("Avaliacoes");
+
+                    b.Navigation("Comentarios");
                 });
 #pragma warning restore 612, 618
         }

@@ -30,17 +30,35 @@ namespace backend.Controllers
 
         // GET: api/Livro/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Livro>> GetLivro(int id)
+        public async Task<ActionResult<LivroDTO>> GetLivro(int id)
         {
-            var livro = await _context.Livro.FindAsync(id);
+            var livro = await _context.Livro
+                .Include(x => x.Comentarios)
+                .Include(x => x.Avaliacoes)
+                .FirstOrDefaultAsync(x => x.livroId == id);
 
             if (livro == null)
             {
                 return NotFound();
             }
 
-            return livro;
+            // usamos o DTO para incluir a media de avaliação
+            var livroDto = new LivroDTO
+            {
+                LivroId = livro.livroId,
+                TituloLivro = livro.tituloLivro,
+                AnoPrimeiraPublicacao = livro.anoPrimeiraPublicacao,
+                IdiomaOriginalLivro = livro.idiomaOriginalLivro,
+                AutorLivro = livro.autorLivro,
+                GeneroLivro = livro.generoLivro,
+                MediaAvaliacao = livro.MediaAvaliacao(),
+                Comentarios = livro.Comentarios,
+				Avaliacoes = livro.Avaliacoes
+            };
+
+            return livroDto;
         }
+
 
         /// <summary>
         /// Método para pesquisar um livro pelo título
@@ -150,8 +168,21 @@ namespace backend.Controllers
         // POST: api/Livro
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Livro>> PostLivro(Livro livro)
+        public async Task<ActionResult<Livro>> PostLivro(LivroCreateDTO livroDto)
         {
+			var livro = new Livro { 
+				tituloLivro = livroDto.TituloLivro,
+				anoPrimeiraPublicacao = livroDto.AnoPrimeiraPublicacao,
+				idiomaOriginalLivro = livroDto.IdiomaOriginalLivro,
+				autorLivro = await _context.AutorLivro.FindAsync(livroDto.AutorLivroId),
+				generoLivro = await _context.GeneroLivro.FindAsync(livroDto.GeneroLivroId)
+            };
+
+            if (livro == null)
+            {
+                return BadRequest();
+			}
+
             _context.Livro.Add(livro);
             await _context.SaveChangesAsync();
 

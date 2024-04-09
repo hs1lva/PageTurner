@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PageTurnerAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -136,7 +136,7 @@ namespace PageTurnerAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     tituloLivro = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     anoPrimeiraPublicacao = table.Column<int>(type: "int", nullable: false),
-                    idiomaOriginalLivro = table.Column<int>(type: "int", nullable: false),
+                    idiomaOriginalLivro = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     autorLivroId = table.Column<int>(type: "int", nullable: false),
                     generoLivrogeneroId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -190,24 +190,17 @@ namespace PageTurnerAPI.Migrations
                     password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     fotoPerfil = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    dataRegisto = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    dataRegisto = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ultimologin = table.Column<DateTime>(type: "datetime2", nullable: false),
                     notficacaoPedidoTroca = table.Column<bool>(type: "bit", nullable: false),
                     notficacaoAceiteTroca = table.Column<bool>(type: "bit", nullable: false),
                     notficacaoCorrespondencia = table.Column<bool>(type: "bit", nullable: false),
                     tipoUtilizadortipoUtilId = table.Column<int>(type: "int", nullable: false),
-                    estadoContaId = table.Column<int>(type: "int", nullable: false),
-                    cidadeId = table.Column<int>(type: "int", nullable: false)
+                    estadoContaId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Utilizador", x => x.utilizadorID);
-                    table.ForeignKey(
-                        name: "FK_Utilizador_Cidade_cidadeId",
-                        column: x => x.cidadeId,
-                        principalTable: "Cidade",
-                        principalColumn: "cidadeId",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Utilizador_EstadoConta_estadoContaId",
                         column: x => x.estadoContaId,
@@ -226,60 +219,60 @@ namespace PageTurnerAPI.Migrations
                 name: "AvaliacaoLivro",
                 columns: table => new
                 {
-                    avaliacaoId = table.Column<int>(type: "int", nullable: false)
+                    AvaliacaoId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    nota = table.Column<int>(type: "int", nullable: false),
-                    dataAvaliacao = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    utilizadorID = table.Column<int>(type: "int", nullable: false),
-                    livroId = table.Column<int>(type: "int", nullable: false)
+                    Nota = table.Column<int>(type: "int", nullable: false),
+                    DataAvaliacao = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UtilizadorId = table.Column<int>(type: "int", nullable: false),
+                    LivroId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AvaliacaoLivro", x => x.avaliacaoId);
+                    table.PrimaryKey("PK_AvaliacaoLivro", x => x.AvaliacaoId);
                     table.ForeignKey(
-                        name: "FK_AvaliacaoLivro_Livro_livroId",
-                        column: x => x.livroId,
+                        name: "FK_AvaliacaoLivro_Livro_LivroId",
+                        column: x => x.LivroId,
                         principalTable: "Livro",
                         principalColumn: "livroId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AvaliacaoLivro_Utilizador_utilizadorID",
-                        column: x => x.utilizadorID,
+                        name: "FK_AvaliacaoLivro_Utilizador_UtilizadorId",
+                        column: x => x.UtilizadorId,
                         principalTable: "Utilizador",
                         principalColumn: "utilizadorID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "CommentLivro",
+                name: "ComentarioLivro",
                 columns: table => new
                 {
-                    comentarioId = table.Column<int>(type: "int", nullable: false)
+                    ComentarioId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    comentario = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    dataComentario = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    utilizadorID = table.Column<int>(type: "int", nullable: false),
-                    livroId = table.Column<int>(type: "int", nullable: false),
-                    estadoComentarioId = table.Column<int>(type: "int", nullable: false)
+                    Comentario = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DataComentario = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    estadoComentarioId = table.Column<int>(type: "int", nullable: false),
+                    UtilizadorId = table.Column<int>(type: "int", nullable: false),
+                    LivroId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CommentLivro", x => x.comentarioId);
+                    table.PrimaryKey("PK_ComentarioLivro", x => x.ComentarioId);
                     table.ForeignKey(
-                        name: "FK_CommentLivro_EstadoComentario_estadoComentarioId",
+                        name: "FK_ComentarioLivro_EstadoComentario_estadoComentarioId",
                         column: x => x.estadoComentarioId,
                         principalTable: "EstadoComentario",
                         principalColumn: "estadoComentarioId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CommentLivro_Livro_livroId",
-                        column: x => x.livroId,
+                        name: "FK_ComentarioLivro_Livro_LivroId",
+                        column: x => x.LivroId,
                         principalTable: "Livro",
                         principalColumn: "livroId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CommentLivro_Utilizador_utilizadorID",
-                        column: x => x.utilizadorID,
+                        name: "FK_ComentarioLivro_Utilizador_UtilizadorId",
+                        column: x => x.UtilizadorId,
                         principalTable: "Utilizador",
                         principalColumn: "utilizadorID",
                         onDelete: ReferentialAction.Cascade);
@@ -323,21 +316,21 @@ namespace PageTurnerAPI.Migrations
                 name: "ComentarioLivroConteudoOfensivo",
                 columns: table => new
                 {
-                    comentarioscomentarioId = table.Column<int>(type: "int", nullable: false),
-                    conteudoOfensivoId = table.Column<int>(type: "int", nullable: false)
+                    ComentarioId = table.Column<int>(type: "int", nullable: false),
+                    ConteudoOfensivoId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ComentarioLivroConteudoOfensivo", x => new { x.comentarioscomentarioId, x.conteudoOfensivoId });
+                    table.PrimaryKey("PK_ComentarioLivroConteudoOfensivo", x => new { x.ComentarioId, x.ConteudoOfensivoId });
                     table.ForeignKey(
-                        name: "FK_ComentarioLivroConteudoOfensivo_CommentLivro_comentarioscomentarioId",
-                        column: x => x.comentarioscomentarioId,
-                        principalTable: "CommentLivro",
-                        principalColumn: "comentarioId",
+                        name: "FK_ComentarioLivroConteudoOfensivo_ComentarioLivro_ComentarioId",
+                        column: x => x.ComentarioId,
+                        principalTable: "ComentarioLivro",
+                        principalColumn: "ComentarioId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ComentarioLivroConteudoOfensivo_ConteudoOfensivo_conteudoOfensivoId",
-                        column: x => x.conteudoOfensivoId,
+                        name: "FK_ComentarioLivroConteudoOfensivo_ConteudoOfensivo_ConteudoOfensivoId",
+                        column: x => x.ConteudoOfensivoId,
                         principalTable: "ConteudoOfensivo",
                         principalColumn: "conteudoOfensivoId",
                         onDelete: ReferentialAction.Cascade);
@@ -372,14 +365,14 @@ namespace PageTurnerAPI.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AvaliacaoLivro_livroId",
+                name: "IX_AvaliacaoLivro_LivroId",
                 table: "AvaliacaoLivro",
-                column: "livroId");
+                column: "LivroId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AvaliacaoLivro_utilizadorID",
+                name: "IX_AvaliacaoLivro_UtilizadorId",
                 table: "AvaliacaoLivro",
-                column: "utilizadorID");
+                column: "UtilizadorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cidade_paisCidadepaisId",
@@ -387,24 +380,24 @@ namespace PageTurnerAPI.Migrations
                 column: "paisCidadepaisId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ComentarioLivroConteudoOfensivo_conteudoOfensivoId",
-                table: "ComentarioLivroConteudoOfensivo",
-                column: "conteudoOfensivoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CommentLivro_estadoComentarioId",
-                table: "CommentLivro",
+                name: "IX_ComentarioLivro_estadoComentarioId",
+                table: "ComentarioLivro",
                 column: "estadoComentarioId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommentLivro_livroId",
-                table: "CommentLivro",
-                column: "livroId");
+                name: "IX_ComentarioLivro_LivroId",
+                table: "ComentarioLivro",
+                column: "LivroId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommentLivro_utilizadorID",
-                table: "CommentLivro",
-                column: "utilizadorID");
+                name: "IX_ComentarioLivro_UtilizadorId",
+                table: "ComentarioLivro",
+                column: "UtilizadorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ComentarioLivroConteudoOfensivo_ConteudoOfensivoId",
+                table: "ComentarioLivroConteudoOfensivo",
+                column: "ConteudoOfensivoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Estante_livroId",
@@ -442,11 +435,6 @@ namespace PageTurnerAPI.Migrations
                 column: "estanteId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Utilizador_cidadeId",
-                table: "Utilizador",
-                column: "cidadeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Utilizador_estadoContaId",
                 table: "Utilizador",
                 column: "estadoContaId");
@@ -464,13 +452,19 @@ namespace PageTurnerAPI.Migrations
                 name: "AvaliacaoLivro");
 
             migrationBuilder.DropTable(
+                name: "Cidade");
+
+            migrationBuilder.DropTable(
                 name: "ComentarioLivroConteudoOfensivo");
 
             migrationBuilder.DropTable(
                 name: "Troca");
 
             migrationBuilder.DropTable(
-                name: "CommentLivro");
+                name: "Pais");
+
+            migrationBuilder.DropTable(
+                name: "ComentarioLivro");
 
             migrationBuilder.DropTable(
                 name: "ConteudoOfensivo");
@@ -500,16 +494,10 @@ namespace PageTurnerAPI.Migrations
                 name: "GeneroLivro");
 
             migrationBuilder.DropTable(
-                name: "Cidade");
-
-            migrationBuilder.DropTable(
                 name: "EstadoConta");
 
             migrationBuilder.DropTable(
                 name: "TipoUtilizador");
-
-            migrationBuilder.DropTable(
-                name: "Pais");
         }
     }
 }
