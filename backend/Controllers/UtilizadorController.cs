@@ -233,7 +233,7 @@ namespace backend.Controllers
                 return StatusCode(500, $"Erro ao atualizar utilizador: {ex.Message}");
             }
         }
-    
+
 
         /// <summary>
         /// Atualizar a senha do utilizador pelo ID
@@ -274,19 +274,22 @@ namespace backend.Controllers
         /// <summary>
         /// Criar um novo utilizador
         /// </summary>
-        /// <param name="utilizador"></param>
+        /// <param name="utilizadorDTO"></param>
         /// <returns></returns>
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Utilizador>> PostUtilizador(UtilizadorCreateDTO utilizadorDTO)
+        public ActionResult<Utilizador> PostUtilizador(UtilizadorCreateDTO utilizadorDTO)
         {
+            // Gerar o hash da senha
+            string hashedPassword = HashPassword(utilizadorDTO.password);
+
             var utilizador = new Utilizador
             {
                 nome = utilizadorDTO.nome,
                 apelido = utilizadorDTO.apelido,
                 dataNascimento = utilizadorDTO.dataNascimento,
                 username = utilizadorDTO.username,
-                password = utilizadorDTO.password,
+                password = hashedPassword, // Atribuir o hash da senha
                 email = utilizadorDTO.email,
                 fotoPerfil = utilizadorDTO.fotoPerfil,
                 dataRegisto = null, // DataRegisto é preenchido NULL inicialmente
@@ -301,10 +304,10 @@ namespace backend.Controllers
             try
             {
                 _context.Utilizador.Add(utilizador);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
 
                 EmailSender emailSender = new EmailSender();
-                await emailSender.SendEmailConfirmationAsync(utilizador.email, utilizador.utilizadorID);
+                emailSender.SendEmailConfirmationAsync(utilizador.email, utilizador.utilizadorID); // Chamada assíncrona, mas não esperamos o resultado aqui
             }
             catch (Exception ex)
             {
@@ -313,12 +316,39 @@ namespace backend.Controllers
 
             // Gerar token JWT após a criação bem-sucedida do utilizador
             var token = _jwtTokenGenerator.GenerateToken(utilizador.utilizadorID.ToString());
-            
+
             // Retornar o token JWT junto com o utilizador criado
             return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, new { Utilizador = utilizador, Token = token });
-
         }
 
+        /// <summary>
+        /// Autenticar um utilizador
+        /// </summary>
+        /// <param name="loginDTO"></param>
+        /// <returns></returns>
+        [HttpPost("Login")]
+        public async Task<ActionResult> Login(LoginDTO loginDTO)
+        {
+            // Obter o utilizador com base no nome de usuário
+            var user = await _context.Utilizador.FirstOrDefaultAsync(u => u.username == loginDTO.Username);
+            if (user == null)
+            {
+                return Unauthorized(); // Utilizador não encontrado
+            }
+
+            // Verificar se a senha fornecida corresponde ao hash armazenado no banco de dados
+            bool passwordMatch = BCrypt.Net.BCrypt.Verify(loginDTO.Password, user.password);
+            if (!passwordMatch)
+            {
+                return Unauthorized(); // Credenciais inválidas
+            }
+
+            // Gerar token JWT
+            var token = _jwtTokenGenerator.GenerateToken(user.utilizadorID.ToString());
+
+            // Retornar o token JWT junto com o usuário autenticado
+            return Ok(new { Token = token, Utilizador = user });
+        }
 
         #endregion
 
@@ -353,7 +383,21 @@ namespace backend.Controllers
         }
 
         #endregion
-        
+
+        /// <summary>
+        /// Hash da senha do utilizador
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        private string HashPassword(string password)
+        {
+            // Defina o custo do hash (quanto maior, mais seguro, mas também mais lento)
+            int workFactor = 12; // Ajuste conforme necessário
+
+            // Gerar o hash da senha usando bcrypt
+            return BCrypt.Net.BCrypt.HashPassword(password, workFactor);
+        }
+
         /// <summary>
         /// Verificar se um utilizador existe
         /// </summary>

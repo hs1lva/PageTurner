@@ -1,6 +1,8 @@
 
 using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
+using BCrypt.Net;
 
 namespace backend.Models;
 
