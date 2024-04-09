@@ -20,6 +20,7 @@ namespace backend.Controllers
             _context = context;
         }
 
+        #region Métodos GET
         // GET: api/Livro
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Livro>>> GetLivro()
@@ -40,8 +41,8 @@ namespace backend.Controllers
             {
                 return NotFound();
             }
-	
-			// usamos o DTO para incluir a media de avaliação
+
+            // usamos o DTO para incluir a media de avaliação
             var livroDto = new LivroDTO
             {
                 LivroId = livro.livroId,
@@ -59,6 +60,76 @@ namespace backend.Controllers
         }
 
 
+        /// <summary>
+        /// Método para pesquisar um livro pelo título
+        /// </summary>
+        /// <param name="termo"></param>
+        /// <returns></returns>
+        // GET: api/Livro/Pesquisar/{termo}
+        [HttpGet("Pesquisar/{termo}")]
+        public async Task<ActionResult<IEnumerable<Livro>>> PesquisarLivro(string termo)
+        {
+            var livro = await _context.Livro
+                .Where(l => l.tituloLivro.ToLower() == termo.ToLower())
+                .ToListAsync();
+
+            if (livro == null || livro.Count == 0)
+            {
+                livro = await _context.Livro
+                    .Where(l => l.tituloLivro.ToLower().Contains(termo.ToLower()))
+                    .ToListAsync();
+            }
+
+            if (livro == null || livro.Count == 0)
+            {
+                return NotFound();
+            }
+
+            if (livro.Count == 1)
+                {
+                    return Ok(livro.First());
+                }
+
+            return livro;
+        }
+
+        // GET: api/Livro/GetPerfilLivro/{id}
+        [HttpGet("GetPerfilLivro/{id}")]
+        public async Task<ActionResult<Livro>> PerfilLivro(int id)
+        {
+            try
+            {
+                var livro = await _context.Livro
+                                            .Include(l => l.autorLivro)
+                                            .Include(l => l.generoLivro)
+                                            .Include(l => l.Avaliacoes)
+                                            .FirstOrDefaultAsync(l => l.livroId == id);
+
+                if (livro == null)
+                {
+                    return NotFound();
+                }
+
+                var comentarios = await _context.ComentarioLivro
+                                                .Where(c => c.livroId == id)
+                                                .ToListAsync();
+
+                if (comentarios.Any())
+                {
+                    livro.Comentarios = comentarios;
+                }
+
+                return livro;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao obter detalhes do livro: {ex.Message}");
+            }
+        }
+
+        #endregion
+
+        #region Métodos PUT
         // PUT: api/Livro/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -90,6 +161,10 @@ namespace backend.Controllers
             return NoContent();
         }
 
+        #endregion
+
+        
+        #region Métodos POST
         // POST: api/Livro
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -113,7 +188,9 @@ namespace backend.Controllers
 
             return CreatedAtAction("GetLivro", new { id = livro.livroId }, livro);
         }
+        #endregion
 
+        #region Métodos DELETE
         // DELETE: api/Livro/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteLivro(int id)
@@ -129,10 +206,11 @@ namespace backend.Controllers
 
             return NoContent();
         }
-
+        #endregion
         private bool LivroExists(int id)
         {
             return _context.Livro.Any(e => e.livroId == id);
         }
+        
     }
 }
