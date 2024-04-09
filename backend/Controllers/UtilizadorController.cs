@@ -16,10 +16,14 @@ namespace backend.Controllers
     public class UtilizadorController : ControllerBase
     {
         private readonly PageTurnerContext _context;
+        private readonly JwtTokenGenerator _jwtTokenGenerator; // Declaração da variável para gerar o token JWT
+
 
         public UtilizadorController(PageTurnerContext context)
         {
             _context = context;
+            _jwtTokenGenerator = new JwtTokenGenerator(); // Inicialização da variável para gerar o token JWT
+
         }
 
         #region Métodos GET
@@ -307,7 +311,12 @@ namespace backend.Controllers
                 return StatusCode(500, $"Erro ao criar utilizador: {ex.Message}");
             }
 
-            return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, utilizador);
+            // Gerar token JWT após a criação bem-sucedida do utilizador
+            var token = _jwtTokenGenerator.GenerateToken(utilizador.utilizadorID.ToString());
+            
+            // Retornar o token JWT junto com o utilizador criado
+            return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, new { Utilizador = utilizador, Token = token });
+
         }
 
 
