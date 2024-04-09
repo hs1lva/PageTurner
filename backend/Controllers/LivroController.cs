@@ -66,33 +66,35 @@ namespace backend.Controllers
         /// <param name="termo"></param>
         /// <returns></returns>
         // GET: api/Livro/Pesquisar/{termo}
-        [HttpGet("Pesquisar/{termo}")]
-        public async Task<ActionResult<IEnumerable<Livro>>> PesquisarLivro(string termo)
+        [HttpGet("PesquisarLivro/{termo}")]
+        public async Task<ActionResult<IEnumerable<LivroDTO>>> PesquisarLivro(string termo)
         {
-            var livro = await _context.Livro
-                .Where(l => l.tituloLivro.ToLower() == termo.ToLower())
+            var livros = await _context.Livro
+                .Include(l => l.autorLivro)
+                .Include(l => l.generoLivro)
+                .Where(l => l.tituloLivro.ToLower().Contains(termo.ToLower()))
+                .Select(l => new LivroDTO
+                {
+                    LivroId = l.livroId,
+                    TituloLivro = l.tituloLivro,
+                    AutorLivro = l.autorLivro,
+                    GeneroLivro = l.generoLivro
+                })
                 .ToListAsync();
 
-            if (livro == null || livro.Count == 0)
-            {
-                livro = await _context.Livro
-                    .Where(l => l.tituloLivro.ToLower().Contains(termo.ToLower()))
-                    .ToListAsync();
-            }
-
-            if (livro == null || livro.Count == 0)
+            if (livros == null || livros.Count == 0)
             {
                 return NotFound();
             }
 
-            if (livro.Count == 1)
-                {
-                    return Ok(livro.First());
-                }
-
-            return livro;
+            return livros;
         }
-
+        
+        /// <summary>
+        /// Método para obter o perfil de um livro através do ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET: api/Livro/GetPerfilLivro/{id}
         [HttpGet("GetPerfilLivro/{id}")]
         public async Task<ActionResult<Livro>> PerfilLivro(int id)
