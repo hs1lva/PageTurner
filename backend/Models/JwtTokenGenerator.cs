@@ -4,6 +4,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace backend.Models
 {
@@ -17,7 +19,7 @@ namespace backend.Models
         public string GenerateToken(string userId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("$3cr3tK3y@Jwt#2024"); // A nossa secret key aleatória com varios tipos de caracteres
+            var key = GenerateRandomKey(); // Gerar uma chave aleatória de 256 bits
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
@@ -29,6 +31,20 @@ namespace backend.Models
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        /// <summary>
+        /// Gerar uma chave aleatória de 256 bits
+        /// </summary>
+        /// <returns></returns>
+        private byte[] GenerateRandomKey()
+        {
+            var key = new byte[32]; // 256 bits = 32 bytes
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(key);
+            }
+            return key;
         }
     }
 }
