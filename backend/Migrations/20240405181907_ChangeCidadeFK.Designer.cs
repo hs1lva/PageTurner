@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PageTurnerAPI.Migrations
 {
     [DbContext(typeof(PageTurnerContext))]
-    partial class PageTurnerContextModelSnapshot : ModelSnapshot
+    [Migration("20240405181907_ChangeCidadeFK")]
+    partial class ChangeCidadeFK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -413,7 +416,7 @@ namespace PageTurnerAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("tipoUtilizadorId")
+                    b.Property<int>("tipoUtilizadortipoUtilId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ultimologin")
@@ -427,7 +430,7 @@ namespace PageTurnerAPI.Migrations
 
                     b.HasIndex("estadoContaId");
 
-                    b.HasIndex("tipoUtilizadorId");
+                    b.HasIndex("tipoUtilizadortipoUtilId");
 
                     b.ToTable("Utilizador");
                 });
@@ -564,7 +567,7 @@ namespace PageTurnerAPI.Migrations
 
                     b.HasOne("backend.Models.TipoUtilizador", "tipoUtilizador")
                         .WithMany()
-                        .HasForeignKey("tipoUtilizadorId")
+                        .HasForeignKey("tipoUtilizadortipoUtilId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
