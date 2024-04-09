@@ -110,14 +110,14 @@ namespace backend.Controllers
                     return NotFound();
                 }
 
-                // var comentarios = await _context.ComentarioLivro
-                //                                 .Where(c => c.LivroId == id)
-                //                                 .ToListAsync();
+                var comentarios = await _context.ComentarioLivro
+                                                .Where(c => c.livroId == id)
+                                                .ToListAsync();
 
-                // if (comentarios.Any())
-                // {
-                //     livro.Comentarios = comentarios;
-                // }
+                if (comentarios.Any())
+                {
+                    livro.Comentarios = comentarios;
+                }
 
                 return livro;
             }
