@@ -75,12 +75,26 @@ namespace backend.Controllers
         // POST: api/Estante
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Estante>> PostEstante(Estante estante)
+        public async Task<ActionResult<Estante>> PostEstante(EstanteCreateDTO estante)
         {
-            _context.Estante.Add(estante);
+            var novaEstante = new Estante 
+            { 
+                ultimaAtualizacao = DateTime.Now,
+                tipoEstante = await _context.TipoEstante.FindAsync(estante.tipoEstanteId),
+                utilizador = await _context.Utilizador.FindAsync(estante.utilizadorId),
+                livro = await _context.Livro.FindAsync(estante.livroId),
+                livroNaEstante = true
+            };
+
+            if (novaEstante == null)
+            {
+                return BadRequest();
+            }
+
+            _context.Estante.Add(novaEstante);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetEstante", new { id = estante.estanteId }, estante);
+            return CreatedAtAction("GetEstante", new { id = novaEstante.estanteId }, novaEstante);
         }
 
         // DELETE: api/Estante/5
