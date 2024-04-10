@@ -129,6 +129,27 @@ namespace backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Método para sugestão de livros com base nos autores e géneros dos livros da estante do utilizador
+        /// </summary>
+        /// <param name="utilizadorId"></param>
+        /// <param name="tipoEstante"></param>
+        /// <returns></returns>
+        [HttpGet("SugerirLivros/{utilizadorId}")]
+        public async Task<ActionResult<List<LivroDTO>>> SugerirLivros(int utilizadorId)
+        {
+            try
+            {
+                var livro = new Livro();
+                var livrosSugeridosDTO = await livro.SugerirLivros(utilizadorId, _context);
+                return livrosSugeridosDTO;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Erro ao sugerir livros: " + ex.Message);
+            }
+        }
+
         #endregion
 
         #region Métodos PUT
@@ -213,27 +234,6 @@ namespace backend.Controllers
         private bool LivroExists(int id)
         {
             return _context.Livro.Any(e => e.livroId == id);
-        }
-
-        /// <summary>
-        /// Método para sugestão de livros com base nos autores e géneros dos livros da estante do utilizador
-        /// </summary>
-        /// <param name="utilizadorId"></param>
-        /// <param name="tipoEstante"></param>
-        /// <returns></returns>
-        [HttpGet("SugerirLivros/{utilizadorId}")]
-        public async Task<ActionResult<List<LivroDTO>>> SugerirLivros(int utilizadorId)
-        {
-            try
-            {
-                var livro = new Livro();
-                var livrosSugeridosDTO = await livro.SugerirLivros(utilizadorId, _context);
-                return livrosSugeridosDTO;
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("Erro ao sugerir livros: " + ex.Message);
-            }
         }
 
     }
