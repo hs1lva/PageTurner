@@ -71,14 +71,14 @@ namespace backend.Controllers
         }
 
         /// <summary>
-        /// Obter um utilizador pelo nome
+        /// Obter um utilizador pelo username
         /// </summary>
         /// <param name="nome"></param>
         /// <returns></returns>
         [HttpGet("nome/{nome}")] // -- Issue #39
         public async Task<ActionResult<Utilizador>> GetUtilizadorNome(string nome)
         {
-            var utilizador = await _context.Utilizador.FirstOrDefaultAsync(u => u.nome == nome);
+            var utilizador = await _context.Utilizador.FirstOrDefaultAsync(u => u.username == nome);
 
             if (utilizador == null)
             {

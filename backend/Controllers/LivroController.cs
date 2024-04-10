@@ -53,7 +53,7 @@ namespace backend.Controllers
                 GeneroLivro = livro.generoLivro,
                 MediaAvaliacao = livro.MediaAvaliacao(),
                 Comentarios = livro.Comentarios,
-				Avaliacoes = livro.Avaliacoes
+                Avaliacoes = livro.Avaliacoes
             };
 
             return livroDto;
@@ -89,7 +89,7 @@ namespace backend.Controllers
 
             return livros;
         }
-        
+
         /// <summary>
         /// Método para obter o perfil de um livro através do ID
         /// </summary>
@@ -165,25 +165,26 @@ namespace backend.Controllers
 
         #endregion
 
-        
+
         #region Métodos POST
         // POST: api/Livro
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Livro>> PostLivro(LivroCreateDTO livroDto)
         {
-			var livro = new Livro { 
-				tituloLivro = livroDto.TituloLivro,
-				anoPrimeiraPublicacao = livroDto.AnoPrimeiraPublicacao,
-				idiomaOriginalLivro = livroDto.IdiomaOriginalLivro,
-				autorLivro = await _context.AutorLivro.FindAsync(livroDto.AutorLivroId),
-				generoLivro = await _context.GeneroLivro.FindAsync(livroDto.GeneroLivroId)
+            var livro = new Livro
+            {
+                tituloLivro = livroDto.TituloLivro,
+                anoPrimeiraPublicacao = livroDto.AnoPrimeiraPublicacao,
+                idiomaOriginalLivro = livroDto.IdiomaOriginalLivro,
+                autorLivro = await _context.AutorLivro.FindAsync(livroDto.AutorLivroId),
+                generoLivro = await _context.GeneroLivro.FindAsync(livroDto.GeneroLivroId)
             };
 
             if (livro == null)
             {
                 return BadRequest();
-			}
+            }
 
             _context.Livro.Add(livro);
             await _context.SaveChangesAsync();
@@ -213,6 +214,27 @@ namespace backend.Controllers
         {
             return _context.Livro.Any(e => e.livroId == id);
         }
-        
+
+        /// <summary>
+        /// Método para sugestão de livros com base nos autores e géneros dos livros da estante do utilizador
+        /// </summary>
+        /// <param name="utilizadorId"></param>
+        /// <param name="tipoEstante"></param>
+        /// <returns></returns>
+        [HttpGet("SugerirLivros/{utilizadorId}")]
+        public async Task<ActionResult<List<LivroDTO>>> SugerirLivros(int utilizadorId)
+        {
+            try
+            {
+                var livro = new Livro();
+                var livrosSugeridosDTO = await livro.SugerirLivros(utilizadorId, _context);
+                return livrosSugeridosDTO;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Erro ao sugerir livros: " + ex.Message);
+            }
+        }
+
     }
 }
