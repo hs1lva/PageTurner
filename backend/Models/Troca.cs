@@ -56,6 +56,7 @@ public class Troca
     /// <returns>Retorna lista de utilizadores</returns>
     public async Task<ActionResult<List<Utilizador>>> ProcuraLivroEmEstante(int livroId, string estanteProcura, PageTurnerContext _bd)
     {
+        
         //verifica se o livro existe na estante
         //procura livro na estante, se existir devolve ou os utilizadores 
         //temos de corrigir a base de dados primeiro.
