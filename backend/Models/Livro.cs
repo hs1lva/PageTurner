@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models;
 public class Livro
@@ -28,4 +29,22 @@ public class Livro
 
 		return Avaliacoes.Average(a => a.Nota);
 	}
+
+    public async static Task<List<LivroDTO>> PesquisaLivroBd(string termo, PageTurnerContext _context)
+    {
+        var livros = await _context.Livro
+                        .Include(l => l.autorLivro)
+                        .Include(l => l.generoLivro)
+                        .Where(l => l.tituloLivro.ToLower().Contains(termo.ToLower()))
+                        .Select(l => new LivroDTO
+                        {
+                            LivroId = l.livroId,
+                            TituloLivro = l.tituloLivro,
+                            AutorLivro = l.autorLivro,
+                            GeneroLivro = l.generoLivro
+                        })
+                        .ToListAsync();
+                        
+        return livros;
+    }
 }
