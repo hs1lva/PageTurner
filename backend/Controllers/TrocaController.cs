@@ -126,11 +126,11 @@ namespace backend.Controllers
         /// Faz a procura de um livro em qql estante issue 74
         /// </summary>
         /// <returns></returns>
-        [HttpGet("get-lista-users")]
-        public async Task<IActionResult> GetUser()
+        [HttpGet("get-lista-users/{estanteProcura}")]
+        public async Task<IActionResult> GetUserList(string estanteProcura)
         {
             //apenas para testar
-            string estanteProcura = "Estante Desejos";
+            estanteProcura = "Estante Desejos";
             int livroId = 3;
 
             //verifica se a estante existe
@@ -164,7 +164,7 @@ namespace backend.Controllers
             }
 
             // verifica se utilizadores tem o livros na estante de 
-
+            
             // envia email com a lista de utilizadores que tem o livro
             
 

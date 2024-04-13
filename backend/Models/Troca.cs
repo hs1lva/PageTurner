@@ -59,7 +59,6 @@ public class Troca
         
         //verifica se o livro existe na estante
         //procura livro na estante, se existir devolve ou os utilizadores 
-        //temos de corrigir a base de dados primeiro.
         List<Estante> resp = await _bd.Estante
             .Include(x => x.tipoEstante)
             .Include(x => x.utilizador)
@@ -77,7 +76,7 @@ public class Troca
     }
 
     /// <summary>
-    /// Procura num lista de utilizadores se tem algum livro na minha estante
+    /// Procura numa lista de utilizadores se tem algum livro na minha estante
     /// </summary>
     /// <param name="listUser"></param>
     /// <param name="minhaEstante"></param>
