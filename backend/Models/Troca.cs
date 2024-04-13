@@ -59,7 +59,6 @@ public class Troca
         
         //verifica se o livro existe na estante
         //procura livro na estante, se existir devolve ou os utilizadores 
-        //temos de corrigir a base de dados primeiro.
         List<Estante> resp = await _bd.Estante
             .Include(x => x.tipoEstante)
             .Include(x => x.utilizador)
@@ -77,7 +76,7 @@ public class Troca
     }
 
     /// <summary>
-    /// Procura num lista de utilizadores se tem algum livro na minha estante
+    /// Procura numa lista de utilizadores se tem algum livro na minha estante
     /// </summary>
     /// <param name="listUser"></param>
     /// <param name="minhaEstante"></param>
@@ -300,8 +299,10 @@ public class Troca
     /// <param name="_bd"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<ActionResult<Troca?>> AceitaTroca(Troca troca, PageTurnerContext _bd)
+    public async Task<ActionResult<Troca?>> AceitaTroca(int trocaId, PageTurnerContext _bd)
     {
+        var troca = await ProcTrocaByID(trocaId, _bd);
+
         #region Valida Troca
         var validacao = await ValidaTroca(troca, _bd);
 
@@ -317,9 +318,10 @@ public class Troca
             .FirstOrDefaultAsync();
         if (estado == null)
         {
-            throw new Exception("Estado não existe"); // TODO -> Criar estado caso nao exista na bd
+            throw new Exception("Estado não existe"); // TODO -> Criar estado caso nao exista na bd, vale a pena?
         }
         troca.estadoTroca = estado;
+
         try
         {
             _bd.Update(troca);
@@ -343,7 +345,7 @@ public class Troca
     public async Task<ActionResult<Troca>> RejeitaTroca(int trocaID, PageTurnerContext _bd)
     {
         //rejeita a troca.
-        var troca = await ProcID(trocaID, _bd);
+        var troca = await ProcTrocaByID(trocaID, _bd);
 
         if (troca.estadoTroca.descricaoEstadoTroca == "Recusada")
         {
@@ -381,7 +383,7 @@ public class Troca
     /// <param name="_bd"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    private async Task<Troca?> ProcID(int id, PageTurnerContext _bd)
+    private async Task<Troca?> ProcTrocaByID(int id, PageTurnerContext _bd)
     {
 
         Troca troca = await _bd.Troca
@@ -394,6 +396,27 @@ public class Troca
 
         return troca;
 
+    }
+
+    /// <summary>
+    /// Procura, na BD, troca pelo ID da estante
+    /// A ver com pessoal se é necessário
+    /// </summary>
+    /// <param name="estanteID"></param>
+    /// <param name="_bd"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<Troca> ProcTrocaByEstanteID(int estanteID, PageTurnerContext _bd)
+    {
+        Troca troca = await _bd.Troca
+            .Where(x => x.estanteId == estanteID)
+            .FirstOrDefaultAsync();
+        if (troca == null)
+        {
+            throw new Exception("Troca não existe");
+        }
+
+        return troca;
     }
 
     /// <summary>

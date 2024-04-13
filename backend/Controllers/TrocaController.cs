@@ -122,16 +122,18 @@ namespace backend.Controllers
         }
         #endregion
 
+
+        #region GET
         /// <summary>
         /// Faz a procura de um livro em qql estante issue 74
         /// </summary>
         /// <returns></returns>
-        [HttpGet("get-lista-users")]
-        public async Task<IActionResult> GetUser()
+        [HttpGet("get-lista-users/{estanteProcura}/{livroId}")]
+        public async Task<IActionResult> GetUserList(string estanteProcura, int livroId)
         {
             //apenas para testar
-            string estanteProcura = "Estante Desejos";
-            int livroId = 3;
+            estanteProcura = "Estante Desejos";
+            livroId = 3;
 
             //verifica se a estante existe
             // TODO substituir por funcao de estante
@@ -170,6 +172,30 @@ namespace backend.Controllers
 
             return Ok(res);
         }
+
+        /// <summary>
+        /// Aceita uma troca, 
+        /// </summary>
+        /// <param name="trocaId"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> AceitaTroca(int trocaId)
+        {
+            Troca troca = new Troca();
+            var res = await troca.AceitaTroca(trocaId, _context);
+            
+            if (res == null)
+            {
+                return NotFound("Troca não existe");
+            }
+
+            return Ok(res);
+        }
+
+
+
+        
+
+        #endregion
 
         /// <summary>
         /// Rejeita uma troca issue 75

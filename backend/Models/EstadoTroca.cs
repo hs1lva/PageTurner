@@ -10,6 +10,13 @@ public class EstadoTroca
     [Required]
     public string descricaoEstadoTroca { get; set; }
 
+    /// <summary>
+    /// Verifica se o estado da troca existe, devolve o estado da troca caso exista
+    /// </summary>
+    /// <param name="estado"></param>
+    /// <param name="_bd"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public static async Task<EstadoTroca> ProcEstadoTroca(string estado, PageTurnerContext _bd)
     {
         if (estado == null)
