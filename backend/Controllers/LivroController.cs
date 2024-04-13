@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
 
+/*public static List<LivroDTO> PesquisaLivroBd(string termo, PageTurnerContext context) { ... }*/
 namespace backend.Controllers
 {
     [Route("api/[controller]")]
@@ -67,24 +68,25 @@ namespace backend.Controllers
         /// <returns></returns>
         // GET: api/Livro/Pesquisar/{termo}
         [HttpGet("PesquisarLivro/{termo}")]
-        public async Task<ActionResult<IEnumerable<LivroDTO>>> PesquisarLivro(string termo)
+        public async Task<ActionResult<List<LivroDTO>>> PesquisarLivro(string termo)
         {
-            var livros = await _context.Livro
-                .Include(l => l.autorLivro)
-                .Include(l => l.generoLivro)
-                .Where(l => l.tituloLivro.ToLower().Contains(termo.ToLower()))
-                .Select(l => new LivroDTO
-                {
-                    LivroId = l.livroId,
-                    TituloLivro = l.tituloLivro,
-                    AutorLivro = l.autorLivro,
-                    GeneroLivro = l.generoLivro
-                })
-                .ToListAsync();
+            var livros = await Livro.PesquisaLivroBd(termo, _context);
 
-            if (livros == null || livros.Count == 0)
+            if (livros == null)
             {
                 return NotFound();
+            }
+
+            List<LivroDTO> livroDto = new List<LivroDTO>();
+            foreach (var livro in livros)
+            {
+                livroDto.Add(new LivroDTO
+                {
+                    LivroId = livro.LivroId,
+                    TituloLivro = livro.TituloLivro,
+                    AutorLivro = livro.AutorLivro,
+                    GeneroLivro = livro.GeneroLivro
+                });
             }
 
             return livros;

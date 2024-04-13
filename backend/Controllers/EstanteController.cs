@@ -24,9 +24,16 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Estante>>> GetEstante()
         {
+
             return await _context.Estante.ToListAsync();
         }
 
+        #region Métodos GET
+        /// <summary>
+        /// Mostrar uma estante específica
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET: api/Estante/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Estante>> GetEstante(int id)
@@ -41,6 +48,195 @@ namespace backend.Controllers
             return estante;
         }
 
+        /// <summary>
+        /// Mostrar todas as estantes de um utilizador
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        // GET: api/Estante/utilizador/{username}
+        [HttpGet("utilizador/{username}")]
+        public async Task<ActionResult<IEnumerable<Estante>>> GetEstanteByUtilizadorUsername(string username)
+        {
+            try
+            {
+                var utilizador = await _context.Utilizador
+                .FirstOrDefaultAsync(u => u.username == username);
+                if (utilizador == null)
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro inesperado: {ex.Message}");
+            }
+
+            try
+            {
+                var estantes = await _context.Estante
+                                .Include(e => e.livro)
+                                .Include(e => e.livro.generoLivro)
+                                .Include(e => e.livro.autorLivro)
+                                .Include(e => e.tipoEstante)
+                                .Where(e => e.utilizador.username == username
+                                && e.livroNaEstante == true)
+                                .ToListAsync();
+                if (estantes == null)
+                {
+                    return NotFound();  
+                }
+
+                return estantes;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro inesperado: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Mostrar um tipo específico de estante
+        /// </summary>
+        /// <param name="descricaoTipoEstante"></param>
+        /// <returns></returns>
+        // GET: api/Estante/tipoEstante/{descricaoTipoEstante}
+        [HttpGet("tipoEstante/{descricaoTipoEstante}")]
+        public async Task<ActionResult<IEnumerable<Estante>>> GetEstanteByTipoEstante(string descricaoTipoEstante)
+        {
+            try
+            {
+                var tipoEstante = await _context.TipoEstante
+                    .FirstOrDefaultAsync(te => te.descricaoTipoEstante == descricaoTipoEstante);
+                if (tipoEstante == null)
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro inesperado: {ex.Message}");
+            }
+
+            try
+            {
+                var estantes = await _context.Estante
+                                .Include(e => e.livro)
+                                .Include(e => e.livro.generoLivro)
+                                .Include(e => e.livro.autorLivro)
+                                .Where(e => e.tipoEstante.descricaoTipoEstante == descricaoTipoEstante 
+                                && e.livroNaEstante == true)
+                                .ToListAsync();
+                if (estantes == null)
+                {
+                    return NotFound();
+                }
+                return estantes;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro inesperado: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Mostrar todas as estantes de um utilizador por um tipo específico de estante
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="descricaoTipoEstante"></param>
+        /// <returns></returns>
+        // GET: api/Estante/utilizador/{username}/tipoEstante/{descricaoTipoEstante}
+        [HttpGet("utilizador/{username}/tipoEstante/{descricaoTipoEstante}")]
+        public async Task<ActionResult<IEnumerable<Estante>>> GetEstanteByUtilizadorAndTipo(string username, string descricaoTipoEstante)
+        {
+            try
+            {
+                var utilizador = await _context.Utilizador
+                    .FirstOrDefaultAsync(u => u.username == username);
+                if (utilizador == null)
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro inesperado: {ex.Message}");
+            }
+
+            try
+            {
+                var tipoEstante = await _context.TipoEstante
+                    .FirstOrDefaultAsync(te => te.descricaoTipoEstante == descricaoTipoEstante);
+                if (tipoEstante == null)
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro inesperado: {ex.Message}");
+            }
+
+            try
+            {
+                var estantes = await _context.Estante
+                            .Include(e => e.livro)
+                            .Include(e => e.livro.generoLivro)
+                            .Include(e => e.livro.autorLivro)
+                            .Include(e => e.tipoEstante)
+                            .Include(e => e.utilizador)
+                            .Where(e => e.utilizador.username == username 
+                            && e.tipoEstante.descricaoTipoEstante == descricaoTipoEstante
+                            && e.livroNaEstante == true)
+                            .ToListAsync();
+                            
+                if (estantes == null)
+                {
+                    return NotFound();
+                }
+                return estantes;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro inesperado: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Mostrar todas as estantes de um tipo específico que contêm certo livro
+        /// </summary>
+        /// <param name="tituloLivro"></param>
+        /// <param name="descricaoTipoEstante"></param>
+        /// <returns></returns>
+        // GET: api/Estante/tipoEstante/{descricaoTipoEstante}/livro/{tituloLivro}
+        [HttpGet("tipoEstante/{descricaoTipoEstante}/livro/{tituloLivro}")]
+        public async Task<ActionResult<IEnumerable<Estante>>> GetEstanteByLivro(string tituloLivro, string descricaoTipoEstante)
+        {
+            var estantes = await _context.Estante
+                            .Include(e => e.livro)
+                            .Include(e => e.livro.generoLivro)
+                            .Include(e => e.livro.autorLivro)
+                            .Include(e => e.tipoEstante)
+                        .Where(e => e.livro.tituloLivro.ToLower().Contains(tituloLivro.ToLower())
+                        && e.tipoEstante.descricaoTipoEstante == descricaoTipoEstante
+                        && e.livroNaEstante == true)
+                        .ToListAsync();
+
+            if (estantes == null)
+            {
+                return NotFound();
+            }
+
+            return estantes;
+        }
+        #endregion
+
+        #region Métodos PUT
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="estante"></param>
+        /// <returns></returns>
         // PUT: api/Estante/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -71,7 +267,9 @@ namespace backend.Controllers
 
             return NoContent();
         }
+        #endregion
 
+        #region Métodos POST
         // POST: api/Estante
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -96,7 +294,9 @@ namespace backend.Controllers
 
             return CreatedAtAction("GetEstante", new { id = novaEstante.estanteId }, novaEstante);
         }
+        #endregion
 
+        #region Métodos DELETE
         // DELETE: api/Estante/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEstante(int id)
@@ -112,6 +312,7 @@ namespace backend.Controllers
 
             return NoContent();
         }
+        #endregion
 
         private bool EstanteExists(int id)
         {
