@@ -122,6 +122,8 @@ namespace backend.Controllers
         }
         #endregion
 
+
+        #region GET
         /// <summary>
         /// Faz a procura de um livro em qql estante issue 74
         /// </summary>
@@ -170,6 +172,30 @@ namespace backend.Controllers
 
             return Ok(res);
         }
+
+        /// <summary>
+        /// Aceita uma troca, 
+        /// </summary>
+        /// <param name="trocaId"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> AceitaTroca(int trocaId)
+        {
+            Troca troca = new Troca();
+            var res = await troca.AceitaTroca(trocaId, _context);
+            
+            if (res == null)
+            {
+                return NotFound("Troca não existe");
+            }
+
+            return Ok(res);
+        }
+
+
+
+        
+
+        #endregion
 
         /// <summary>
         /// Rejeita uma troca issue 75

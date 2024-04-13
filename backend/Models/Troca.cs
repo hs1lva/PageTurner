@@ -318,9 +318,10 @@ public class Troca
             .FirstOrDefaultAsync();
         if (estado == null)
         {
-            throw new Exception("Estado não existe"); // TODO -> Criar estado caso nao exista na bd
+            throw new Exception("Estado não existe"); // TODO -> Criar estado caso nao exista na bd, vale a pena?
         }
         troca.estadoTroca = estado;
+
         try
         {
             _bd.Update(troca);
@@ -395,6 +396,27 @@ public class Troca
 
         return troca;
 
+    }
+
+    /// <summary>
+    /// Procura, na BD, troca pelo ID da estante
+    /// A ver com pessoal se é necessário
+    /// </summary>
+    /// <param name="estanteID"></param>
+    /// <param name="_bd"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<Troca> ProcTrocaByEstanteID(int estanteID, PageTurnerContext _bd)
+    {
+        Troca troca = await _bd.Troca
+            .Where(x => x.estanteId == estanteID)
+            .FirstOrDefaultAsync();
+        if (troca == null)
+        {
+            throw new Exception("Troca não existe");
+        }
+
+        return troca;
     }
 
     /// <summary>
