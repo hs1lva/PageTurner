@@ -299,8 +299,10 @@ public class Troca
     /// <param name="_bd"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<ActionResult<Troca?>> AceitaTroca(Troca troca, PageTurnerContext _bd)
+    public async Task<ActionResult<Troca?>> AceitaTroca(int trocaId, PageTurnerContext _bd)
     {
+        var troca = await ProcTrocaByID(trocaId, _bd);
+
         #region Valida Troca
         var validacao = await ValidaTroca(troca, _bd);
 
@@ -342,7 +344,7 @@ public class Troca
     public async Task<ActionResult<Troca>> RejeitaTroca(int trocaID, PageTurnerContext _bd)
     {
         //rejeita a troca.
-        var troca = await ProcID(trocaID, _bd);
+        var troca = await ProcTrocaByID(trocaID, _bd);
 
         if (troca.estadoTroca.descricaoEstadoTroca == "Recusada")
         {
@@ -380,7 +382,7 @@ public class Troca
     /// <param name="_bd"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    private async Task<Troca?> ProcID(int id, PageTurnerContext _bd)
+    private async Task<Troca?> ProcTrocaByID(int id, PageTurnerContext _bd)
     {
 
         Troca troca = await _bd.Troca
