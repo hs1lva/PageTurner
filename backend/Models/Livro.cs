@@ -19,19 +19,6 @@ public class Livro
     public ICollection<AvaliacaoLivro> Avaliacoes { get; set; }
 	public ICollection<ComentarioLivro> Comentarios { get; set; }
 
-	// issue #66
-	public double? MediaAvaliacao()
-	{
-		if (Avaliacoes == null || !Avaliacoes.Any())
-		{
-			return null; 
-		}
-
-		return Avaliacoes.Average(a => a.Nota);
-	}
-  
-    public ICollection<ComentarioLivro> Comentarios { get; set; }
-
     // issue #66
     public double? MediaAvaliacao()
     {
@@ -104,9 +91,8 @@ public class Livro
             throw new Exception("Erro ao sugerir livros.", ex);
         }
     }
-}
 
-public async static Task<List<LivroDTO>> PesquisaLivroBd(string termo, PageTurnerContext _context)
+    public async static Task<List<LivroDTO>> PesquisaLivroBd(string termo, PageTurnerContext _context)
     {
         var livros = await _context.Livro
                         .Include(l => l.autorLivro)
