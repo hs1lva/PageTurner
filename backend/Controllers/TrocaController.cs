@@ -129,47 +129,11 @@ namespace backend.Controllers
         ///                             o utilizador adicionar um livro a uma estante de troca ou de desejo
         /// </summary>
         /// <returns></returns>
-        [HttpGet("get-lista-users/{estanteProcura}/{livroId}")]
-        public async Task<IActionResult> GetUserList(string estanteProcura, int livroId)
+        [HttpGet("check-match/{estanteId}")]
+        public async Task<IActionResult> CheckMatch(int estanteId)
         {
-            //apenas para testar
-            estanteProcura = "Estante Desejos";
-            livroId = 3;
-
-            //verifica se a estante existe
-            // TODO substituir por funcao de estante
-            Estante? estanteExiste = await _context.Estante
-                .Include(x => x.tipoEstante)
-                .Where(x => x.tipoEstante.descricaoTipoEstante == estanteProcura)
-                .FirstOrDefaultAsync();
-
-            if (estanteExiste == null)
-            {
-                return NotFound("Estante não existe");
-            }
-
-            //verifica se o livro existe na bd 
-            // TODO substituir por funcao de livro
-            Livro? livr = await _context.Livro
-                .Where(x => x.livroId == livroId)
-                .FirstOrDefaultAsync();
-            
-            if (livr == null)
-            {
-                return NotFound("Livro não existe");
-            }
-
-            Troca b = new Troca();
-            var res = await b.ProcuraLivroEmEstante(livroId, estanteProcura, _context);
-            if (res == null)
-            {
-                return NotFound("Livro não existe em nenhuma estante");
-            }
-
-            // verifica se utilizadores tem o livros na estante de 
-
-            // envia email com a lista de utilizadores que tem o livro
-            
+            Troca troca = new Troca();
+            var res = await troca.ProcuraMatch(estanteId, _context);
 
             return Ok(res);
         }
@@ -179,6 +143,7 @@ namespace backend.Controllers
         /// </summary>
         /// <param name="trocaId"></param>
         /// <returns></returns>
+        [HttpPut("aceita-troca/{trocaId}")]
         public async Task<IActionResult> AceitaTroca(int trocaId)
         {
             Troca troca = new Troca();

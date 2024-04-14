@@ -50,6 +50,7 @@ public class Troca
         // #TODO -> Mudar para função das estantes
         var minhaEstante = await _bd.Estante
             .Include(x => x.tipoEstante)
+            .Include(x => x.livro)
             .Where(x => x.estanteId == minhaEstanteId)
             .FirstOrDefaultAsync();
 
@@ -58,7 +59,8 @@ public class Troca
         if(minhaEstante.tipoEstante.descricaoTipoEstante == "Estante Desejos"){
             // Fazer funcão para procurar match em estante de desejo
             var listaEstantes = ProcuraMatchDesejos(minhaEstante, _bd).Result;
-            if(listaEstantes.Count == 0) throw new Exception("Não existe match");
+
+            if(listaEstantes.Count == 0 ) throw new Exception("Não existe match");
             
             return listaEstantes;
         }else if(minhaEstante.tipoEstante.descricaoTipoEstante == "Estante Troca"){
@@ -111,7 +113,7 @@ public class Troca
         int livroId = minhaEstanteDesejos.livro.livroId;
         // Procurar o livro que eu desejo nas estantes de troca de todos os leitores
         var r = await ProcuraLivroEmEstante(livroId, "Estante Troca", _bd);
-        if (r.Value == null) throw new Exception("Livro não existe em nenhuma estante de troca"); 
+        if (r.Value == null || r.Value.Count <= 0) throw new Exception("Livro não existe em nenhuma estante de troca"); 
         var listUsersTemLivroQueEuQuero = r.Value;// Temos de fazer isto porque a funcao (ProcuraLivroEmEstante) é ActionResult
 
 
