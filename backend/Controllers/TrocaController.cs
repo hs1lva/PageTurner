@@ -125,59 +125,25 @@ namespace backend.Controllers
 
         #region GET
         /// <summary>
-        /// Faz a procura de um livro em qql estante issue 74
+        /// Funcao apenas para testar. A gestão das troca será feita sempre que 
+        ///                             o utilizador adicionar um livro a uma estante de troca ou de desejo
         /// </summary>
         /// <returns></returns>
-        [HttpGet("get-lista-users/{estanteProcura}/{livroId}")]
-        public async Task<IActionResult> GetUserList(string estanteProcura, int livroId)
+        [HttpGet("check-match/{estanteId}")]
+        public async Task<IActionResult> CheckMatch(int estanteId)
         {
-            //apenas para testar
-            estanteProcura = "Estante Desejos";
-            livroId = 3;
-
-            //verifica se a estante existe
-            // TODO substituir por funcao de estante
-            Estante? estanteExiste = await _context.Estante
-                .Include(x => x.tipoEstante)
-                .Where(x => x.tipoEstante.descricaoTipoEstante == estanteProcura)
-                .FirstOrDefaultAsync();
-
-            if (estanteExiste == null)
-            {
-                return NotFound("Estante não existe");
-            }
-
-            //verifica se o livro existe na bd 
-            // TODO substituir por funcao de livro
-            Livro? livr = await _context.Livro
-                .Where(x => x.livroId == livroId)
-                .FirstOrDefaultAsync();
-            
-            if (livr == null)
-            {
-                return NotFound("Livro não existe");
-            }
-
-            Troca b = new Troca();
-            var res = await b.ProcuraLivroEmEstante(livroId, estanteProcura, _context);
-            if (res == null)
-            {
-                return NotFound("Livro não existe em nenhuma estante");
-            }
-
-            // verifica se utilizadores tem o livros na estante de 
-
-            // envia email com a lista de utilizadores que tem o livro
-            
+            Troca troca = new Troca();
+            var res = await troca.ProcuraMatch(estanteId, _context);
 
             return Ok(res);
         }
 
         /// <summary>
-        /// Aceita uma troca, 
+        /// Aceita uma troca #TODO ver qual é numero do issue
         /// </summary>
         /// <param name="trocaId"></param>
         /// <returns></returns>
+        [HttpPut("aceita-troca/{trocaId}")]
         public async Task<IActionResult> AceitaTroca(int trocaId)
         {
             Troca troca = new Troca();
@@ -191,14 +157,10 @@ namespace backend.Controllers
             return Ok(res);
         }
 
-
-
-        
-
         #endregion
 
         /// <summary>
-        /// Rejeita uma troca issue 75
+        /// Rejeita uma troca #TODO ver qual é numero do issue
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
@@ -217,7 +179,7 @@ namespace backend.Controllers
         }
 
         /// <summary>
-        /// Cria uma troca direta entre dois utilizadores issue 74
+        /// Cria uma troca direta entre dois utilizadores #TODO ver qual é numero do issue
         /// </summary>
         /// <param name="userName">Username do utilizador que pretende a troca</param>
         /// <param name="estanteDoLivroDesejado">self explanatory</param>
