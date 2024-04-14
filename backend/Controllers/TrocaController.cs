@@ -125,7 +125,8 @@ namespace backend.Controllers
 
         #region GET
         /// <summary>
-        /// Faz a procura de um livro em qql estante issue 74
+        /// Funcao apenas para testar. A gestão das troca será feita sempre que 
+        ///                             o utilizador adicionar um livro a uma estante de troca ou de desejo
         /// </summary>
         /// <returns></returns>
         [HttpGet("get-lista-users/{estanteProcura}/{livroId}")]
@@ -174,7 +175,7 @@ namespace backend.Controllers
         }
 
         /// <summary>
-        /// Aceita uma troca, 
+        /// Aceita uma troca #TODO ver qual é numero do issue
         /// </summary>
         /// <param name="trocaId"></param>
         /// <returns></returns>
@@ -191,14 +192,10 @@ namespace backend.Controllers
             return Ok(res);
         }
 
-
-
-        
-
         #endregion
 
         /// <summary>
-        /// Rejeita uma troca issue 75
+        /// Rejeita uma troca #TODO ver qual é numero do issue
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
@@ -217,7 +214,7 @@ namespace backend.Controllers
         }
 
         /// <summary>
-        /// Cria uma troca direta entre dois utilizadores issue 74
+        /// Cria uma troca direta entre dois utilizadores #TODO ver qual é numero do issue
         /// </summary>
         /// <param name="userName">Username do utilizador que pretende a troca</param>
         /// <param name="estanteDoLivroDesejado">self explanatory</param>
