@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using backend.Interfaces;
+using backend.Models;
 
 namespace backend.Services
 {
@@ -41,6 +42,38 @@ namespace backend.Services
     
             return idsOfensivos;
         }
+
+         public async Task VerificarEProcessarConteudoOfensivoAsync(ComentarioLivro comentario, EstadoComentario estadoAtivo, EstadoComentario estadoEliminado)
+        {
+            var conteudosOfensivos = await IdentificarConteudoOfensivoAsync(comentario.comentario);
+
+            if (conteudosOfensivos.Any())
+            {
+                comentario.estadoComentario = estadoEliminado;
+                await AdicionarRelacoesConteudoOfensivo(comentario.comentarioId, conteudosOfensivos);
+            }
+            else
+            {
+                comentario.estadoComentario = estadoAtivo;
+            }
+        }
+
+        private async Task AdicionarRelacoesConteudoOfensivo(int comentarioId, IEnumerable<int> conteudosOfensivos)
+        {
+            foreach (var conteudoOfensivoId in conteudosOfensivos)
+            {
+                var existe = await _context.ComentarioLivroConteudoOfensivo.AnyAsync(co => co.comentarioId == comentarioId && co.conteudoOfensivoId == conteudoOfensivoId);
+                if (!existe)
+                {
+                    _context.ComentarioLivroConteudoOfensivo.Add(new ComentarioLivroConteudoOfensivo
+                    {
+                        comentarioId = comentarioId,
+                        conteudoOfensivoId = conteudoOfensivoId
+                    });
+                }
+                await _context.SaveChangesAsync();
+            }
+        } 
         
     }
 }

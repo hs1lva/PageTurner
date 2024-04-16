@@ -18,6 +18,11 @@ namespace backend.Controllers
         private readonly IPageTurnerContext _context;
         private readonly ComentarioService _comentarioService;
 
+        public ComentarioLivroController(IPageTurnerContext context)
+        {
+            _context = context;
+            _comentarioService = new ComentarioService(context); // Pode criar uma instância padrão internamente, se isso fizer sentido
+        }
         public ComentarioLivroController(IPageTurnerContext context, ComentarioService comentarioService)
         {
             _context = context;
@@ -214,7 +219,7 @@ namespace backend.Controllers
                 var estadoEliminado = await ObterEstadoComentarioAsync("Removido");
 
                 // Verificar conteúdo ofensivo e atualizar estado do comentário
-                await VerificarEProcessarConteudoOfensivoAsync(comentario, estadoAtivo, estadoEliminado);
+                await _comentarioService.VerificarEProcessarConteudoOfensivoAsync(comentario, estadoAtivo, estadoEliminado);
 
                 // Salvar as alterações no banco de dados
                 await SalvarAlteracoesAsync();
@@ -253,7 +258,7 @@ namespace backend.Controllers
             return comentario;
         }
         
-        private async Task AdicionarRelacoesConteudoOfensivo(int comentarioId, IEnumerable<int> conteudosOfensivos)
+     /*   private async Task AdicionarRelacoesConteudoOfensivo(int comentarioId, IEnumerable<int> conteudosOfensivos)
         {
             foreach (var conteudoOfensivoId in conteudosOfensivos)
             {
@@ -284,6 +289,7 @@ namespace backend.Controllers
                 comentario.estadoComentario = estadoAtivo;
             }
         }
+        */
         
         private async Task SalvarAlteracoesAsync()
         {

@@ -93,7 +93,7 @@ public class ComentarioLivroControllerTests
         var idsOfensivos = new List<int> { 1 }; // Conteúdo ofensivo encontrado
 
         // Act
-        await _controller.VerificarEProcessarConteudoOfensivoAsync(comentario, estadoAtivo, estadoRemovido);
+        await _comentarioService.VerificarEProcessarConteudoOfensivoAsync(comentario, estadoAtivo, estadoRemovido);
 
         // Assert
         Assert.Multiple(() =>
@@ -126,7 +126,7 @@ public class ComentarioLivroControllerTests
 
         // Act
         var idsOfensivos = await _comentarioService.IdentificarConteudoOfensivoAsync(comentario.comentario);
-        await _controller.VerificarEProcessarConteudoOfensivoAsync(comentario, estadoAtivo, estadoRemovido);
+        await _comentarioService.VerificarEProcessarConteudoOfensivoAsync(comentario, estadoAtivo, estadoRemovido);
 
         // Assert
         Assert.Multiple(() =>
