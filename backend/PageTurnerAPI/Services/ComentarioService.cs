@@ -1,12 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+using backend.Interfaces;
 
 namespace backend.Services
 {
     public class ComentarioService
     {
-        private  readonly PageTurnerContext _context;
+        private  readonly IPageTurnerContext _context;
         
-        public ComentarioService(PageTurnerContext context)
+        public ComentarioService(IPageTurnerContext context)
         {
             _context = context;
         }
@@ -24,7 +25,7 @@ namespace backend.Services
         /// na BD. A comparação é feita de maneira insensível a maiúsculas e minúsculas.
         /// #Issue 83
         /// </remarks>
-        public async Task<List<int>> IdentificarConteudoOfensivoAsync(string comentario)
+        public virtual async Task<List<int>> IdentificarConteudoOfensivoAsync(string comentario)
         {
             var conteudosOfensivos = await _context.ConteudoOfensivo.ToListAsync();
             var palavrasOfensivas = conteudosOfensivos.Select(co => co.especificacaoConteudoOfensivo.ToLower()).ToList();
@@ -40,5 +41,6 @@ namespace backend.Services
     
             return idsOfensivos;
         }
+        
     }
 }

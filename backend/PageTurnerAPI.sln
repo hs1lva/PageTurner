@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PageTurnerAPI", "PageTurnerAPI.csproj", "{FDD91DEF-7FEC-4783-BCF6-AB1D1BBDA490}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PageTurnerAPI", "PageTurnerAPI\PageTurnerAPI.csproj", "{FDD91DEF-7FEC-4783-BCF6-AB1D1BBDA490}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PageTurnerTests", "PageTurnerTests\PageTurnerTests.csproj", "{CF55FCA4-9573-48D3-A070-23AEEF7CD35E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{FDD91DEF-7FEC-4783-BCF6-AB1D1BBDA490}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDD91DEF-7FEC-4783-BCF6-AB1D1BBDA490}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDD91DEF-7FEC-4783-BCF6-AB1D1BBDA490}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF55FCA4-9573-48D3-A070-23AEEF7CD35E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF55FCA4-9573-48D3-A070-23AEEF7CD35E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF55FCA4-9573-48D3-A070-23AEEF7CD35E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF55FCA4-9573-48D3-A070-23AEEF7CD35E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
