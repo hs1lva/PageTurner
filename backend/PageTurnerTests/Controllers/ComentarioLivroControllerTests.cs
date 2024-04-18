@@ -104,7 +104,6 @@ public class ComentarioLivroControllerTests
         });
     }
 
-
     [Test]
     public async Task IdentificarConteudoOfensivoAsync_QuandoContemPalavraOfensiva_DeveAtualizarEstadoParaRemovido()
     {
@@ -118,7 +117,7 @@ public class ComentarioLivroControllerTests
         var comentario = new ComentarioLivro 
         { 
             comentarioId = 3, 
-            comentario = "Este livro é realmente ofensivo !", // palavra "ofensivo" tem de passar para estado removido 
+            comentario = "Este livro é realmente ofefnsivo !", // palavra "ofensivo" tem de passar para estado removido 
             estadoComentario = estadoPendente
         };
         _context.ComentarioLivro.Add(comentario);

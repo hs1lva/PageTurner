@@ -194,6 +194,7 @@ namespace backend.Controllers
         /// <summary>
         /// Verifica se um comentário do livro existe pelo seu id.
         /// </summary>
+        [HttpGet("Exists/{id}")]
         public bool ComentarioLivroExists(int id)
         {
             return _context.ComentarioLivro.Any(e => e.comentarioId == id);
@@ -207,6 +208,7 @@ namespace backend.Controllers
         /// <param name="comentarioId">ID do comentário a ser verificado e atualizado.</param>
         /// <returns>Uma tarefa que representa a operação assíncrona. #Issue 83</returns>
         /// </remarks>
+        [NonAction]
         private async Task VerificarEAtualizarComentarioAsync(int comentarioId)
         {
             try
@@ -240,12 +242,14 @@ namespace backend.Controllers
         /// para a atualização do estado do comentário baseado na presença de conteúdo ofensivo.
         /// #Issue 83
         /// </remarks>
+        [NonAction]
         public async Task<EstadoComentario> ObterEstadoComentarioAsync(string descricao)
             {
                 return await _context.EstadoComentario
                     .FirstOrDefaultAsync(e => e.descricaoEstadoComentario == descricao);
             }
         
+        [NonAction]
         public async Task<ComentarioLivro> BuscarComentarioAsync(int comentarioId)
         {
             var comentario = await _context.ComentarioLivro
@@ -257,39 +261,6 @@ namespace backend.Controllers
             }
             return comentario;
         }
-        
-     /*   private async Task AdicionarRelacoesConteudoOfensivo(int comentarioId, IEnumerable<int> conteudosOfensivos)
-        {
-            foreach (var conteudoOfensivoId in conteudosOfensivos)
-            {
-                var existe = await _context.ComentarioLivroConteudoOfensivo.AnyAsync(co => co.comentarioId == comentarioId && co.conteudoOfensivoId == conteudoOfensivoId);
-                if (!existe)
-                {
-                    _context.ComentarioLivroConteudoOfensivo.Add(new ComentarioLivroConteudoOfensivo
-                    {
-                        comentarioId = comentarioId,
-                        conteudoOfensivoId = conteudoOfensivoId
-                    });
-                }
-                await _context.SaveChangesAsync();
-            }
-        } 
-        
-        public async Task VerificarEProcessarConteudoOfensivoAsync(ComentarioLivro comentario, EstadoComentario estadoAtivo, EstadoComentario estadoEliminado)
-        {
-            var conteudosOfensivos = await _comentarioService.IdentificarConteudoOfensivoAsync(comentario.comentario);
-
-            if (conteudosOfensivos.Any())
-            {
-                comentario.estadoComentario = estadoEliminado;
-                await AdicionarRelacoesConteudoOfensivo(comentario.comentarioId, conteudosOfensivos);
-            }
-            else
-            {
-                comentario.estadoComentario = estadoAtivo;
-            }
-        }
-        */
         
         private async Task SalvarAlteracoesAsync()
         {
