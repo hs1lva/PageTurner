@@ -1,8 +1,9 @@
 
 using backend.Models;
+using backend.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-public class PageTurnerContext:DbContext{
+public class PageTurnerContext:DbContext, IPageTurnerContext{
     public PageTurnerContext(DbContextOptions<PageTurnerContext> options) : base(options)
     {
 
