@@ -139,7 +139,7 @@ namespace backend.Controllers
                 var res = await Troca.ProcuraMatch(estanteId, _context);
                 return Ok(res);
             }
-            catch (TrocaException e){
+            catch (TrocaException e){ // Ver com professor. Não está a ser apanhada a exceção, segue para a exceção geral
                 
                 return NotFound(e.Message);
             }
@@ -147,14 +147,8 @@ namespace backend.Controllers
             {   
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
-
-                return NotFound("Erro desconhecido");
-
+                return NotFound($"Erro desconhecido {e.Message} \n {e.StackTrace}");
             }
-
-
-
-
         }
 
         /// <summary>
