@@ -91,7 +91,7 @@ namespace backend.Controllers
             EstadoTroca? estadoTroca = await _context.EstadoTroca
                                         .Where(x => x.estadoTrocaId == 1)
                                         .FirstOrDefaultAsync();
-            Troca troca = new Troca(dataPedido, estanteId2, estanteId, estadoTroca);
+            Troca troca = new Troca(estanteId2, estanteId, estadoTroca);
             #endregion
 
             _context.Troca.Add(troca);
@@ -132,8 +132,7 @@ namespace backend.Controllers
         [HttpGet("check-match/{estanteId}")]
         public async Task<IActionResult> CheckMatch(int estanteId)
         {
-            Troca troca = new Troca();
-            var res = await troca.ProcuraMatch(estanteId, _context);
+            var res = await Troca.ProcuraMatch(estanteId, _context);
 
             return Ok(res);
         }
@@ -146,7 +145,10 @@ namespace backend.Controllers
         [HttpPut("aceita-troca/{trocaId}")]
         public async Task<IActionResult> AceitaTroca(int trocaId)
         {
-            Troca troca = new Troca();
+            
+            // Procura troca
+            var troca = await Troca.GetTrocaById(trocaId, _context);
+
             var res = await troca.AceitaTroca(trocaId, _context);
             
             if (res == null)
@@ -167,7 +169,8 @@ namespace backend.Controllers
         [HttpPut("rejeita-troca/{trocaId}")]
         public async Task<IActionResult> PutRejeitaTroca(int trocaId)
         {
-            Troca troca = new Troca();
+            var troca = await Troca.GetTrocaById(trocaId, _context);
+
             var res = await troca.RejeitaTroca(trocaId, _context);
             
             if (res == null)
@@ -186,9 +189,10 @@ namespace backend.Controllers
         /// <returns></returns>
         [HttpPost("solicita-troca-direta/{userName}/{estanteDoLivroDesejado}")]
         public async Task<IActionResult> SolicitaTrocaDireta(string userName, int estanteDoLivroDesejado){
-            Troca a = new Troca();
 
-            var troca = await a.TrocaDireta(userName, estanteDoLivroDesejado, _context);
+            var trocaInicial = await Troca.CriaTroca(userName, estanteDoLivroDesejado, _context);
+
+            var troca = await trocaInicial.TrocaDireta(trocaInicial, _context);
 
             if (troca == null)
             {

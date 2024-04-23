@@ -22,9 +22,9 @@ public class Troca
 
     #region Construtores
 
-    public Troca(){}
+    // public Troca(){}
 
-    public Troca(DateTime dataPedidoTroca, Estante estanteId2, int estanteId, 
+    public Troca(Estante estanteId2, int estanteId, 
                                     EstadoTroca estadoTroca)
     {
         this.dataPedidoTroca = dataPedidoTroca;
@@ -35,6 +35,28 @@ public class Troca
     #endregion
 
     /// <summary>
+    /// Procura troca pelo ID
+    /// </summary>
+    /// <param name="trocaID"></param>
+    /// <param name="_bd"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public static async Task<Troca> GetTrocaById(int trocaID, PageTurnerContext _bd){
+
+        var troca = await _bd.Troca
+            .Include(x => x.estadoTroca)
+            .Where(x => x.trocaId == trocaID)
+            .FirstOrDefaultAsync();
+
+        if (troca == null)
+        {
+            throw new Exception("Troca não existe");
+        }
+
+        return troca;
+    } 
+
+    /// <summary>
     /// Trata do math entre estantes
     /// Caso seja adicionado um livro na estante de troca, procura match
     /// </summary>
@@ -43,7 +65,7 @@ public class Troca
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     /// <exception cref="NotImplementedException"></exception>
-    public async Task<ActionResult<List<Estante>>> ProcuraMatch(int minhaEstanteId, PageTurnerContext _bd)
+    public static async Task<ActionResult<List<Estante>>> ProcuraMatch(int minhaEstanteId, PageTurnerContext _bd)
     {   
  
         // Procura se a estante é de se desejo ou de troca
@@ -80,7 +102,7 @@ public class Troca
     /// Procura match quando leitor adiciona um livro na estante de troca
     /// </summary>
     /// <returns></returns>
-    public async Task<List<Estante>> ProcuraMatchTroca(Estante minhaEstante, PageTurnerContext _bd){
+    public static async Task<List<Estante>> ProcuraMatchTroca(Estante minhaEstante, PageTurnerContext _bd){
 
         int livroId = minhaEstante.livro.livroId;
         // Procurar o livro nas estantes de desejos de todos os user
@@ -108,7 +130,7 @@ public class Troca
     /// <param name="_bd"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-     public async Task<List<Estante>> ProcuraMatchDesejos(Estante minhaEstanteDesejos, PageTurnerContext _bd){
+     public static async Task<List<Estante>> ProcuraMatchDesejos(Estante minhaEstanteDesejos, PageTurnerContext _bd){
 
         int livroId = minhaEstanteDesejos.livro.livroId;
         // Procurar o livro que eu desejo nas estantes de troca de todos os leitores
@@ -142,7 +164,7 @@ public class Troca
     /// <param name="estanteId"></param>
     /// <param name="_bd"></param>
     /// <returns>Retorna lista de utilizadores</returns>
-    public async Task<ActionResult<List<Utilizador>>> ProcuraLivroEmEstante(int livroId, string estanteProcura, PageTurnerContext _bd)
+    public static async Task<ActionResult<List<Utilizador>>> ProcuraLivroEmEstante(int livroId, string estanteProcura, PageTurnerContext _bd)
     {
         
         //verifica se o livro existe na estante
@@ -164,7 +186,7 @@ public class Troca
     }
 
 
-        public async Task<ActionResult<List<Estante>>> ProcuraLivroEmUtilizadores (List<Utilizador> listUsersTemLivroQueEuQuero, 
+        public static async Task<ActionResult<List<Estante>>> ProcuraLivroEmUtilizadores (List<Utilizador> listUsersTemLivroQueEuQuero, 
                                                         List<Estante> listMinhaEstanteTrocas, 
                                                         string estanteProcura, PageTurnerContext _bd)
     {   
@@ -270,7 +292,7 @@ public class Troca
     /// <param name="estanteId">estante onde está o livro que o user quer</param>
     /// <param name="_bd"></param>
     /// <returns></returns>
-    public async Task<ActionResult<Troca?>> CriaTroca(string userName, int estanteId, PageTurnerContext _bd)
+    public static async  Task<Troca?> CriaTroca(string userName, int estanteId, PageTurnerContext _bd)
     {
         // procura o estado de troca pendente na BD 
         EstadoTroca estadoTroca = await EstadoTroca.ProcEstadoTroca("Pendente", _bd);
@@ -287,7 +309,7 @@ public class Troca
 
         //Cria troca
         var troca = new Troca(
-            dataPedidoTroca: DateTime.Now,
+            // dataPedidoTroca: DateTime.Now,
             estanteId: estanteComLivro.estanteId,
             estanteId2: null, //ver se é preciso mudar a BD.
             estadoTroca: estadoTroca
@@ -320,18 +342,11 @@ public class Troca
     /// <param name="_bd"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<ActionResult<Troca?>> TrocaDireta(string userName, int estanteId, PageTurnerContext _bd)
+    public async Task<ActionResult<Troca?>> TrocaDireta(Troca troca, PageTurnerContext _bd)
     {
-        //cria uma nova troca
-        Troca troca = new Troca();
-        var resultado = await troca.CriaTroca(userName, estanteId, _bd);
-        if (resultado.Value != null)
-        {
-            Troca? trocaResult = resultado.Value;
-            troca = trocaResult;
-        }
-        else
-        {
+        var userName = troca.estanteId2.utilizador.username;
+
+        if (troca == null){
             throw new Exception("Não foi possivel criar a troca");
         }
 
