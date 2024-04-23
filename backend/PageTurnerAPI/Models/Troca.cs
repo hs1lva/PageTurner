@@ -273,6 +273,7 @@ public class Troca
         if (trocaValidada == null)
         {
             throw new Exception("Troca não existe");
+            // throw new Exception();
         }
         if (utilizadorSolicitaTroca == null || utilizadorRecebeTroca == null)
         {
