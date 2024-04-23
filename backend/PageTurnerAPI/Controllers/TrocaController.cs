@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using backend.Models;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using PageTurnerAPI;
+using PageTurnerAPI.Exceptions;
 
 namespace backend.Controllers
 {
@@ -28,7 +30,7 @@ namespace backend.Controllers
         public async Task<ActionResult<IEnumerable<Troca>>> GetTroca()
         {
             return await _context.Troca
-                            .Include(x => x.estadoTroca)     
+                            .Include(x => x.estadoTroca)
                             .ToListAsync();
         }
 
@@ -132,9 +134,27 @@ namespace backend.Controllers
         [HttpGet("check-match/{estanteId}")]
         public async Task<IActionResult> CheckMatch(int estanteId)
         {
-            var res = await Troca.ProcuraMatch(estanteId, _context);
+            try
+            {
+                var res = await Troca.ProcuraMatch(estanteId, _context);
+                return Ok(res);
+            }
+            catch (TrocaException e){
+                
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {   
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
 
-            return Ok(res);
+                return NotFound("Erro desconhecido");
+
+            }
+
+
+
+
         }
 
         /// <summary>
@@ -145,12 +165,12 @@ namespace backend.Controllers
         [HttpPut("aceita-troca/{trocaId}")]
         public async Task<IActionResult> AceitaTroca(int trocaId)
         {
-            
+
             // Procura troca
             var troca = await Troca.GetTrocaById(trocaId, _context);
 
             var res = await troca.AceitaTroca(trocaId, _context);
-            
+
             if (res == null)
             {
                 return NotFound("Troca não existe");
@@ -172,7 +192,7 @@ namespace backend.Controllers
             var troca = await Troca.GetTrocaById(trocaId, _context);
 
             var res = await troca.RejeitaTroca(trocaId, _context);
-            
+
             if (res == null)
             {
                 return NotFound("Troca não existe");
@@ -188,7 +208,8 @@ namespace backend.Controllers
         /// <param name="estanteDoLivroDesejado">self explanatory</param>
         /// <returns></returns>
         [HttpPost("solicita-troca-direta/{userName}/{estanteDoLivroDesejado}")]
-        public async Task<IActionResult> SolicitaTrocaDireta(string userName, int estanteDoLivroDesejado){
+        public async Task<IActionResult> SolicitaTrocaDireta(string userName, int estanteDoLivroDesejado)
+        {
 
             var trocaInicial = await Troca.CriaTroca(userName, estanteDoLivroDesejado, _context);
 
