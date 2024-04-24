@@ -280,6 +280,18 @@ namespace backend.Controllers
         [HttpPost]
         public ActionResult<Utilizador> PostUtilizador(UtilizadorCreateDTO utilizadorDTO)
         {
+            // Verificar se o username já existe
+            if (Utilizador.UsernameExists(_context, utilizadorDTO.username))
+            {
+                return Conflict("O username já está em uso.");
+            }
+
+            // Verificar se o email já existe
+            if (Utilizador.EmailExists(_context, utilizadorDTO.email))
+            {
+                return Conflict("O email já está em uso.");
+            }
+
             // Gerar o hash da senha
             string hashedPassword = HashPassword(utilizadorDTO.password);
 
