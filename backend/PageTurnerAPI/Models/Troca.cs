@@ -155,7 +155,7 @@ public class Troca
         var r = await ProcuraLivroEmEstante(livroId, "Estante Troca", _bd);
         // if (r.Value == null || r.Value.Count <= 0) throw new Exception("Livro não existe em nenhuma estante de troca");
         if (r.Value == null || r.Value.Count <= 0) 
-            throw new TrocaException(r.Value);
+            throw new TrocaException();
 
         var listUsersTemLivroQueEuQuero = r.Value;// Temos de fazer isto porque a funcao (ProcuraLivroEmEstante) é ActionResult
 
