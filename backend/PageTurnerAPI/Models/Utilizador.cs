@@ -40,7 +40,7 @@ public class Utilizador
 
     //chave estranjeira para  estadoConta
     public int estadoContaId { get; set; }
-    
+
     // ignore no request
     [JsonIgnore]
     public EstadoConta estadoConta { get; set; }
@@ -48,7 +48,7 @@ public class Utilizador
 
     // Propriedade de navegação para as avaliações/comentarios
     public ICollection<AvaliacaoLivro> Avaliacoes { get; set; }
-	public ICollection<ComentarioLivro> Comentarios { get; set; }
+    public ICollection<ComentarioLivro> Comentarios { get; set; }
 
     // Construtor da classe Utilizador
     public Utilizador()
@@ -125,5 +125,27 @@ public class Utilizador
     {
         this.password = novaSenha;
         await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Verificar se o username já existe
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="username"></param>
+    /// <returns></returns>
+    public static bool UsernameExists(PageTurnerContext context, string username)
+    {
+        return context.Utilizador.Any(u => u.username == username);
+    }
+
+    /// <summary>
+    /// Verificar se o email já existe
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    public static bool EmailExists(PageTurnerContext context, string email)
+    {
+        return context.Utilizador.Any(u => u.email == email);
     }
 }
