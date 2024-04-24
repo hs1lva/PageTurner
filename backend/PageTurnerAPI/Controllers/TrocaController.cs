@@ -142,12 +142,13 @@ namespace backend.Controllers
             catch (TrocaException e){ // Ver com professor. Não está a ser apanhada a exceção, segue para a exceção geral
                 
                 return NotFound(e.Message);
+
             }
             catch (Exception e)
             {   
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-                return NotFound($"Erro desconhecido {e.Message} \n {e.StackTrace}");
+                // Console.WriteLine(e.Message);
+                // Console.WriteLine(e.StackTrace);
+                return NotFound($"Erro desconhecido \n {e.Message} \n {e.StackTrace}");
             }
         }
 
