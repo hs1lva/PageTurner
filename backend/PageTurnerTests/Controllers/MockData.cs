@@ -39,7 +39,7 @@ namespace PageTurnerTests.Controllers
         }
 
         // Criar um utilizador para testes
-        public static Utilizador CreateUtilizador(int id, string nome, string apelido, DateTime dataNascimento, string username, string password, string email, string fotoPerfil, DateTime dataRegisto, DateTime ultimologin, bool notficacaoPedidoTroca, bool notficacaoAceiteTroca, bool notficacaoCorrespondencia, int tipoUtilizadorId, EstadoConta estadoContas)
+        public static Utilizador CreateUtilizador(int id, string nome, string apelido, DateTime dataNascimento, string username, string password, string email, string fotoPerfil, DateTime dataRegisto, DateTime ultimologin, bool notficacaoPedidoTroca, bool notficacaoAceiteTroca, bool notficacaoCorrespondencia, int tipoUtilizadorId, EstadoConta estadoContas, int cidadeIdtest)
         {
             return new Utilizador
             {
@@ -58,6 +58,7 @@ namespace PageTurnerTests.Controllers
                 notficacaoCorrespondencia = notficacaoCorrespondencia,
                 tipoUtilizadorId = tipoUtilizadorId,
                 estadoConta = estadoContas,
+                cidadeId = cidadeIdtest,
                 Avaliacoes = new List<AvaliacaoLivro>(),
                 Comentarios = new List<ComentarioLivro>()
             };

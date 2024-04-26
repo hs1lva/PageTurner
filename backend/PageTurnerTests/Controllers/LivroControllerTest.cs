@@ -31,7 +31,9 @@ namespace PageTurnerTests.Controllers
                 var generoLivroTest2 = MockData.CreateGeneroLivro(2, "Género Teste 2");
                 var tipoUtilizadorTest = MockData.CreateTipoUtilizador(1, "Administrador");
                 var estadoContaTest = MockData.CreateEstadoConta(1, "Ativo");
-                var utilizadorTest = MockData.CreateUtilizador(1, "UtilizadorTest", "Teste", DateTime.Now, "usernametest", "passwordtest", "emailtestunit@ipca.pt", "foto.jpg", DateTime.Now, DateTime.Now, true, true, true, 1, estadoContaTest);
+                var paisTest = MockData.CreatePais(1, "Portugal");
+                var cidadeTest = MockData.CreateCidade(1, "Braga", paisTest.paisId);
+                var utilizadorTest = MockData.CreateUtilizador(1, "UtilizadorTest", "Teste", DateTime.Now, "usernametest", "passwordtest", "emailtestunit@ipca.pt", "foto.jpg", DateTime.Now, DateTime.Now, true, true, true, 1, estadoContaTest, cidadeTest.cidadeId);
                 var livro1 = MockData.CreateLivro(1, "Livro Teste 1", 2020, "Português", autorLivroTest, generoLivroTest);
                 var livro2 = MockData.CreateLivro(2, "Livro Teste 2", 2018, "Inglês", autorLivroTest, generoLivroTest);
                 var tipoEstanteTest = MockData.CreateTipoEstante(1, "Pessoal");
@@ -94,7 +96,9 @@ namespace PageTurnerTests.Controllers
                 var generoLivroTest2 = MockData.CreateGeneroLivro(2, "Género Teste 2");
                 var tipoUtilizadorTest = MockData.CreateTipoUtilizador(1, "Administrador");
                 var estadoContaTest = MockData.CreateEstadoConta(1, "Ativo");
-                var utilizadorTest = MockData.CreateUtilizador(1, "UtilizadorTest", "Teste", DateTime.Now, "usernametest", "passwordtest", "emailtestunit@ipca.pt", "foto.jpg", DateTime.Now, DateTime.Now, true, true, true, 1, estadoContaTest);
+                var paisTest = MockData.CreatePais(1, "Portugal");
+                var cidadeTest = MockData.CreateCidade(1, "Braga", paisTest.paisId);
+                var utilizadorTest = MockData.CreateUtilizador(1, "UtilizadorTest", "Teste", DateTime.Now, "usernametest", "passwordtest", "emailtestunit@ipca.pt", "foto.jpg", DateTime.Now, DateTime.Now, true, true, true, 1, estadoContaTest, cidadeTest.cidadeId);
                 var livro1 = MockData.CreateLivro(1, "Livro Teste 1", 2020, "Português", autorLivroTest, generoLivroTest);
                 var livro2 = MockData.CreateLivro(2, "Livro Teste 2", 2018, "Inglês", autorLivroTest2, generoLivroTest2); // Livro com autor e género diferentes da referência (livro1)
                 var tipoEstanteTest = MockData.CreateTipoEstante(1, "Pessoal");

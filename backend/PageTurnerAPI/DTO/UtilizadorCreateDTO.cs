@@ -20,7 +20,6 @@ public class UtilizadorCreateDTO
 	public bool notficacaoCorrespondencia { get; set; }
 	public int tipoUtilizadorId { get; set; }
 	public int estadoContaId { get; set; }
-
-
+	public int cidadeId { get; set; }
 
 }
