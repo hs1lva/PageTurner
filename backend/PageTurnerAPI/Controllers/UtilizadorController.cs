@@ -310,7 +310,8 @@ namespace backend.Controllers
                 notficacaoAceiteTroca = utilizadorDTO.notficacaoAceiteTroca,
                 notficacaoCorrespondencia = utilizadorDTO.notficacaoCorrespondencia,
                 tipoUtilizadorId = utilizadorDTO.tipoUtilizadorId,
-                estadoContaId = utilizadorDTO.estadoContaId
+                estadoContaId = utilizadorDTO.estadoContaId,
+                cidadeId = utilizadorDTO.cidadeId
             };
 
             try

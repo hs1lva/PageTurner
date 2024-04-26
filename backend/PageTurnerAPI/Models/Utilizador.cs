@@ -1,4 +1,3 @@
-
 using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
@@ -41,6 +40,9 @@ public class Utilizador
     //chave estranjeira para  estadoConta
     public int estadoContaId { get; set; }
 
+    // Chave estrangeira para Cidade
+    public int cidadeId { get; set; }
+    
     // ignore no request
     [JsonIgnore]
     public EstadoConta estadoConta { get; set; }
