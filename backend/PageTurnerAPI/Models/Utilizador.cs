@@ -42,7 +42,7 @@ public class Utilizador
 
     // Chave estrangeira para Cidade
     public int cidadeId { get; set; }
-    
+
     // ignore no request
     [JsonIgnore]
     public EstadoConta estadoConta { get; set; }
@@ -149,5 +149,29 @@ public class Utilizador
     public static bool EmailExists(PageTurnerContext context, string email)
     {
         return context.Utilizador.Any(u => u.email == email);
+    }
+
+    /// <summary>
+    /// Hash da senha do utilizador
+    /// </summary>
+    /// <param name="password"></param>
+    /// <returns></returns>
+    public static string HashPassword(string password)
+    {
+        // Defina o custo do hash (quanto maior, mais seguro, mas também mais lento)
+        int workFactor = 12; // Ajuste conforme necessário
+
+        // Gerar o hash da senha usando bcrypt
+        return BCrypt.Net.BCrypt.HashPassword(password, workFactor);
+    }
+
+    /// <summary>
+    /// Verificar se um utilizador existe
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public static bool UtilizadorExists(PageTurnerContext context, int id)
+    {
+        return context.Utilizador.Any(e => e.utilizadorID == id);
     }
 }

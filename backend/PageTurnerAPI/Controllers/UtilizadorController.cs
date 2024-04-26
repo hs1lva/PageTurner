@@ -293,7 +293,7 @@ namespace backend.Controllers
             }
 
             // Gerar o hash da senha
-            string hashedPassword = HashPassword(utilizadorDTO.password);
+            string hashedPassword = Utilizador.HashPassword(utilizadorDTO.password);
 
             var utilizador = new Utilizador
             {
@@ -396,29 +396,5 @@ namespace backend.Controllers
         }
 
         #endregion
-
-        /// <summary>
-        /// Hash da senha do utilizador
-        /// </summary>
-        /// <param name="password"></param>
-        /// <returns></returns>
-        private string HashPassword(string password)
-        {
-            // Defina o custo do hash (quanto maior, mais seguro, mas também mais lento)
-            int workFactor = 12; // Ajuste conforme necessário
-
-            // Gerar o hash da senha usando bcrypt
-            return BCrypt.Net.BCrypt.HashPassword(password, workFactor);
-        }
-
-        /// <summary>
-        /// Verificar se um utilizador existe
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        private bool UtilizadorExists(int id)
-        {
-            return _context.Utilizador.Any(e => e.utilizadorID == id);
-        }
     }
 }
