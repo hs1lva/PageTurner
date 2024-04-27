@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
+    [Authorize(Policy = "adminRole")] // Apenas users do tipo admin podem ter acesso a este controller
     [Route("api/[controller]")]
     [ApiController]
     public class PaisController : ControllerBase
