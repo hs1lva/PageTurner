@@ -8,6 +8,8 @@ using System.Security.Claims;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Net;
+using PageTurnerAPI.Services;
 
 namespace backend.Controllers
 {
@@ -356,6 +358,47 @@ namespace backend.Controllers
 
             // Retornar o token JWT junto com o usuário autenticado
             return Ok(new { Token = token, Utilizador = user });
+        }
+
+        /// <summary>
+        /// Autenticar um utilizador
+        /// </summary>
+        /// <param name="loginDTO"></param>
+        /// <returns></returns>
+        [HttpPost("Login2")]
+        public async Task<ActionResult> Login2(LoginDTO loginDTO)
+        {
+            // Obter o utilizador com base no nome de usuário
+            var user = await _context.Utilizador
+                                    .Include(u => u.tipoUtilizador)// precisamos disto para ver qual é o tipo de utilizador
+                                    .FirstOrDefaultAsync(u => u.username == loginDTO.Username);
+            if (user == null)
+            {
+                return Unauthorized(); // Utilizador não encontrado
+            }
+
+            // Verificar se a senha fornecida corresponde ao hash armazenado no banco de dados
+            bool passwordMatch = BCrypt.Net.BCrypt.Verify(loginDTO.Password, user.password);
+            if (!passwordMatch)
+            {
+                return Unauthorized(); // Credenciais inválidas
+            }
+
+
+
+            // Gerar cookie de autenticação
+
+            var ctx = HttpContext;            
+            var claims = new List<Claim>();
+
+            if(user.tipoUtilizador.descricaoTipoUti == "Administrador") // Fazer enums para isto
+                claims.Add(new Claim("user_type", "Admin"));
+            
+            var identity = new ClaimsIdentity(claims, AuthorizationPolicy.AuthScheme);
+            var use = new ClaimsPrincipal(identity);
+            await ctx.SignInAsync(AuthorizationPolicy.AuthScheme, use);
+
+            return Ok();
         }
 
         #endregion

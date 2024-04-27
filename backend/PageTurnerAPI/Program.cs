@@ -8,11 +8,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using PageTurnerAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Adicionar serviços ao contêiner.
 builder.Services.AddControllers();
+
+// Configuração do serviço de autenticação por cookies
+
+builder.Services.AddAuthentication(AuthorizationPolicy.AuthScheme)
+.AddCookie(AuthorizationPolicy.AuthScheme);
+
 
 // Configuração do serviço de autenticação JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -71,6 +78,19 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<ServicoAPI>(); // O add scoped cria uma instância do serviço uma vez, por solicitação HTTP do cliente
                                            // e será reutilizada em todas as injeções de dependência durante a mesma solicitação
 builder.Services.AddTransient<IEmailSender, EmailSender>(); // Cria uma instância sempre que solicitado
+
+// Adicionar políticas de autorização personalizadas
+builder.Services.AddAuthorization(options =>
+{
+    options.AddAdminPolicy();
+    options.CheckUserPolicy();
+    
+    // podemos utilizar mais autenticações, ver depois com Hugo Silva
+    // options.AddAdminPolicy(JwtBearerDefaults.AuthenticationScheme);
+    // options.CheckUserPolicy(JwtBearerDefaults.AuthenticationScheme);
+
+});
+
 
 #endregion
 
