@@ -174,4 +174,26 @@ public class Utilizador
     {
         return context.Utilizador.Any(e => e.utilizadorID == id);
     }
+
+    /// <summary>
+    /// Função para confirmar o registo do utilizador
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public async Task ConfirmarRegistoAsync(PageTurnerContext context)
+    {
+        this.dataRegisto = DateTime.Now;
+        await context.SaveChangesAsync();
+    }
+
+
+    /// <summary>
+    /// Funcao para obter o username do utilizador pelo id
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="id"></param>
+    public static string GetUsernameById(PageTurnerContext context, int id)
+    {
+        return context.Utilizador.Where(u => u.utilizadorID == id).FirstOrDefault().username;
+    }
 }
