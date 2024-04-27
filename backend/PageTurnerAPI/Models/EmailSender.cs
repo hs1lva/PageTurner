@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using backend.Controllers;
 using backend.Interface;
 
 namespace backend.Models
@@ -12,7 +13,7 @@ namespace backend.Models
     /// <summary>
     /// Modelo para a utilizacao do email
     /// </summary>
-    public class EmailSender:IEmailSender
+    public class EmailSender : IEmailSender
     {
         //Atributos
         private string smtp = "smtp.office365.com";
@@ -20,6 +21,12 @@ namespace backend.Models
         private string mail = "pageturner@outlook.pt";
         private string pw = "ArthurJuliaHugo*2Pedro";
 
+        private readonly PageTurnerContext context;
+
+        public EmailSender(PageTurnerContext _context)
+        {
+            context = _context;
+        }
 
         /// <summary>
         /// Metodo para enviar email
@@ -42,18 +49,40 @@ namespace backend.Models
         }
 
         /// <summary>
-        /// Metodo para enviar email de confirmacao do registo do utilizador
+        /// Metodo para enviar email de confirmacao de registo do utilizador
         /// </summary>
-        /// <param name="emailTo"></param>
-        /// <param name="idUtilizador"></param>
-        /// <returns></returns>
+        /// <param name="emailTo">O endereço de email do destinatário.</param>
+        /// <param name="idUtilizador">O ID do utilizador.</param>
+        /// <returns>Uma tarefa que representa o envio do email de confirmação.</returns>
         public Task SendEmailConfirmationAsync(string emailTo, int idUtilizador)
         {
-            string link = "https://localhost:5001/api/Utilizador/ConfirmarEmail/" + idUtilizador;
+            string username = Utilizador.GetUsernameById(context, idUtilizador);
+
+            string confirmationEndpoint = "http://localhost:5272/api/Utilizador/ConfirmarEmail/" + idUtilizador; // Ajuste conforme necessário
             string subject = "Confirmação de Email";
-            string mensagem = "Por favor confirme o seu email clicando no link: " + link;
+            string mensagem = $@"
+
+        Olá {username},
+
+        Obrigado por se registar no PageTurner.
+
+        Para começar a usufruir de todas as funcionalidades, precisamos de confirmar o seu email.
+
+        Ao confirmar o seu email, terá acesso a:
+        - Registo de Livros nas estantes.
+        - Possibilidade de solicitações de troca a outros utilizadores.
+
+        Por favor, confirme o seu email clicando aqui: {confirmationEndpoint}.
+
+        É importante confirmar o seu email o mais rápido possível para começar a desfrutar de todas as funcionalidades da nossa plataforma.
+
+        Se tiver alguma dúvida ou problema, não hesite em entrar em contacto connosco.
+
+        Obrigado,
+        Equipa PageTurner.
+    ";
+
             return SendEmailAsync(emailTo, subject, mensagem);
         }
     }
-    
 }

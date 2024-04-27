@@ -95,35 +95,27 @@ namespace backend.Controllers
             return utilizador;
         }
 
-        /// <summary>
-        /// Confirmar o email do utilizador
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [HttpGet("ConfirmarEmail/{id}")] // -- Issue #42
-        public async Task<ActionResult<Utilizador>> ConfirmarEmail(int id)
+        [HttpGet("ConfirmarEmail/{id}")]
+        public async Task<IActionResult> ConfirmarEmail(int id)
         {
-            try
+            var utilizador = await _context.Utilizador.FindAsync(id);
+            if (utilizador == null)
             {
-                var utilizador = await _context.Utilizador.FindAsync(id);
-
-                // Chamar funcao para confirmar email
-                // validar se é null
-                if (utilizador == null)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    await utilizador.AtualizarDataRegistoAsync(DateTime.Now, _context);
-
-                    return Ok("Email confirmado com sucesso.");
-                }
+                return NotFound();
             }
-            catch (Exception ex)
+
+            // Verificar se o email já foi confirmado
+            if (utilizador.dataRegisto != null)
             {
-                return StatusCode(500, $"Erro ao confirmar email: {ex.Message}");
+                return Conflict("O email já foi confirmado anteriormente.");
             }
+
+            // Confirmar o email atualizando a data de registo
+            utilizador.dataRegisto = DateTime.Now;
+            await _context.SaveChangesAsync();
+
+            // Redirecionar para uma página de confirmação de email ou retornar uma mensagem de sucesso
+            return Ok("Email confirmado com sucesso.");
         }
 
         /// <summary>
@@ -278,60 +270,63 @@ namespace backend.Controllers
         /// <returns></returns>
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public ActionResult<Utilizador> PostUtilizador(UtilizadorCreateDTO utilizadorDTO)
+        public ActionResult PostUtilizador(UtilizadorCreateDTO utilizadorDTO)
         {
-            // Verificar se o username já existe
-            if (Utilizador.UsernameExists(_context, utilizadorDTO.username))
-            {
-                return Conflict("O username já está em uso.");
-            }
-
-            // Verificar se o email já existe
-            if (Utilizador.EmailExists(_context, utilizadorDTO.email))
-            {
-                return Conflict("O email já está em uso.");
-            }
-
-            // Gerar o hash da senha
-            string hashedPassword = Utilizador.HashPassword(utilizadorDTO.password);
-
-            var utilizador = new Utilizador
-            {
-                nome = utilizadorDTO.nome,
-                apelido = utilizadorDTO.apelido,
-                dataNascimento = utilizadorDTO.dataNascimento,
-                username = utilizadorDTO.username,
-                password = hashedPassword, // Atribuir o hash da senha
-                email = utilizadorDTO.email,
-                fotoPerfil = utilizadorDTO.fotoPerfil,
-                dataRegisto = null, // DataRegisto é preenchido NULL inicialmente
-                ultimologin = utilizadorDTO.ultimologin,
-                notficacaoPedidoTroca = utilizadorDTO.notficacaoPedidoTroca,
-                notficacaoAceiteTroca = utilizadorDTO.notficacaoAceiteTroca,
-                notficacaoCorrespondencia = utilizadorDTO.notficacaoCorrespondencia,
-                tipoUtilizadorId = utilizadorDTO.tipoUtilizadorId,
-                estadoContaId = utilizadorDTO.estadoContaId,
-                cidadeId = utilizadorDTO.cidadeId
-            };
-
             try
             {
+                // Verificar se o username já existe
+                if (Utilizador.UsernameExists(_context, utilizadorDTO.username))
+                {
+                    return Conflict("O username já está em uso.");
+                }
+
+                // Verificar se o email já existe
+                if (Utilizador.EmailExists(_context, utilizadorDTO.email))
+                {
+                    return Conflict("O email já está em uso.");
+                }
+
+                // Gerar o hash da senha
+                string hashedPassword = Utilizador.HashPassword(utilizadorDTO.password);
+
+                var utilizador = new Utilizador
+                {
+                    nome = utilizadorDTO.nome,
+                    apelido = utilizadorDTO.apelido,
+                    dataNascimento = utilizadorDTO.dataNascimento,
+                    username = utilizadorDTO.username,
+                    password = hashedPassword, // Atribuir o hash da senha
+                    email = utilizadorDTO.email,
+                    fotoPerfil = utilizadorDTO.fotoPerfil,
+                    dataRegisto = null, // DataRegisto é preenchido NULL inicialmente
+                    ultimologin = utilizadorDTO.ultimologin,
+                    notficacaoPedidoTroca = utilizadorDTO.notficacaoPedidoTroca,
+                    notficacaoAceiteTroca = utilizadorDTO.notficacaoAceiteTroca,
+                    notficacaoCorrespondencia = utilizadorDTO.notficacaoCorrespondencia,
+                    tipoUtilizadorId = utilizadorDTO.tipoUtilizadorId,
+                    estadoContaId = utilizadorDTO.estadoContaId,
+                    cidadeId = utilizadorDTO.cidadeId
+                };
+
+                // Adicionar o utilizador ao contexto
                 _context.Utilizador.Add(utilizador);
+                // Salvar as alterações no contexto
                 _context.SaveChanges();
 
-                EmailSender emailSender = new EmailSender();
-                emailSender.SendEmailConfirmationAsync(utilizador.email, utilizador.utilizadorID); // Chamada assíncrona, mas não esperamos o resultado aqui
+                // Enviar email de confirmação assíncrono
+                EmailSender emailSender = new EmailSender(_context);
+                emailSender.SendEmailConfirmationAsync(utilizador.email, utilizador.utilizadorID);
+
+                // Gerar token JWT após a criação bem-sucedida do utilizador
+                var token = _jwtTokenGenerator.GenerateToken(utilizador.utilizadorID.ToString());
+
+                // Retornar o token JWT junto com o utilizador criado
+                return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, new { Utilizador = utilizador, Token = token });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Erro ao criar utilizador: {ex.Message}");
             }
-
-            // Gerar token JWT após a criação bem-sucedida do utilizador
-            var token = _jwtTokenGenerator.GenerateToken(utilizador.utilizadorID.ToString());
-
-            // Retornar o token JWT junto com o utilizador criado
-            return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, new { Utilizador = utilizador, Token = token });
         }
 
         /// <summary>
