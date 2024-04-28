@@ -207,4 +207,21 @@ public class Utilizador
         var user = await context.Utilizador.FindAsync(userId);
         return user != null && user.dataRegisto != null;
     }
+
+    /// <summary>
+    /// Obter os países dos utilizadores
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public static async Task<IEnumerable<string>> ObterPaisesUtilizadores(PageTurnerContext context)
+        {
+            // Realizar uma junção entre as tabelas Utilizador, Cidade e Pais para obter os países dos utilizadores
+            var paisesUtilizadores = context.Utilizador
+                .Join(context.Cidade, u => u.cidadeId, c => c.cidadeId, (u, c) => new { u, c })
+                .Join(context.Pais, cu => cu.c.paisId, p => p.paisId, (cu, p) => p.nomePais)
+                .Distinct() // Garantir que cada país aparece apenas uma vez na lista
+                .ToList();
+
+            return paisesUtilizadores;
+        }
 }
