@@ -474,15 +474,15 @@ namespace backend.Controllers
 
         #region Métodos GET Admin
 
-        // Get all users
-        [HttpGet("Admin")]
+        // GET: api/Utilizador/Admin/Utilizadores
+        [HttpGet("Admin/Utilizadores")]
         public async Task<ActionResult<IEnumerable<Utilizador>>> GetUtilizador_Admin()
         {
             return await _context.Utilizador.ToListAsync();
         }
 
-        // GET: api/Utilizador/Banidos
-        [HttpGet("Banidos")]
+        // GET: api/Utilizador/Admin/Banidos
+        [HttpGet("Admin/Banidos")]
         public async Task<ActionResult<IEnumerable<Utilizador>>> GetUtilizadorBanidos_Admin()
         {
             var utilizadoresBanidos = await _context.Utilizador.Where(u => u.estadoContaId == 3).ToListAsync();
@@ -495,8 +495,8 @@ namespace backend.Controllers
             return utilizadoresBanidos;
         }
 
-        // GET: api/Utilizador/PaisesUtilizadores
-        [HttpGet("PaisesUtilizadores")]
+        // GET: api/Utilizador/Admin/PaisesUtilizadores
+        [HttpGet("Admin/PaisesUtilizadores")]
         public async Task<ActionResult<IEnumerable<string>>> GetPaisesUtilizadores_Admin()
         {
             var paisesUtilizadores = await Utilizador.ObterPaisesUtilizadores(_context);
@@ -511,8 +511,8 @@ namespace backend.Controllers
         }
 
 
-        // GET: api/Utilizador/ComentariosGerais
-        [HttpGet("ComentariosGerais")]
+        // GET: api/Utilizador/Admin/ComentariosGerais
+        [HttpGet("Admin/ComentariosGerais")]
         public async Task<ActionResult<IEnumerable<ComentarioLivro>>> GetComentariosGerais_Admin()
         {
             return await _context.ComentarioLivro.ToListAsync();
@@ -522,8 +522,8 @@ namespace backend.Controllers
 
         #region Métodos PUT Admin
 
-        // PUT: api/Utilizador/Banir/5
-        [HttpPut("Banir/{id}")]
+        // PUT: api/Utilizador/Admin/Banir/5
+        [HttpPut("Admin/Banir/{id}")]
         public async Task<IActionResult> BanirUtilizador_Admin(int id)
         {
             var utilizador = await _context.Utilizador.FindAsync(id);
@@ -539,8 +539,8 @@ namespace backend.Controllers
         }
 
 
-        // PUT: api/Utilizador/Username/{username}
-        [HttpPut("Username/{username}")]
+        // PUT: api/Utilizador/Admin/Username/{username}
+        [HttpPut("Admin/Username/{username}")]
         public async Task<IActionResult> PutUtilizadorByUsername_Admin(string username, UtilizadorUpdateDTO utilizadorDTO)
         {
             var userToUpdate = await _context.Utilizador.FirstOrDefaultAsync(u => u.username == username);
@@ -578,8 +578,8 @@ namespace backend.Controllers
             return NoContent();
         }
 
-        // PUT: api/Utilizador/Id/{id}
-        [HttpPut("Id/{id}")]
+        // PUT: api/Utilizador/Admin/Id/{id}
+        [HttpPut("Admin/Id/{id}")]
         public async Task<IActionResult> PutUtilizadorById_Admin(int id, UtilizadorUpdateDTO utilizadorDTO)
         {
             var userToUpdate = await _context.Utilizador.FindAsync(id);
