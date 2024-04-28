@@ -425,6 +425,11 @@ namespace backend.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                // Enviar e-mail de notificação de desativação da conta ao utilizador
+                EmailSender emailSender = new EmailSender(_context);
+                await emailSender.SendAccountDeactivationEmailAsync(utilizador.email);
+
                 return Ok("Conta desativada com sucesso.");
             }
             catch (Exception ex)
@@ -535,7 +540,18 @@ namespace backend.Controllers
             utilizador.estadoContaId = 3; // Define o estado da conta como "Banido"
             await _context.SaveChangesAsync();
 
-            return NoContent(); // Retorna um status 204 para indicar que a operação foi bem-sucedida
+            try
+            {
+                // Enviar e-mail de notificação de banimento da conta
+                EmailSender emailSender = new EmailSender(_context);
+                await emailSender.SendAccountBanEmailAsync(utilizador.email);
+
+                return NoContent(); // Retorna um status 204 para indicar que a operação foi bem-sucedida
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao banir utilizador: {ex.Message}");
+            }
         }
 
 

@@ -84,5 +84,38 @@ namespace backend.Models
 
             return SendEmailAsync(emailTo, subject, mensagem);
         }
+
+        /// <summary>
+        /// Envio de email para notificar um utilizador sobre a desativação da sua conta.
+        /// </summary>
+        /// <param name="emailTo">O endereço de e-mail do destinatário.</param>
+        /// <returns>Uma tarefa que representa o envio do e-mail de notificação.</returns>
+        public async Task SendAccountDeactivationEmailAsync(string emailTo)
+        {
+            string subject = "Conta Desativada";
+            string mensagem = @"
+            A sua conta no PageTurner foi desativada conforme solicitado.
+            Se precisar de mais informações, entre em contato com pageturner@outlook.pt.
+        ";
+
+            await SendEmailAsync(emailTo, subject, mensagem);
+        }
+
+        /// <summary>
+        /// Envio de email para notificar um utilizador sobre o banimento da sua conta.
+        /// </summary>
+        /// <param name="emailTo">O endereço de e-mail do destinatário.</param>
+        /// <returns>Uma tarefa que representa o envio do e-mail de notificação.</returns>
+        public async Task SendAccountBanEmailAsync(string emailTo)
+        {
+            string subject = "Conta Banida";
+            string mensagem = @"
+            A sua conta no PageTurner foi banida por violação dos termos de uso.
+            Se desejar contestar esta decisão, entre em contato com pageturner@outlook.pt.
+        ";
+
+            await SendEmailAsync(emailTo, subject, mensagem);
+        }
+
     }
 }
