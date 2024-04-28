@@ -410,6 +410,7 @@ namespace backend.Controllers
             return Ok();
         }
 
+        // POST: api/Utilizador/{id}/Desativar
         [HttpPost("{id}/Desativar")]
         public async Task<ActionResult> DesativarConta(int id)
         {
@@ -438,6 +439,35 @@ namespace backend.Controllers
             }
         }
 
+        // POST: api/Utilizador/{id}/Reativar
+        [HttpPost("{id}/Reativar")]
+        public async Task<ActionResult> ReativarConta(int id)
+        {
+            var utilizador = await _context.Utilizador.FindAsync(id);
+            if (utilizador == null)
+            {
+                return NotFound("Utilizador não encontrado.");
+            }
+
+            // Define o estado da conta como 1 (Ativo)
+            utilizador.estadoContaId = 1;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+
+                // Enviar e-mail de notificação de reativação da conta ao utilizador
+                EmailSender emailSender = new EmailSender(_context);
+                await emailSender.SendAccountReactivationEmailAsync(utilizador.email);
+
+                return Ok("Conta reativada com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao reativar conta: {ex.Message}");
+            }
+        }
+        
         #endregion
 
         #region Métodos DELETE

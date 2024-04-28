@@ -102,6 +102,22 @@ namespace backend.Models
         }
 
         /// <summary>
+        /// Envio de email para notificar um utilizador sobre a reativação da sua conta.
+        /// </summary>
+        /// <param name="emailTo"></param>
+        /// <returns></returns>
+        public async Task SendAccountReactivationEmailAsync(string emailTo)
+        {
+            string subject = "Conta Reativada";
+            string mensagem = @"
+            A sua conta no PageTurner foi reativada.
+            Se precisar de mais informações, entre em contato com pageturner@outlook.pt.
+        ";
+
+            await SendEmailAsync(emailTo, subject, mensagem);
+        }
+
+        /// <summary>
         /// Envio de email para notificar um utilizador sobre o banimento da sua conta.
         /// </summary>
         /// <param name="emailTo">O endereço de e-mail do destinatário.</param>
