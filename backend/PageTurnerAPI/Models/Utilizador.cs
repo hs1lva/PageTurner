@@ -186,7 +186,6 @@ public class Utilizador
         await context.SaveChangesAsync();
     }
 
-
     /// <summary>
     /// Funcao para obter o username do utilizador pelo id
     /// </summary>
@@ -196,4 +195,33 @@ public class Utilizador
     {
         return context.Utilizador.Where(u => u.utilizadorID == id).FirstOrDefault().username;
     }
+
+    /// <summary>
+    /// Verifica se o utilizador está verificado com base na data de registo não nula.
+    /// </summary>
+    /// <param name="userId">O ID do utilizador a ser verificado.</param>
+    /// <param name="context">O contexto do banco de dados.</param>
+    /// <returns>True se o utilizador estiver verificado, False caso contrário.</returns>
+    public static async Task<bool> IsUserVerifiedAsync(int userId, PageTurnerContext context)
+    {
+        var user = await context.Utilizador.FindAsync(userId);
+        return user != null && user.dataRegisto != null;
+    }
+
+    /// <summary>
+    /// Obter os países dos utilizadores
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public static async Task<IEnumerable<string>> ObterPaisesUtilizadores(PageTurnerContext context)
+        {
+            // Realizar uma junção entre as tabelas Utilizador, Cidade e Pais para obter os países dos utilizadores
+            var paisesUtilizadores = context.Utilizador
+                .Join(context.Cidade, u => u.cidadeId, c => c.cidadeId, (u, c) => new { u, c })
+                .Join(context.Pais, cu => cu.c.paisId, p => p.paisId, (cu, p) => p.nomePais)
+                .Distinct() // Garantir que cada país aparece apenas uma vez na lista
+                .ToList();
+
+            return paisesUtilizadores;
+        }
 }

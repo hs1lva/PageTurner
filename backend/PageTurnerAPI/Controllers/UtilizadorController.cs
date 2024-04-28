@@ -276,6 +276,15 @@ namespace backend.Controllers
         {
             try
             {
+                // Definir o estado de conta como "Ativo" por padrão
+                utilizadorDTO.estadoContaId = 1; // 1 - Ativo
+
+                // Verificar se o tipo de utilizador é válido
+                if (!TipoUtilizador.IsValidTipoUtilizador(utilizadorDTO.tipoUtilizadorId))
+                {
+                    return BadRequest("Tipo de utilizador inválido. Deve ser 1 (Administrador) ou 2 (Utilizador).");
+                }
+
                 // Verificar se o username já existe
                 if (Utilizador.UsernameExists(_context, utilizadorDTO.username))
                 {
@@ -388,17 +397,40 @@ namespace backend.Controllers
 
             // Gerar cookie de autenticação
 
-            var ctx = HttpContext;            
+            var ctx = HttpContext;
             var claims = new List<Claim>();
 
-            if(user.tipoUtilizador.descricaoTipoUti == "Administrador") // Fazer enums para isto
+            if (user.tipoUtilizador.descricaoTipoUti == "Administrador") // Fazer enums para isto
                 claims.Add(new Claim("user_type", "Admin"));
-            
+
             var identity = new ClaimsIdentity(claims, AuthorizationPolicy.AuthScheme);
             var use = new ClaimsPrincipal(identity);
             await ctx.SignInAsync(AuthorizationPolicy.AuthScheme, use);
 
             return Ok();
+        }
+
+        [HttpPost("{id}/Desativar")]
+        public async Task<ActionResult> DesativarConta(int id)
+        {
+            var utilizador = await _context.Utilizador.FindAsync(id);
+            if (utilizador == null)
+            {
+                return NotFound("Utilizador não encontrado.");
+            }
+
+            // Define o estado da conta como 2 (Inativo)
+            utilizador.estadoContaId = 2;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok("Conta desativada com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao desativar conta: {ex.Message}");
+            }
         }
 
         #endregion
@@ -429,6 +461,158 @@ namespace backend.Controllers
             {
                 return StatusCode(500, $"Erro ao eliminar utilizador: {ex.Message}");
             }
+
+            return NoContent();
+        }
+
+        #endregion
+
+
+        // ---------------------------------------------------------------------
+        // ------------- METODOS PARA O ADMINISTRADOR --------------------------
+        // ---------------------------------------------------------------------
+
+        #region Métodos GET Admin
+
+        // Get all users
+        [HttpGet("Admin")]
+        public async Task<ActionResult<IEnumerable<Utilizador>>> GetUtilizador_Admin()
+        {
+            return await _context.Utilizador.ToListAsync();
+        }
+
+        // GET: api/Utilizador/Banidos
+        [HttpGet("Banidos")]
+        public async Task<ActionResult<IEnumerable<Utilizador>>> GetUtilizadorBanidos_Admin()
+        {
+            var utilizadoresBanidos = await _context.Utilizador.Where(u => u.estadoContaId == 3).ToListAsync();
+
+            if (!utilizadoresBanidos.Any())
+            {
+                return NotFound("Não há utilizadores banidos.");
+            }
+
+            return utilizadoresBanidos;
+        }
+
+        // GET: api/Utilizador/PaisesUtilizadores
+        [HttpGet("PaisesUtilizadores")]
+        public async Task<ActionResult<IEnumerable<string>>> GetPaisesUtilizadores_Admin()
+        {
+            var paisesUtilizadores = await Utilizador.ObterPaisesUtilizadores(_context);
+
+            if (!paisesUtilizadores.Any())
+            {
+                // Mensagem de erro personalizada
+                return NotFound("Não foram encontrados países de utilizadores.");
+            }
+
+            return Ok(paisesUtilizadores); // Retorna a lista de países encontrados
+        }
+
+
+        // GET: api/Utilizador/ComentariosGerais
+        [HttpGet("ComentariosGerais")]
+        public async Task<ActionResult<IEnumerable<ComentarioLivro>>> GetComentariosGerais_Admin()
+        {
+            return await _context.ComentarioLivro.ToListAsync();
+        }
+
+        #endregion
+
+        #region Métodos PUT Admin
+
+        // PUT: api/Utilizador/Banir/5
+        [HttpPut("Banir/{id}")]
+        public async Task<IActionResult> BanirUtilizador_Admin(int id)
+        {
+            var utilizador = await _context.Utilizador.FindAsync(id);
+            if (utilizador == null)
+            {
+                return NotFound();
+            }
+
+            utilizador.estadoContaId = 3; // Define o estado da conta como "Banido"
+            await _context.SaveChangesAsync();
+
+            return NoContent(); // Retorna um status 204 para indicar que a operação foi bem-sucedida
+        }
+
+
+        // PUT: api/Utilizador/Username/{username}
+        [HttpPut("Username/{username}")]
+        public async Task<IActionResult> PutUtilizadorByUsername_Admin(string username, UtilizadorUpdateDTO utilizadorDTO)
+        {
+            var userToUpdate = await _context.Utilizador.FirstOrDefaultAsync(u => u.username == username);
+
+            if (userToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            // Atualizar os campos permitidos
+            if (!string.IsNullOrEmpty(utilizadorDTO.Nome) && utilizadorDTO.Nome != userToUpdate.nome)
+            {
+                userToUpdate.nome = utilizadorDTO.Nome;
+            }
+
+            if (!string.IsNullOrEmpty(utilizadorDTO.Apelido) && utilizadorDTO.Apelido != userToUpdate.apelido)
+            {
+                userToUpdate.apelido = utilizadorDTO.Apelido;
+            }
+
+            if (utilizadorDTO.DataNascimento.HasValue &&
+                utilizadorDTO.DataNascimento != userToUpdate.dataNascimento)
+            {
+                userToUpdate.dataNascimento = utilizadorDTO.DataNascimento.Value;
+            }
+
+            if (!string.IsNullOrEmpty(utilizadorDTO.FotoPerfil) &&
+                utilizadorDTO.FotoPerfil != userToUpdate.fotoPerfil)
+            {
+                userToUpdate.fotoPerfil = utilizadorDTO.FotoPerfil;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // PUT: api/Utilizador/Id/{id}
+        [HttpPut("Id/{id}")]
+        public async Task<IActionResult> PutUtilizadorById_Admin(int id, UtilizadorUpdateDTO utilizadorDTO)
+        {
+            var userToUpdate = await _context.Utilizador.FindAsync(id);
+
+            if (userToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            // Atualizar os campos permitidos
+            if (!string.IsNullOrEmpty(utilizadorDTO.Nome) && utilizadorDTO.Nome != userToUpdate.nome)
+            {
+                userToUpdate.nome = utilizadorDTO.Nome;
+            }
+
+            if (!string.IsNullOrEmpty(utilizadorDTO.Apelido) && utilizadorDTO.Apelido != userToUpdate.apelido)
+            {
+                userToUpdate.apelido = utilizadorDTO.Apelido;
+            }
+
+            if (utilizadorDTO.DataNascimento.HasValue &&
+                utilizadorDTO.DataNascimento != userToUpdate.dataNascimento)
+            {
+                userToUpdate.dataNascimento = utilizadorDTO.DataNascimento.Value;
+            }
+
+            if (!string.IsNullOrEmpty(utilizadorDTO.FotoPerfil) &&
+                utilizadorDTO.FotoPerfil != userToUpdate.fotoPerfil)
+            {
+                userToUpdate.fotoPerfil = utilizadorDTO.FotoPerfil;
+            }
+
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
