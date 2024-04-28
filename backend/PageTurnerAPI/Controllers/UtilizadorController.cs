@@ -276,6 +276,12 @@ namespace backend.Controllers
         {
             try
             {
+                // Verificar se o tipo de utilizador é válido
+                if (!TipoUtilizador.IsValidTipoUtilizador(utilizadorDTO.tipoUtilizadorId))
+                {
+                    return BadRequest("Tipo de utilizador inválido. Deve ser 1 (Administrador) ou 2 (Utilizador).");
+                }
+
                 // Verificar se o username já existe
                 if (Utilizador.UsernameExists(_context, utilizadorDTO.username))
                 {
@@ -388,12 +394,12 @@ namespace backend.Controllers
 
             // Gerar cookie de autenticação
 
-            var ctx = HttpContext;            
+            var ctx = HttpContext;
             var claims = new List<Claim>();
 
-            if(user.tipoUtilizador.descricaoTipoUti == "Administrador") // Fazer enums para isto
+            if (user.tipoUtilizador.descricaoTipoUti == "Administrador") // Fazer enums para isto
                 claims.Add(new Claim("user_type", "Admin"));
-            
+
             var identity = new ClaimsIdentity(claims, AuthorizationPolicy.AuthScheme);
             var use = new ClaimsPrincipal(identity);
             await ctx.SignInAsync(AuthorizationPolicy.AuthScheme, use);
