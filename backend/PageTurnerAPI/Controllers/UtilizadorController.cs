@@ -19,6 +19,11 @@ namespace backend.Controllers
     {
         private readonly PageTurnerContext _context;
 
+        // Construtor privado vazio para resolver o problema do ASP.NET Core
+        private UtilizadorController()
+        {
+        }
+        
         public UtilizadorController(PageTurnerContext context)
         {
             _context = context;
