@@ -410,7 +410,11 @@ namespace backend.Controllers
             return Ok();
         }
 
-        // POST: api/Utilizador/{id}/Desativar
+        /// <summary>
+        /// Desativar a conta do utilizador pelo ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost("{id}/Desativar")]
         public async Task<ActionResult> DesativarConta(int id)
         {
@@ -439,7 +443,11 @@ namespace backend.Controllers
             }
         }
 
-        // POST: api/Utilizador/{id}/Reativar
+        /// <summary>
+        /// Reativar a conta do utilizador pelo ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost("{id}/Reativar")]
         public async Task<ActionResult> ReativarConta(int id)
         {
@@ -509,14 +517,20 @@ namespace backend.Controllers
 
         #region Métodos GET Admin
 
-        // GET: api/Utilizador/Admin/Utilizadores
+        /// <summary>
+        /// Obter todos os utilizadores (Admin)
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Admin/Utilizadores")]
         public async Task<ActionResult<IEnumerable<Utilizador>>> GetUtilizador_Admin()
         {
             return await _context.Utilizador.ToListAsync();
         }
 
-        // GET: api/Utilizador/Admin/Banidos
+        /// <summary>
+        /// Obter todos os utilizadores banidos (Admin)
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Admin/Banidos")]
         public async Task<ActionResult<IEnumerable<Utilizador>>> GetUtilizadorBanidos_Admin()
         {
@@ -530,7 +544,10 @@ namespace backend.Controllers
             return utilizadoresBanidos;
         }
 
-        // GET: api/Utilizador/Admin/PaisesUtilizadores
+        /// <summary>
+        /// Obter todos os países dos utilizadores (Admin)
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Admin/PaisesUtilizadores")]
         public async Task<ActionResult<IEnumerable<string>>> GetPaisesUtilizadores_Admin()
         {
@@ -546,7 +563,10 @@ namespace backend.Controllers
         }
 
 
-        // GET: api/Utilizador/Admin/ComentariosGerais
+        /// <summary>
+        /// Obter todos os comentários aos livros (Admin)
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Admin/ComentariosGerais")]
         public async Task<ActionResult<IEnumerable<ComentarioLivro>>> GetComentariosGerais_Admin()
         {
@@ -557,7 +577,11 @@ namespace backend.Controllers
 
         #region Métodos PUT Admin
 
-        // PUT: api/Utilizador/Admin/Banir/5
+        /// <summary>
+        /// Banir um utilizador pelo ID (Admin)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPut("Admin/Banir/{id}")]
         public async Task<IActionResult> BanirUtilizador_Admin(int id)
         {
@@ -585,7 +609,12 @@ namespace backend.Controllers
         }
 
 
-        // PUT: api/Utilizador/Admin/Username/{username}
+        /// <summary>
+        /// Atualizar alguns campos do utilizador pelo username (Admin)
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="utilizadorDTO"></param>
+        /// <returns></returns>
         [HttpPut("Admin/Username/{username}")]
         public async Task<IActionResult> PutUtilizadorByUsername_Admin(string username, UtilizadorUpdateDTO utilizadorDTO)
         {
@@ -624,7 +653,12 @@ namespace backend.Controllers
             return NoContent();
         }
 
-        // PUT: api/Utilizador/Admin/Id/{id}
+        /// <summary>
+        /// Atualizar alguns campos do utilizador pelo ID (Admin)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="utilizadorDTO"></param>
+        /// <returns></returns>
         [HttpPut("Admin/Id/{id}")]
         public async Task<IActionResult> PutUtilizadorById_Admin(int id, UtilizadorUpdateDTO utilizadorDTO)
         {
