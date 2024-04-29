@@ -18,15 +18,6 @@ namespace backend.Controllers
     public class UtilizadorController : ControllerBase
     {
         private readonly PageTurnerContext _context;
-        private readonly JwtTokenGenerator _jwtTokenGenerator; // Declaração da variável para gerar o token JWT
-
-
-        public UtilizadorController(PageTurnerContext context)
-        {
-            _context = context;
-            _jwtTokenGenerator = new JwtTokenGenerator(); // Inicialização da variável para gerar o token JWT
-
-        }
 
         #region Métodos GET
 
@@ -328,11 +319,7 @@ namespace backend.Controllers
                 EmailSender emailSender = new EmailSender(_context);
                 emailSender.SendEmailConfirmationAsync(utilizador.email, utilizador.utilizadorID);
 
-                // Gerar token JWT após a criação bem-sucedida do utilizador
-                var token = _jwtTokenGenerator.GenerateToken(utilizador.utilizadorID.ToString());
-
-                // Retornar o token JWT junto com o utilizador criado
-                return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, new { Utilizador = utilizador, Token = token });
+                return CreatedAtAction("GetUtilizador", new { id = utilizador.utilizadorID }, utilizador);
             }
             catch (Exception ex)
             {
@@ -347,35 +334,6 @@ namespace backend.Controllers
         /// <returns></returns>
         [HttpPost("Login")]
         public async Task<ActionResult> Login(LoginDTO loginDTO)
-        {
-            // Obter o utilizador com base no nome de usuário
-            var user = await _context.Utilizador.FirstOrDefaultAsync(u => u.username == loginDTO.Username);
-            if (user == null)
-            {
-                return Unauthorized(); // Utilizador não encontrado
-            }
-
-            // Verificar se a senha fornecida corresponde ao hash armazenado no banco de dados
-            bool passwordMatch = BCrypt.Net.BCrypt.Verify(loginDTO.Password, user.password);
-            if (!passwordMatch)
-            {
-                return Unauthorized(); // Credenciais inválidas
-            }
-
-            // Gerar token JWT
-            var token = _jwtTokenGenerator.GenerateToken(user.utilizadorID.ToString());
-
-            // Retornar o token JWT junto com o usuário autenticado
-            return Ok(new { Token = token, Utilizador = user });
-        }
-
-        /// <summary>
-        /// Autenticar um utilizador
-        /// </summary>
-        /// <param name="loginDTO"></param>
-        /// <returns></returns>
-        [HttpPost("Login2")]
-        public async Task<ActionResult> Login2(LoginDTO loginDTO)
         {
             // Obter o utilizador com base no nome de usuário
             var user = await _context.Utilizador
@@ -393,10 +351,7 @@ namespace backend.Controllers
                 return Unauthorized(); // Credenciais inválidas
             }
 
-
-
             // Gerar cookie de autenticação
-
             var ctx = HttpContext;
             var claims = new List<Claim>();
 
@@ -408,6 +363,19 @@ namespace backend.Controllers
             await ctx.SignInAsync(AuthorizationPolicy.AuthScheme, use);
 
             return Ok();
+        }
+
+        /// <summary>
+        /// Logout de um utilizador autenticado.
+        /// </summary>
+        /// <returns>Um IActionResult que representa o resultado do logout.</returns>
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            // Efetuar o logout do esquema de autenticação por cookies
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return Ok("Logout efetuado com sucesso.");
         }
 
         /// <summary>
@@ -475,7 +443,7 @@ namespace backend.Controllers
                 return StatusCode(500, $"Erro ao reativar conta: {ex.Message}");
             }
         }
-        
+
         #endregion
 
         #region Métodos DELETE
