@@ -23,7 +23,7 @@ namespace backend.Controllers
         private UtilizadorController()
         {
         }
-        
+
         public UtilizadorController(PageTurnerContext context)
         {
             _context = context;
@@ -385,8 +385,15 @@ namespace backend.Controllers
             // Efetuar o logout do esquema de autenticação por cookies
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
+            // Limpar a cookie de autenticação do cliente
+            foreach (var cookieKey in Request.Cookies.Keys)
+            {
+                Response.Cookies.Delete(cookieKey);
+            }
+
             return Ok("Logout efetuado com sucesso.");
         }
+
 
         /// <summary>
         /// Desativar a conta do utilizador pelo ID
