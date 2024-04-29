@@ -19,6 +19,11 @@ namespace backend.Controllers
     {
         private readonly PageTurnerContext _context;
 
+        public UtilizadorController(PageTurnerContext context)
+        {
+            _context = context;
+        }
+
         #region Métodos GET
 
         /// <summary>
