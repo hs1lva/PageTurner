@@ -29,24 +29,14 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EstanteViewDTO>>> GetEstante()
         {
-            var estantes = await _context.Estante
-                            .Include(estante => estante.livro)
-                            .Include(estante => estante.livro.generoLivro)
-                            .Include(estante => estante.livro.autorLivro)
-                            .Include(estante => estante.tipoEstante)
-                            .Include(estante => estante.utilizador)
-                            .Select(estante => new EstanteViewDTO {
-                                estanteId = estante.estanteId,
-                                ultimaAtualizacao = estante.ultimaAtualizacao,
-                                tipoEstante = estante.tipoEstante,
-                                livro = estante.livro,
-                                livroNaEstante = estante.livroNaEstante,
-                                utilizadorId = estante.utilizador.utilizadorID,
-                                username = estante.utilizador.username
-                            })
-                            .ToListAsync();
+            var listaEstante = await Estante.PesquisaEstanteBD(_context);
 
-            return estantes;
+            if(listaEstante == null)
+            {
+                return NotFound();
+            }
+
+            return listaEstante;
         }
 
         /// <summary>
@@ -57,25 +47,23 @@ namespace backend.Controllers
         [HttpGet("ativas")]
         public async Task<ActionResult<IEnumerable<EstanteViewDTO>>> GetEstantesAtivas()
         {
-            var estantes = await _context.Estante
-                            .Include(estante => estante.livro)
-                            .Include(estante => estante.livro.generoLivro)
-                            .Include(estante => estante.livro.autorLivro)
-                            .Include(estante => estante.tipoEstante)
-                            .Include(estante => estante.utilizador)
-                            .Select(estante => new EstanteViewDTO {
-                                estanteId = estante.estanteId,
-                                ultimaAtualizacao = estante.ultimaAtualizacao,
-                                tipoEstante = estante.tipoEstante,
-                                livro = estante.livro,
-                                livroNaEstante = estante.livroNaEstante,
-                                utilizadorId = estante.utilizador.utilizadorID,
-                                username = estante.utilizador.username
-                            })
-                            .Where(estante => estante.livroNaEstante == true)
-                            .ToListAsync();
+            var listaEstante = await Estante.PesquisaEstanteBD(_context);
 
-            return estantes;
+                if(listaEstante == null)
+                {
+                    return NotFound();
+                }
+
+                var listaFiltrada = listaEstante
+                                .Where(estante => estante.livroNaEstante == true)
+                                .ToList();
+
+                if (listaFiltrada == null)
+                {
+                    return NotFound();
+                }
+
+                return listaFiltrada;
         }
 
         // Mostrar uma estante específica
@@ -83,28 +71,22 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<EstanteViewDTO>> GetEstante(int id)
         {
-            var estante = await _context.Estante
-                            .Include(estante => estante.livro)
-                            .Include(estante => estante.livro.generoLivro)
-                            .Include(estante => estante.livro.autorLivro)
-                            .Include(estante => estante.tipoEstante)
-                            .Include(estante => estante.utilizador)
-                            .Select(estante => new EstanteViewDTO {
-                                estanteId = estante.estanteId,
-                                ultimaAtualizacao = estante.ultimaAtualizacao,
-                                tipoEstante = estante.tipoEstante,
-                                livro = estante.livro,
-                                livroNaEstante = estante.livroNaEstante,
-                                utilizadorId = estante.utilizador.utilizadorID,
-                                username = estante.utilizador.username
-                            })
-                            .FirstOrDefaultAsync(estante => estante.estanteId == id);
-            if (estante == null)
-            {
-                return NotFound();
-            }
+            var listaEstante = await Estante.PesquisaEstanteBD(_context);
 
-            return estante;
+                if(listaEstante == null)
+                {
+                    return NotFound();
+                }
+
+                var listaFiltrada = listaEstante
+                                .FirstOrDefault(estante => estante.estanteId == id);
+
+                if (listaFiltrada == null)
+                {
+                    return NotFound();
+                }
+
+                return listaFiltrada;
         }
 
         /// <summary>
@@ -118,9 +100,8 @@ namespace backend.Controllers
         {
             try
             {
-                var utilizador = await _context.Utilizador
-                .FirstOrDefaultAsync(u => u.username == username);
-                if (utilizador == null)
+                var utilizador = Utilizador.UsernameExists(_context, username);
+                if (!utilizador)
                 {
                     return NotFound();
                 }
@@ -132,29 +113,23 @@ namespace backend.Controllers
 
             try
             {
-                var estantes = await _context.Estante
-                                .Include(e => e.livro)
-                                .Include(e => e.livro.generoLivro)
-                                .Include(e => e.livro.autorLivro)
-                                .Include(e => e.tipoEstante)
-                                .Select(e => new EstanteViewDTO {
-                                    estanteId = e.estanteId,
-                                    ultimaAtualizacao = e.ultimaAtualizacao,
-                                    tipoEstante = e.tipoEstante,
-                                    livro = e.livro,
-                                    livroNaEstante = e.livroNaEstante,
-                                    utilizadorId = e.utilizador.utilizadorID,
-                                    username = e.utilizador.username
-                                })
-                                .Where(e => e.username == username
-                                && e.livroNaEstante == true)
-                                .ToListAsync();
-                if (estantes == null)
+                var listaEstante = await Estante.PesquisaEstanteBD(_context);
+
+                if(listaEstante == null)
                 {
-                    return NotFound();  
+                    return NotFound();
                 }
 
-                return estantes;
+                var listaFiltrada = listaEstante.Where(e => e.username == username
+                                && e.livroNaEstante == true)
+                                .ToList();
+
+                if (listaFiltrada == null)
+                {
+                    return NotFound();
+                }
+
+                return listaFiltrada;
             }
             catch (Exception ex)
             {
@@ -173,9 +148,8 @@ namespace backend.Controllers
         {
             try
             {
-                var tipoEstante = await _context.TipoEstante
-                    .FirstOrDefaultAsync(te => te.descricaoTipoEstante == descricaoTipoEstante);
-                if (tipoEstante == null)
+                var tipoEstante = TipoEstante.TipoEstanteDescExists(_context, descricaoTipoEstante);
+                if (!tipoEstante)
                 {
                     return NotFound();
                 }
@@ -187,28 +161,24 @@ namespace backend.Controllers
 
             try
             {
-                var estantes = await _context.Estante
-                                .Include(e => e.livro)
-                                .Include(e => e.livro.generoLivro)
-                                .Include(e => e.livro.autorLivro)
-                                .Include(e => e.tipoEstante)
-                                .Select(e => new EstanteViewDTO {
-                                    estanteId = e.estanteId,
-                                    ultimaAtualizacao = e.ultimaAtualizacao,
-                                    tipoEstante = e.tipoEstante,
-                                    livro = e.livro,
-                                    livroNaEstante = e.livroNaEstante,
-                                    utilizadorId = e.utilizador.utilizadorID,
-                                    username = e.utilizador.username
-                                })
-                                .Where(e => e.tipoEstante.descricaoTipoEstante == descricaoTipoEstante 
-                                && e.livroNaEstante == true)
-                                .ToListAsync();
-                if (estantes == null)
+                var listaEstante = await Estante.PesquisaEstanteBD(_context);
+
+                if(listaEstante == null)
                 {
                     return NotFound();
                 }
-                return estantes;
+
+                var listaFiltrada = listaEstante
+                                .Where(e => e.tipoEstante.descricaoTipoEstante == descricaoTipoEstante
+                                && e.livroNaEstante == true)
+                                .ToList();
+
+                if (listaFiltrada == null)
+                {
+                    return NotFound();
+                }
+
+                return listaFiltrada;
             }
             catch (Exception ex)
             {
@@ -228,9 +198,8 @@ namespace backend.Controllers
         {
             try
             {
-                var utilizador = await _context.Utilizador
-                    .FirstOrDefaultAsync(u => u.username == username);
-                if (utilizador == null)
+                var utilizador = Utilizador.UsernameExists(_context, username);
+                if (!utilizador)
                 {
                     return NotFound();
                 }
@@ -242,9 +211,8 @@ namespace backend.Controllers
 
             try
             {
-                var tipoEstante = await _context.TipoEstante
-                    .FirstOrDefaultAsync(te => te.descricaoTipoEstante == descricaoTipoEstante);
-                if (tipoEstante == null)
+                var tipoEstante = TipoEstante.TipoEstanteDescExists(_context, descricaoTipoEstante);
+                if (!tipoEstante)
                 {
                     return NotFound();
                 }
@@ -256,30 +224,25 @@ namespace backend.Controllers
 
             try
             {
-                var estantes = await _context.Estante
-                                .Include(e => e.livro)
-                                .Include(e => e.livro.generoLivro)
-                                .Include(e => e.livro.autorLivro)
-                                .Include(e => e.tipoEstante)
-                                .Select(e => new EstanteViewDTO {
-                                    estanteId = e.estanteId,
-                                    ultimaAtualizacao = e.ultimaAtualizacao,
-                                    tipoEstante = e.tipoEstante,
-                                    livro = e.livro,
-                                    livroNaEstante = e.livroNaEstante,
-                                    utilizadorId = e.utilizador.utilizadorID,
-                                    username = e.utilizador.username
-                                })
-                                .Where(e => e.username == username 
+                var listaEstante = await Estante.PesquisaEstanteBD(_context);
+
+                if(listaEstante == null)
+                {
+                    return NotFound();
+                }
+
+                var listaFiltrada = listaEstante
+                                .Where(e => e.username == username
                                 && e.tipoEstante.descricaoTipoEstante == descricaoTipoEstante
                                 && e.livroNaEstante == true)
-                                .ToListAsync();
-                            
-                if (estantes == null)
+                                .ToList();
+
+                if (listaFiltrada == null)
                 {
                     return NotFound();
                 }
-                return estantes;
+
+                return listaFiltrada;
             }
             catch (Exception ex)
             {
@@ -297,75 +260,52 @@ namespace backend.Controllers
         [HttpGet("tipoEstante/{descricaoTipoEstante}/livro/{tituloLivro}")]
         public async Task<ActionResult<IEnumerable<EstanteViewDTO>>> GetEstanteByLivro(string tituloLivro, string descricaoTipoEstante)
         {
-                var estantes = await _context.Estante
-                                .Include(e => e.livro)
-                                .Include(e => e.livro.generoLivro)
-                                .Include(e => e.livro.autorLivro)
-                                .Include(e => e.tipoEstante)
-                                .Select(e => new EstanteViewDTO {
-                                    estanteId = e.estanteId,
-                                    ultimaAtualizacao = e.ultimaAtualizacao,
-                                    tipoEstante = e.tipoEstante,
-                                    livro = e.livro,
-                                    livroNaEstante = e.livroNaEstante,
-                                    utilizadorId = e.utilizador.utilizadorID,
-                                    username = e.utilizador.username
-                                })
-                                .Where(e => e.livro.tituloLivro.ToLower().Contains(tituloLivro.ToLower())
-                                && e.tipoEstante.descricaoTipoEstante == descricaoTipoEstante
-                                && e.livroNaEstante == true)
-                                .ToListAsync();
+            var listaEstante = await Estante.PesquisaEstanteBD(_context);
 
-            if (estantes == null)
-            {
-                return NotFound();
-            }
+                if(listaEstante == null)
+                {
+                    return NotFound();
+                }
 
-            return estantes;
+                var listaFiltrada = listaEstante
+                            .Where(e => e.livro.tituloLivro.ToLower().Contains(tituloLivro.ToLower())
+                            && e.tipoEstante.descricaoTipoEstante == descricaoTipoEstante
+                            && e.livroNaEstante == true)
+                                .ToList();
+
+                if (listaFiltrada == null)
+                {
+                    return NotFound();
+                }
+
+                return listaFiltrada;
         }
         #endregion
 
         #region Métodos PUT
         /// <summary>
-        /// 
+        /// Método para atualizar uma estante
         /// </summary>
         /// <param name="id"></param>
         /// <param name="estante"></param>
         /// <returns></returns>
-        // PUT: api/Estante/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// PUT: api/Estante/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEstante(int id, EstanteUpdateDTO estante)
         {
-            var estanteAtual = await _context.Estante.FindAsync(id);
-            if (estanteAtual == null)
+            if (!Estante.EstanteExists(_context, id))
             {
                 return NotFound();
             }
 
-            //estanteAtual.estanteId = estante.estanteId;
-            estanteAtual.ultimaAtualizacao = DateTime.Now;
-            estanteAtual.tipoEstante = await _context.TipoEstante.FindAsync(estante.tipoEstanteId);
-            estanteAtual.livro = await _context.Livro.FindAsync(estante.livroId);
-            estanteAtual.livroNaEstante = estante.livroNaEstante;
+            var atualizacaoSucesso = await Estante.AtualizarEstanteBD(_context, id, estante);
             
-            try
+            if (!atualizacaoSucesso)
             {
-            await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-            if (!EstanteExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+                return NotFound(); // Se a estante não for encontrada ou ocorrer um erro ao atualizar, retornar NotFound
             }
 
-            return NoContent();
+            return NoContent(); // Se a estante for atualizada com sucesso, retornar NoContent
         }
 
         /// <summary>
@@ -377,36 +317,23 @@ namespace backend.Controllers
         [HttpPut("alterarEstado")]
         public async Task<IActionResult> AlterarEstadoEstante(EstanteUpdateDTO estante)
         {
-            var estanteAtual = await _context.Estante.FindAsync(estante.estanteId);
-            if (estanteAtual == null)
+            var atualizacaoSucesso = await Estante.AlterarEstadoEstanteBD(_context, estante.estanteId);
+            
+            if (!atualizacaoSucesso)
             {
-            return NotFound();
+                return NotFound(); // Se a estante não for encontrada ou ocorrer um erro ao alterar o estado, retornar NotFound
             }
 
-            estanteAtual.livroNaEstante = !estanteAtual.livroNaEstante;
-            estanteAtual.ultimaAtualizacao = DateTime.Now;
-
-            try
-            {
-            await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-            if (!EstanteExists(estante.estanteId))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-            }
-
-            return NoContent();
+            return NoContent(); // Se o estado da estante for alterado com sucesso, retornar NoContent
         }
         #endregion
 
         #region Métodos POST
+        /// <summary>
+        /// Método para criar uma nova estante
+        /// </summary>
+        /// <param name="estante"></param>
+        /// <returns></returns>
         // POST: api/Estante
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -418,40 +345,32 @@ namespace backend.Controllers
             }
 
             //verificar se já existe uma estante do mesmo tipo com o mesmo livro do mesmo usuário
-            var estanteExistente = await _context.Estante
-                .FirstOrDefaultAsync(e => e.livro.livroId == estante.livroId 
-                                        && e.utilizador.utilizadorID == estante.utilizadorId 
-                                        && e.tipoEstante.tipoEstanteId == estante.tipoEstanteId);
-            
+            var estanteExistente = await Estante.ObterEstanteExistente(_context, estante.livroId, estante.utilizadorId, estante.tipoEstanteId);
+
             if (estanteExistente != null && estanteExistente.livroNaEstante == true)
             {
                 return BadRequest("O livro já se encontra na estante do utilizador");
             }
             else if (estanteExistente != null && estanteExistente.livroNaEstante == false)
             {
-                estanteExistente.livroNaEstante = true;
-                estanteExistente.ultimaAtualizacao = DateTime.Now;
-                await _context.SaveChangesAsync();
+                // Altera o estado da estante existente para "livroNaEstante = true"
+                var atualizacaoSucesso = await Estante.AlterarEstadoEstanteBD(_context, estanteExistente.estanteId);
+
+                if (!atualizacaoSucesso)
+                {
+                    return StatusCode(500, "Ocorreu um erro ao atualizar o estado da estante");
+                }
+
                 return CreatedAtAction("GetEstante", new { id = estanteExistente.estanteId }, estanteExistente);
             }
             else
             {
-                var novaEstante = new Estante 
-                { 
-                    ultimaAtualizacao = DateTime.Now,
-                    tipoEstante = await _context.TipoEstante.FindAsync(estante.tipoEstanteId),
-                    utilizador = await _context.Utilizador.FindAsync(estante.utilizadorId),
-                    livro = await _context.Livro.FindAsync(estante.livroId),
-                    livroNaEstante = true
-                };
+                var novaEstante = await Estante.CriarNovaEstante(_context, estante);
 
                 if (novaEstante == null)
                 {
                     return BadRequest();
                 }
-
-                _context.Estante.Add(novaEstante);
-                await _context.SaveChangesAsync();
 
                 return CreatedAtAction("GetEstante", new { id = novaEstante.estanteId }, novaEstante);
             }
@@ -459,26 +378,24 @@ namespace backend.Controllers
         #endregion
 
         #region Métodos DELETE
+        /// <summary>
+        /// Método para excluir uma estante
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // DELETE: api/Estante/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEstante(int id)
         {
-            var estante = await _context.Estante.FindAsync(id);
-            if (estante == null)
+            var exclusaoSucesso = await Estante.ExcluirEstantePorId(_context, id);
+            
+            if (!exclusaoSucesso)
             {
-                return NotFound();
+                return NotFound(); // Se a estante não for encontrada, retornar NotFound
             }
 
-            _context.Estante.Remove(estante);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return NoContent(); // Se a estante for excluída com sucesso, retornar NoContent
         }
         #endregion
-
-        private bool EstanteExists(int id)
-        {
-            return _context.Estante.Any(e => e.estanteId == id);
-        }
     }
 }
