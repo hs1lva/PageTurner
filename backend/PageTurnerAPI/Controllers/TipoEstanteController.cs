@@ -59,7 +59,7 @@ namespace backend.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!TipoEstanteExists(id))
+                if (!TipoEstante.TipoEstanteExists(_context, id))
                 {
                     return NotFound();
                 }
@@ -97,11 +97,6 @@ namespace backend.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool TipoEstanteExists(int id)
-        {
-            return _context.TipoEstante.Any(e => e.tipoEstanteId == id);
         }
     }
 }
