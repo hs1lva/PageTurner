@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Net;
 using PageTurnerAPI.Services;
+using Microsoft.IdentityModel.Tokens;
 
 namespace backend.Controllers
 {
@@ -345,35 +346,25 @@ namespace backend.Controllers
         [HttpPost("Login")]
         public async Task<ActionResult> Login(LoginDTO loginDTO)
         {
-            // Obter o utilizador com base no nome de usuário
-            var user = await _context.Utilizador
-                                    .Include(u => u.tipoUtilizador)// precisamos disto para ver qual é o tipo de utilizador
-                                    .FirstOrDefaultAsync(u => u.username == loginDTO.Username);
+            var user = await Utilizador.GetUtilizadorByLoginDTO(loginDTO, _context);
             if (user == null)
             {
-                return NotFound(); // Utilizador não encontrado
+                return Unauthorized("Dados invalidos."); // Utilizador incorreto
             }
 
-            // Verificar se a senha fornecida corresponde ao hash armazenado no banco de dados
-            bool passwordMatch = BCrypt.Net.BCrypt.Verify(loginDTO.Password, user.password);
-            if (!passwordMatch)
+            // Verificar se a password está correta
+            var pass = Utilizador.CheckPassword(loginDTO.Password, user.password);
+            if (!pass.Result)
             {
-                return Unauthorized(); // Credenciais inválidas
+                return Unauthorized("Dados invalidos."); // Password incorreta
             }
 
-            // Gerar cookie de autenticação
-            var ctx = HttpContext;
-            var claims = new List<Claim>();
+           var token = Utilizador.Login(user);
+            if(token.ToString().IsNullOrEmpty())
+            {
+                return Unauthorized("Credenciais inválidas.");
+            }
 
-            if (user.tipoUtilizador.descricaoTipoUti == "Administrador") // Fazer enums para isto
-                claims.Add(new Claim("user_type", "Admin"));
-
-            claims.Add(new Claim("user_id", user.utilizadorID.ToString()));
-            claims.Add(new Claim("user_name", user.username));
-            claims.Add(new Claim("user_email", user.email));
-            JwtAuth jwtTokenGenerator = new JwtAuth("PDS2024$3cr3tK3y@Jwt#2024PageTurnerAPI");
-            var token = jwtTokenGenerator.GenerateJwtToken(claims);
-            
             return Ok(token);
 
         }
