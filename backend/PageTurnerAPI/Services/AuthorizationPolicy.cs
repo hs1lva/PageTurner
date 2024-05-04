@@ -9,27 +9,24 @@ namespace PageTurnerAPI.Services
     public static class AuthorizationPolicy
     {
 
-        public static string AuthScheme = "cookie";
-
-        public static void AddAdminPolicy(this AuthorizationOptions options)
+        public static void AddAdminPolicy(this AuthorizationOptions options, string authScheme)
         {
             options.AddPolicy("adminRole", policy =>
             {
                 policy.RequireAuthenticatedUser()
-                      .AddAuthenticationSchemes(AuthScheme)
+                      .AddAuthenticationSchemes(authScheme)
                       .RequireClaim("user_type", "Admin");
             });
         }
 
-        public static void CheckUserPolicy(this AuthorizationOptions options)
+        public static void CheckUserPolicy(this AuthorizationOptions options, string authScheme)
         {
             options.AddPolicy("username", policy =>
             {
                 policy.RequireAuthenticatedUser()
-                      .AddAuthenticationSchemes(AuthScheme);
+                      .AddAuthenticationSchemes(authScheme);
             });
         }
-
 
     }
 }
