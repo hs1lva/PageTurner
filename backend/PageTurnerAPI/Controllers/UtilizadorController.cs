@@ -344,29 +344,46 @@ namespace backend.Controllers
         /// <param name="loginDTO"></param>
         /// <returns></returns>
         [HttpPost("Login")]
-        public async Task<ActionResult> Login(LoginDTO loginDTO)
+        public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
+            try{
+
+            
             var user = await Utilizador.GetUtilizadorByLoginDTO(loginDTO, _context);
             if (user == null)
             {
                 return Unauthorized("Dados invalidos."); // Utilizador incorreto
             }
+    
+        
 
+            
             // Verificar se a password está correta
             var pass = Utilizador.CheckPassword(loginDTO.Password, user.password);
             if (!pass.Result)
             {
                 return Unauthorized("Dados invalidos."); // Password incorreta
             }
+            
+    
 
+
+            
            var token = Utilizador.Login(user);
             if(token.ToString().IsNullOrEmpty())
             {
                 return Unauthorized("Credenciais inválidas.");
             }
+            var resp = new { Token = token };
 
-            return Ok(token);
+            // Response.Headers["Authorization"] = $"Bearer {token}";// Adicionar o token ao cabeçalho da resposta
 
+            return Ok(resp);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao fazer login: {ex.Message}");
+            }
         }
 
         /// <summary>
