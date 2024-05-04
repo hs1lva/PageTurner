@@ -9,35 +9,73 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using PageTurnerAPI.Services;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Adicionar serviços ao contêiner.
 builder.Services.AddControllers();
 
-// Configuração do serviço de autenticação por cookies
-
-builder.Services.AddAuthentication(AuthorizationPolicy.AuthScheme)
-.AddCookie(AuthorizationPolicy.AuthScheme);
 
 
 // Configuração do serviço de autenticação JWT
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = false, // Definir como true se quisermos validar o emissor
-            ValidateAudience = false, // Definir como true se quisermos validar o público-alvo
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("$3cr3tK3y@Jwt#2024")) // Utilizar a mesma secret key aqui que esta no modelo JwtTokenGenerator
-        };
-    });
+builder.Services.AddAuthentication(cfg => {
+    cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    
+    cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    cfg.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x => {
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = true;
+    
+    x.TokenValidationParameters = new TokenValidationParameters {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8
+            .GetBytes("PDS2024$3cr3tK3y@Jwt#2024PageTurnerAPI")
+            // .GetBytes(configuration["ApplicationSettings:JWT_Secret"])
+
+        ),
+            LifetimeValidator = (before, expires, token, param) => {
+            // Calcular a hora atual mais 1 hora
+            var hourFromNow = DateTime.UtcNow.AddHours(8);
+            // Verificar se a data atual está dentro do período de validade do token
+            return expires.HasValue && expires > hourFromNow;
+        },
+        ValidateIssuer = false,
+        // ValidIssuer = "http://localhost:3000", // apenas valida TOKEN emitidos por este sevidor, no caso o nosso
+        ValidateAudience = false,
+        ClockSkew = TimeSpan.Zero,
+    };
+});
+
 
 // Adicionar as configurações do Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => 
+{
+    c.SwaggerDoc("v1", new() { Title = "PageTurnerAPI", Version = "Beta", 
+                                Description = "API para o projeto PageTurner" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+        Description = "É necessaria autenticação. Fazer login com algum " +
+                        "utilizador e colar aqui o token, temos de escrever 'Bearer'. Exemplo: Bearer {token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 // Configuração da autenticação do Google
 builder.Services.AddAuthentication(options =>
@@ -82,9 +120,8 @@ builder.Services.AddTransient<IEmailSender, EmailSender>(); // Cria uma instânc
 // Adicionar políticas de autorização personalizadas
 builder.Services.AddAuthorization(options =>
 {
-    options.AddAdminPolicy();
-    options.CheckUserPolicy();
-    
+    options.AddAdminPolicy(JwtBearerDefaults.AuthenticationScheme);
+    options.CheckUserPolicy(JwtBearerDefaults.AuthenticationScheme);
     // podemos utilizar mais autenticações, ver depois com Hugo Silva
     // options.AddAdminPolicy(JwtBearerDefaults.AuthenticationScheme);
     // options.CheckUserPolicy(JwtBearerDefaults.AuthenticationScheme);

@@ -351,7 +351,7 @@ namespace backend.Controllers
                                     .FirstOrDefaultAsync(u => u.username == loginDTO.Username);
             if (user == null)
             {
-                return Unauthorized(); // Utilizador não encontrado
+                return NotFound(); // Utilizador não encontrado
             }
 
             // Verificar se a senha fornecida corresponde ao hash armazenado no banco de dados
@@ -368,11 +368,14 @@ namespace backend.Controllers
             if (user.tipoUtilizador.descricaoTipoUti == "Administrador") // Fazer enums para isto
                 claims.Add(new Claim("user_type", "Admin"));
 
-            var identity = new ClaimsIdentity(claims, AuthorizationPolicy.AuthScheme);
-            var use = new ClaimsPrincipal(identity);
-            await ctx.SignInAsync(AuthorizationPolicy.AuthScheme, use);
+            claims.Add(new Claim("user_id", user.utilizadorID.ToString()));
+            claims.Add(new Claim("user_name", user.username));
+            claims.Add(new Claim("user_email", user.email));
+            JwtAuth jwtTokenGenerator = new JwtAuth("PDS2024$3cr3tK3y@Jwt#2024PageTurnerAPI");
+            var token = jwtTokenGenerator.GenerateJwtToken(claims);
+            
+            return Ok(token);
 
-            return Ok();
         }
 
         /// <summary>

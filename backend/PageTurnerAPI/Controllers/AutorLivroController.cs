@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
+    [Authorize(Policy = "adminRole")] // Um dos exemplos que podemos usar para autorização
     [Route("api/[controller]")]
     [ApiController]
     public class AutorLivroController : ControllerBase
