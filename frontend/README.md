@@ -1,6 +1,14 @@
-1º cd frontend
-2º npm install
-3º npm start
+# Como correr o projeto PageTurner frontend?
+
+1º Correr num terminal diferente o backend - dotnet run
+
+2º Abrir outro terminal sem encerrar terminal backend
+
+3º cd frontend
+
+4º `npm install`
+
+5º `npm start`
 
 
 # Getting Started with Create React App
