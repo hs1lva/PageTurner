@@ -4,7 +4,9 @@ participant "Livro" as S
 participant "ServicoBD" as BD
 
 U -> S: InsereComentario(comentario) 
+activate S
 S -> BD: VerificaComentario(comentario)
+activate BD
 BD -> BD: VerificaListaDePalavras(comentario)
 alt Comentário não tem palavras proibidas
     BD --> S: "Comentário Válido"
@@ -14,4 +16,6 @@ else Comentário tem palavras proibidas
     BD --> S: "Comentário Inválido"
     S --> U: "Mostra mensagem de erro"
 end
+deactivate BD
+deactivate S
 @enduml
