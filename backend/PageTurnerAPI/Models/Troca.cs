@@ -21,6 +21,7 @@ public class Troca
     private IEmailSender _emailSender;
 
     #region Construtores
+    private readonly PageTurnerContext _bd;
 
     public Troca(){}
 
