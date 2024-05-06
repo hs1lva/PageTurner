@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
-    [Authorize(Policy = "adminRole")] // Um dos exemplos que podemos usar para autorização
+    // [Authorize(Policy = "adminRole")] // Um dos exemplos que podemos usar para autorização
     [Route("api/[controller]")]
     [ApiController]
     public class AutorLivroController : ControllerBase

@@ -11,6 +11,7 @@ using System.Text;
 using PageTurnerAPI.Services;
 using Microsoft.OpenApi.Models;
 using backend.Interfaces;
+using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -106,13 +107,40 @@ builder.Services.AddScoped<IPageTurnerContext, PageTurnerContext>();
 // Configurar CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAnyOriginPolicy",
-        builder =>
+    options.AddPolicy(name: "Dev2",
+        policy  =>
         {
-            builder.AllowAnyOrigin() // Permite acesso de qualquer origem
-                   .AllowAnyHeader()
-                   .AllowAnyMethod();
+            policy.WithOrigins("http://localhost:3000", "http://192.168.1.71:3000", "http://localhost:3000/", "http://172.20.10.4:3000")
+                  .WithMethods("GET", "POST", "PUT", "DELETE")
+                  .AllowAnyHeader()
+                  .AllowCredentials();
         });
+
+        options.AddPolicy("Dev", builder =>
+        {
+            // Allow multiple methods
+            builder.WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+            .WithHeaders(
+                HeaderNames.Accept,
+                HeaderNames.ContentType,
+                HeaderNames.Cookie,
+                HeaderNames.SetCookie,
+                HeaderNames.Authorization)
+            .AllowCredentials()
+            .SetIsOriginAllowed(origin =>
+            {
+                if (string.IsNullOrWhiteSpace(origin)) return false;
+                // Only add this to allow testing with localhost, remove this line in production!
+                if (origin.ToLower().StartsWith("http://localhost")) return true;
+                // Insert your production domain here.
+                if (origin.ToLower().StartsWith("http://192.168.1.71")) return true;
+                if (origin.ToLower().StartsWith("http://172.20.10.4")) return true;
+                if (origin.ToLower().StartsWith("http://172.16.8.133")) return true;
+                return false;
+            });
+        });
+
+
 });
 
 // Adicionar serviços API e email
@@ -146,7 +174,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAnyOriginPolicy");
+app.UseCors("Dev");
+app.UseCors("Dev1");
 
 app.UseHttpsRedirection();
 

@@ -1,9 +1,7 @@
 using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography;
-using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
-
+using System.Security.Claims;
 namespace backend.Models;
 
 public class Utilizador
@@ -234,7 +232,7 @@ public class Utilizador
         return paisesUtilizadores;
     }
 
-  public async Task BanirUtilizador()
+    public async Task BanirUtilizador()
     {
         // Pesquisar o estado "Banido" na bd
         var estadoBanido = await _context.EstadoConta.FirstOrDefaultAsync(e => e.descricaoEstadoConta == "Banido");
@@ -252,9 +250,63 @@ public class Utilizador
 
             await _context.SaveChangesAsync();
         }
+
         catch
         {
             throw new Exception("Estado banido não encontrado.");
         }
+    }
+
+    /// <summary>
+    /// Obter os utilizadores pelo login DTO
+    /// </summary>
+    /// <param name="loginDTO"></param>
+    /// <param name="_context"></param>
+    /// <returns></returns>
+    public static async Task<Utilizador> GetUtilizadorByLoginDTO(LoginDTO loginDTO, PageTurnerContext _context)
+    {
+        var user = await _context.Utilizador
+            .Include(u => u.tipoUtilizador)
+            .FirstOrDefaultAsync(u => u.username == loginDTO.Username);
+        if (user == null)
+        {
+            return null; // Utilizador não encontrado
+        }
+        return user;
+    }
+
+    /// <summary>
+    /// Verificar se a senha corresponde ao hash
+    /// </summary>
+    /// <param name="password"></param>
+    /// <param name="hash"></param>
+    /// <returns></returns>
+    public static Task<bool> CheckPassword(string password, string hash)
+    {
+        bool confere = BCrypt.Net.BCrypt.Verify(password, hash);
+        return Task.FromResult(confere);
+    }
+
+    /// <summary>
+    /// Função para fazer login
+    /// </summary>
+    /// <param name="loginDTO"></param>
+    /// <param name="_context"></param>
+    /// <returns></returns>
+    public static async Task<string> Login(Utilizador user)
+    {
+
+        var claims = new List<Claim>();
+
+        if (user.tipoUtilizador.descricaoTipoUti == "Administrador") // Fazer enums para isto
+            claims.Add(new Claim("user_type", "Admin"));
+        //passar isto para o modelo
+        claims.Add(new Claim("user_id", user.utilizadorID.ToString()));
+        claims.Add(new Claim("user_name", user.username));
+        claims.Add(new Claim("user_email", user.email));
+        JwtAuth jwtTokenGenerator = new JwtAuth("PDS2024$3cr3tK3y@Jwt#2024PageTurnerAPI");
+        var token = jwtTokenGenerator.GenerateJwtToken(claims);
+
+        return token;
     }
 }
