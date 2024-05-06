@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+  }
+.loading-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Adicionando um índice Z alto para garantir que o modal esteja acima de outros elementos */
+  }
+
+  .loading-text{
+    margin-top: 15px;
+    color: #fff;
+    font-style:oblique;
+    text-shadow: #53341C;
+    font-size: 20px;
+  }
+  
+  .loading-modal {
+    /* background-color: #9998b100; */
+    background-color: lightgray;
+
+    border-radius: 8px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .book {
+    border: 4px solid #fff;
+    width: 60px;
+    height: 45px;
+    position: relative;
+    perspective: 150px;
+  }
+  
+  .page {
+    display: block;
+    width: 30px;
+    height: 45px;
+    border: 4px solid #FFFFFF;
+    border-left: 1px solid #ffffffb0;
+    margin: 0;
+    position: absolute;
+    right: -4px;
+    top: -4px;
+    overflow: hidden;
+    background: #53341C;
+    transform-style: preserve-3d;
+    transform-origin: left center;
+  }
+  
+  .book .page:nth-child(1) {
+    animation: pageTurn 1.2s cubic-bezier(0, .39, 1, .68) 1.6s infinite;
+  }
+  
+  .book .page:nth-child(2) {
+    animation: pageTurn 1.2s cubic-bezier(0, .39, 1, .68) 1.45s infinite;
+  }
+  
+  .book .page:nth-child(3) {
+    animation: pageTurn 1.2s cubic-bezier(0, .39, 1, .68) 1.2s infinite;
+  }
+  
+  /* Page turn */
+  
+  @keyframes pageTurn {
+    0% {
+      transform: rotateY( 0deg);
+    }
+    20% {
+      background: #bb7844;
+    }
+    40% {
+      background: #ba743e;
+      transform: rotateY( -180deg);
+    }
+    100% {
+      background: #53341C;
+      transform: rotateY( -180deg);
+    }
+  }
+  

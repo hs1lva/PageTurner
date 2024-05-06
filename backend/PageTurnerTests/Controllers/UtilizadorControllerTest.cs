@@ -54,7 +54,7 @@ namespace PageTurnerTests.Controllers
             var result = _controller.PostUtilizador(utilizadorDTO);
 
             // Assert
-            var createdAtActionResult = result.Result as CreatedAtActionResult;
+            var createdAtActionResult = result as CreatedAtActionResult;
             Assert.That(createdAtActionResult, Is.Not.Null);
 
             // Verificar se o utilizador foi criado
@@ -93,7 +93,7 @@ namespace PageTurnerTests.Controllers
             var result = _controller.PostUtilizador(utilizadorDTO);
 
             // Assert
-            var conflictResult = result.Result as ConflictObjectResult; // 409 no post do utilizador (conflict)
+            var conflictResult = result as ConflictObjectResult; // 409 no post do utilizador (conflict)
             Assert.That(conflictResult, Is.Not.Null);
             Assert.That(conflictResult.StatusCode, Is.EqualTo(409));
 
@@ -131,7 +131,7 @@ namespace PageTurnerTests.Controllers
             var result = _controller.PostUtilizador(utilizadorDTO);
 
             // Assert
-            var conflictResult = result.Result as ConflictObjectResult; // 409 no post do utilizador (conflict)
+            var conflictResult = result as ConflictObjectResult; // 409 no post do utilizador (conflict)
             Assert.That(conflictResult, Is.Not.Null);
             Assert.That(conflictResult.StatusCode, Is.EqualTo(409));
 

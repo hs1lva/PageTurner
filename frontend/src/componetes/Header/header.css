@@ -1,0 +1,58 @@
+
+
+
+.nav-container{
+    /* border: 2px solid #53341C; */
+    border-bottom: 2px dotted #53341C;
+    flex-wrap: wrap;
+
+}
+
+.nav-bar {
+    margin: 10px;
+    /* border: 1px solid blue; */
+    display: flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 15px;
+    height: 10vh;
+    /* flex-wrap: wrap; */
+}
+
+.nav-items{
+    display: flex;
+    justify-content: space-evenly;
+    gap: 5px;
+    list-style: none;
+    padding-right: 10px;
+}
+
+.nav-item1,
+.nav-item2,
+.nav-item3 {
+
+
+    text-decoration: none;
+    color: #333; /* Cor do texto */
+    font-size: 16px; /* Tamanho da fonte */
+    font-weight: bold; /* Peso da fonte */
+    padding: 8px 16px; /* Espaçamento interno */
+    border-radius: 5px; /* Borda arredondada */
+    background-color: #f0f0f0; /* Cor de fundo */
+    transition: background-color 0.3s ease; /* Transição suave da cor de fundo */
+}
+
+.nav-item1:hover,
+.nav-item2:hover,
+.nav-item2:hover
+ {
+    background-color: #ddd; /* Cor de fundo ao passar o mouse */
+}
+
+.nav-item1.active,
+.nav-item2.active,
+.nav-item2:active {
+    background-color: #ccc; /* Cor de fundo do link ativo */
+}
+
+
