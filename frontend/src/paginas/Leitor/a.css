@@ -1,0 +1,8 @@
+.coisa{
+    color: blue;
+}
+
+.leitor{
+    position: relative;
+    z-index: 100;
+}

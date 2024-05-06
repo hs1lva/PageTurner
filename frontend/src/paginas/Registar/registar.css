@@ -1,0 +1,48 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.registar{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 87vh;
+    flex-wrap: wrap;
+}
+.container-registar{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.imagem-registo{
+    display: flex;
+    width: 50%;
+    height: 100%;
+}
+
+.registo{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 50%;
+    height: 100%;
+    min-width: 30%;
+    min-height: 50%;
+}
+
+.opcoes{
+    display: flex;
+    gap: 10px;
+}
+
+.separador-opcoes{
+    width: 1px;
+    border: 1px solid black;
+}
