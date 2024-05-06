@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using PageTurnerAPI.Services;
 using Microsoft.OpenApi.Models;
+using backend.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,6 +101,8 @@ builder.Services.AddDbContext<PageTurnerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+builder.Services.AddScoped<IPageTurnerContext, PageTurnerContext>();
+
 // Configurar CORS
 builder.Services.AddCors(options =>
 {
@@ -115,6 +118,9 @@ builder.Services.AddCors(options =>
 // Adicionar serviços API e email
 builder.Services.AddScoped<ServicoAPI>(); // O add scoped cria uma instância do serviço uma vez, por solicitação HTTP do cliente
                                            // e será reutilizada em todas as injeções de dependência durante a mesma solicitação
+
+builder.Services.AddScoped<ComentarioService>();
+
 builder.Services.AddTransient<IEmailSender, EmailSender>(); // Cria uma instância sempre que solicitado
 
 // Adicionar políticas de autorização personalizadas

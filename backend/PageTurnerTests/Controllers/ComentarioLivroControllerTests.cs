@@ -153,23 +153,9 @@ namespace PageTurnerTests.Controllers
             var estadoPendente = await _context.EstadoComentario.FirstOrDefaultAsync(e => e.descricaoEstadoComentario == "Pendente");
             var estadoRemovido = await _context.EstadoComentario.FirstOrDefaultAsync(e => e.descricaoEstadoComentario == "Removido");
 
-            // Verificar se algum dos itens não foi encontrado
-            if (user == null) Console.WriteLine("user e null");
-
-            if (livro == null) Console.WriteLine("livro e null");
-            if (estadoPendente == null) Console.WriteLine("estadopendente e null");
-            if (estadoRemovido == null) Console.WriteLine("estadoremovido e null");
-
-
-
-
-
-            // Adicione três comentários ofensivos para o novo usuário
+            // Adds 3 new comments by tge same user 
             for (int i = 0; i < 3; i++)
             {
-                // var estadoPendente = await _context.EstadoComentario.FirstOrDefaultAsync(e => e.descricaoEstadoComentario == "Pendente");
-                // var estadoRemovido = await _context.EstadoComentario.FirstOrDefaultAsync(e => e.descricaoEstadoComentario == "Removido");
-
                 var offensiveComment = new ComentarioLivro
                 {
                     comentarioId = i + 1000, // Use diferentes IDs para cada novo comentário ofensivo
@@ -180,10 +166,8 @@ namespace PageTurnerTests.Controllers
                     estadoComentario = estadoPendente
                 };
 
-                // Adicione a nova instância ao contexto
                 _context.ComentarioLivro.Add(offensiveComment);
 
-                // Verificar e atualizar o comentário (incluindo a lógica de banimento do usuário)
                 await offensiveComment.VerificarEAtualizarComentario();
 
                 // Ensure changes are saved successfully after each iteration
@@ -194,28 +178,19 @@ namespace PageTurnerTests.Controllers
                 }
             }
 
-            // Console log para verificar se o usuário está sendo recuperado corretamente
-            Console.WriteLine("Before retrieving updated user from the database...");
-
             // Retrieve the updated user from the database after comments are processed
             var updatedUser = await _context.Utilizador.FirstOrDefaultAsync(u => u.utilizadorID == _utilizador.utilizadorID);
-
-            // Console log para verificar o estado do usuário
-            Console.WriteLine($"User state after comment processing: {updatedUser?.estadoContaId}");
-
 
             // Assert that the updated user is not null and banned
             Assert.That(updatedUser, Is.Not.Null);
             Assert.That(updatedUser.estadoContaId, Is.EqualTo(3));
         }
 
-
-
         [TearDown]
         public void Cleanup()
         {
-            _context.Database.EnsureDeleted(); // Remove o banco de dados após cada teste
-            _context.Dispose(); // Descarta o contexto
+            _context.Database.EnsureDeleted(); 
+            _context.Dispose(); 
         }
     }
 }

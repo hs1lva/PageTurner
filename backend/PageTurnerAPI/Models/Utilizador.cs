@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using BCrypt.Net;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models;
 
@@ -24,6 +25,8 @@ public class Utilizador
     public bool notficacaoPedidoTroca { get; set; }
     public bool notficacaoAceiteTroca { get; set; }
     public bool notficacaoCorrespondencia { get; set; }
+
+    private readonly PageTurnerContext _context;
 
     //ligacao de muitos para muitos é feita desta forma
     [JsonIgnore]
@@ -55,6 +58,12 @@ public class Utilizador
     // Construtor da classe Utilizador
     public Utilizador()
     {
+    }
+
+    // Construtor da classe Utilizador com o contexto da base de dados
+    public Utilizador(PageTurnerContext context)
+    {
+        _context = context;
     }
 
     /// <summary>
@@ -214,14 +223,38 @@ public class Utilizador
     /// <param name="context"></param>
     /// <returns></returns>
     public static async Task<IEnumerable<string>> ObterPaisesUtilizadores(PageTurnerContext context)
-        {
-            // Realizar uma junção entre as tabelas Utilizador, Cidade e Pais para obter os países dos utilizadores
-            var paisesUtilizadores = context.Utilizador
-                .Join(context.Cidade, u => u.cidadeId, c => c.cidadeId, (u, c) => new { u, c })
-                .Join(context.Pais, cu => cu.c.paisId, p => p.paisId, (cu, p) => p.nomePais)
-                .Distinct() // Garantir que cada país aparece apenas uma vez na lista
-                .ToList();
+    {
+        // Realizar uma junção entre as tabelas Utilizador, Cidade e Pais para obter os países dos utilizadores
+        var paisesUtilizadores = context.Utilizador
+            .Join(context.Cidade, u => u.cidadeId, c => c.cidadeId, (u, c) => new { u, c })
+            .Join(context.Pais, cu => cu.c.paisId, p => p.paisId, (cu, p) => p.nomePais)
+            .Distinct() // Garantir que cada país aparece apenas uma vez na lista
+            .ToList();
 
-            return paisesUtilizadores;
+        return paisesUtilizadores;
+    }
+
+  public async Task BanirUtilizador()
+    {
+        // Pesquisar o estado "Banido" na bd
+        var estadoBanido = await _context.EstadoConta.FirstOrDefaultAsync(e => e.descricaoEstadoConta == "Banido");
+
+        // Verificar se o estado "Banido" foi encontrado
+        try
+        {
+            // Atualizar o estado do user para o estado "Banido"
+            this.estadoContaId = estadoBanido.estadoContaId;
+            this.estadoConta = estadoBanido;
+
+            // Executar as ações de banimento específicas
+            // * Invalidar tokens de autenticação do usuário
+            // * Enviar notificação por email ao usuário informando o banimento
+
+            await _context.SaveChangesAsync();
         }
+        catch
+        {
+            throw new Exception("Estado banido não encontrado.");
+        }
+    }
 }
