@@ -92,6 +92,22 @@ namespace backend.Controllers
             return livros;
         }
 
+        // GET: api/Livro/Pesquisar/OpenLibrary/{titulo}
+        [HttpGet("PesquisarLivro/OpenLibrary/{titulo}")]
+        public async Task<string> PesquisarLivroOL(string titulo)
+        {
+            var servicoAPI = new Services.ServicoAPI();
+            //var url = servicoAPI.ProcurarLivro(titulo);
+            var livros = await servicoAPI.BuscarLivrosPorTitulo(titulo);
+
+            if (livros == null)
+            {
+                return NotFound().ToString();
+            }
+
+            return livros;
+        }
+
         /// <summary>
         /// Método para obter o perfil de um livro através do ID
         /// </summary>
