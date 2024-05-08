@@ -92,13 +92,57 @@ namespace backend.Controllers
             return livros;
         }
 
-        // GET: api/Livro/Pesquisar/OpenLibrary/{titulo}
-        [HttpGet("PesquisarLivro/OpenLibrary/{titulo}")]
-        public async Task<string> PesquisarLivroOL(string titulo)
+        // GET: api/Livro/Pesquisar/OpenLibrary/{termo}
+        [HttpGet("PesquisarLivro/OpenLibrary/{termo}")]
+        public async Task<string> PesquisarLivroOL(string termo)
         {
             var servicoAPI = new Services.ServicoAPI();
-            //var url = servicoAPI.ProcurarLivro(titulo);
-            var livros = await servicoAPI.BuscarLivrosPorTitulo(titulo);
+            var livros = await servicoAPI.BuscarLivrosOpenLibrary("q", termo);
+
+            if (livros == null)
+            {
+                return NotFound().ToString();
+            }
+
+            return livros;
+        }
+
+        // GET: api/Livro/Pesquisar/OpenLibrary/{titulo}
+        [HttpGet("PesquisarLivro/OpenLibrary/Titulo/{titulo}")]
+        public async Task<string> PesquisarLivroTituloOL(string titulo)
+        {
+            var servicoAPI = new Services.ServicoAPI();
+            var livros = await servicoAPI.BuscarLivrosOpenLibrary("title", titulo);
+
+            if (livros == null)
+            {
+                return NotFound().ToString();
+            }
+
+            return livros;
+        }
+
+        // GET: api/Livro/Pesquisar/OpenLibrary/{autor}
+        [HttpGet("PesquisarLivro/OpenLibrary/Autor/{autor}")]
+        public async Task<string> PesquisarLivroAutorOL(string autor)
+        {
+            var servicoAPI = new Services.ServicoAPI();
+            var livros = await servicoAPI.BuscarLivrosOpenLibrary("author", autor);
+
+            if (livros == null)
+            {
+                return NotFound().ToString();
+            }
+
+            return livros;
+        }
+
+        // GET: api/Livro/Pesquisar/OpenLibrary/{genero}
+        [HttpGet("PesquisarLivro/OpenLibrary/Genero/{genero}")]
+        public async Task<string> PesquisarLivroGeneroOL(string genero)
+        {
+            var servicoAPI = new Services.ServicoAPI();
+            var livros = await servicoAPI.BuscarLivrosOpenLibrary("subject", genero);
 
             if (livros == null)
             {
