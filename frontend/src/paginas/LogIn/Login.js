@@ -21,6 +21,13 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [utilizador, setUtilizador] = useState("");
   const [password, setPassword] = useState("");
+  const [novoUtilizador, setNovoUtilizador] = useState({
+    nome: "",
+    apelido: "",
+    username: "",
+    email: "",
+    password: "",
+  });
   const navigate = useNavigate();
 
   const handlerUtilizadorChange = (event) => {
@@ -93,6 +100,84 @@ export default function Login() {
     }
   };
 
+  const registarNovoUtilizador = async (dadosUtilizador) => {
+    try {
+      const resposta = await fetch(`${url_server()}/api/Utilizador`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "nome": dadosUtilizador.nome,
+          "apelido": dadosUtilizador.apelido,
+          "dataNascimento": new Date().toISOString(), // Para o utilizador atualizar
+          "username": dadosUtilizador.username,
+          "password": dadosUtilizador.password,
+          "email": dadosUtilizador.email,
+          "fotoPerfil": "",
+          "dataRegisto": new Date().toISOString(), // Usar a data atual
+          "ultimologin": new Date().toISOString(), // Usar a data atual
+          "notficacaoPedidoTroca": true,
+          "notficacaoAceiteTroca": true,
+          "notficacaoCorrespondencia": true,
+          "tipoUtilizadorId": 1,
+          "estadoContaId": 0,
+          "cidadeId": 1
+        }),
+      });
+
+      if (!resposta.ok) {
+        // Fazer paginas para erros e direcionar para lá
+        if (resposta.status === 409) {
+          setIsLoading(false);
+          console.log("Utilizador já existe");
+          toast.error("Error Notification !");
+          alert("Utilizador já existe, altere o username ou email.");
+          return;
+        }
+      }
+
+      alert('Utilizador criado com sucesso, valide a sua conta com o email que lhe foi enviado.');
+  
+      // Se o utilizador for criado com sucesso, você pode redirecionar ou fazer outra ação aqui
+      // Por exemplo, redirecionar para a página de login
+      // navigate('/login');
+    } catch (erro) {
+      console.error(erro);
+      // Tratar o erro de alguma forma, como exibir uma mensagem de erro para o utilizador
+      toast.error('Erro ao registrar novo utilizador. Por favor, tente novamente.');
+    }
+  };
+  
+  const handleRegistoChange = (event) => {
+    const { name, value } = event.target;
+    setNovoUtilizador((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleRegistroSubmit = async (e) => {
+    e.preventDefault();
+  
+    // Apanhar os valores dos campos do formulário
+    const { nome, apelido, username, email, password } = novoUtilizador;
+  
+    // Criar o objeto dadosUtilizador com os dados do formulário
+    const dadosUtilizador = {
+      nome,
+      apelido,
+      username,
+      email,
+      password,
+      // Adicione os outros campos do formulário, se houver
+    };
+  
+    // Chamar a função para registar o novo utilizador
+    await registarNovoUtilizador(dadosUtilizador);
+  };
+  
+
   if (isLoading) {
     return <LoadingModal showModal={isLoading} />;
   }
@@ -123,7 +208,7 @@ export default function Login() {
                     <input
                       id="utilizador"
                       type="text"
-                      placeholder="Insira o seu email"
+                      placeholder="Email"
                       onChange={handlerUtilizadorChange}
                       required
                     />
@@ -133,7 +218,7 @@ export default function Login() {
                     <input
                       id="password"
                       type="password"
-                      placeholder="Insira a sua password"
+                      placeholder="Password"
                       onChange={handlerPasswordChange}
                       required
                     />
@@ -151,30 +236,57 @@ export default function Login() {
             </div>
             <div className="signup-form">
               <div className="title">Registar</div>
-              <form action="submit">
+              <form onSubmit={handleRegistroSubmit}>
                 <div className="input-boxes">
                   <div className="input-box">
                     <i className="fas fa-user"></i>
-                    <input type="text" placeholder="Insira o nome" required />
-                    <input type="text" placeholder="Insira aplelido" required />
+                    <input
+                      type="text"
+                      name="nome"
+                      placeholder="Nome"
+                      value={novoUtilizador.nome}
+                      onChange={handleRegistoChange}
+                      required
+                    />
+                    <input
+                      type="text"
+                      name="apelido"
+                      placeholder="Apelido"
+                      value={novoUtilizador.apelido}
+                      onChange={handleRegistoChange}
+                      required
+                    />
                   </div>
                   <div className="input-box">
                     <i className="fas fa-user"></i>
                     <input
                       type="text"
-                      placeholder="Insira o Username"
+                      name="username"
+                      placeholder="Username"
+                      value={novoUtilizador.username}
+                      onChange={handleRegistoChange}
                       required
                     />
                   </div>
                   <div className="input-box">
                     <i className="fas fa-envelope"></i>
-                    <input type="text" placeholder="Insira o email" required />
+                    <input
+                      type="text"
+                      name="email"
+                      placeholder="Email"
+                      value={novoUtilizador.email}
+                      onChange={handleRegistoChange}
+                      required
+                    />
                   </div>
                   <div className="input-box">
                     <i className="fas fa-lock"></i>
                     <input
                       type="password"
-                      placeholder="Insira a password"
+                      name="password"
+                      placeholder="Password"
+                      value={novoUtilizador.password}
+                      onChange={handleRegistoChange}
                       required
                     />
                   </div>
