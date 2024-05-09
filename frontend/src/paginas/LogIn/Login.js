@@ -208,7 +208,7 @@ export default function Login() {
                     <input
                       id="utilizador"
                       type="text"
-                      placeholder="Email"
+                      placeholder="Username"
                       onChange={handlerUtilizadorChange}
                       required
                     />
