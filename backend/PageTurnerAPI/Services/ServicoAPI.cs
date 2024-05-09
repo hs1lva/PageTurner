@@ -1,11 +1,15 @@
 
 
+using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
+
 namespace backend.Services
 {
     public class ServicoAPI
     {
         private string procurarOpenLibraryEndpoint = "https://openlibrary.org/search.json";
-        private string campos = "&fields=key,title,author_name,first_publish_year,language,subject";
+        private string campos = "&fields=seed,key,title,author_name,first_publish_year,language,subject";
+
         public ServicoAPI()
         {
         }
@@ -22,7 +26,37 @@ namespace backend.Services
                     if (response.IsSuccessStatusCode)
                     {
                         string jsonResponse = await response.Content.ReadAsStringAsync();
-                        return jsonResponse;
+
+                        JObject jsonObject = JObject.Parse(jsonResponse);
+                        foreach (var item in jsonObject["docs"])
+                        {
+                            if (item != null)
+                            {
+                                string keyTemp = item["seed"]?.ToString();
+
+                                string pattern = @"OL\d+M";
+
+                                // Procura por correspondências no texto usando a expressão regular
+                                Match match = Regex.Match(keyTemp, pattern);
+
+                                // Extrai o identificador do livro, se encontrado
+                                string key = match.Success ? match.Value : null;
+
+                                string[] capas = new string[]
+                                {
+                                    $"https://covers.openlibrary.org/b/olid/{key}-S.jpg",
+                                    $"https://covers.openlibrary.org/b/olid/{key}-M.jpg",
+                                    $"https://covers.openlibrary.org/b/olid/{key}-L.jpg"
+                                };
+
+                                item["capas"] = JToken.FromObject(capas);
+                                // item["capa-small"] = capaSmall;
+                                // item["capa-medium"] = capaMedia;
+                                // item["capa-large"] = capaLarge;
+                            }
+                        }
+
+                        return jsonObject.ToString();
                     }
                     else
                     {
@@ -37,6 +71,5 @@ namespace backend.Services
 
             return null;
         }
-        
     }
 }

@@ -10,9 +10,9 @@ public class Livro
     public int anoPrimeiraPublicacao { get; set; }
     public string idiomaOriginalLivro { get; set; }
 
-    //chave estranjeira para  autorLivro
+    //chave estrangeira para  autorLivro
     public AutorLivro autorLivro { get; set; }
-    //chave estranjeira para  generoLivro
+    //chave estrangeira para  generoLivro
     public GeneroLivro generoLivro { get; set; }
 
     // Propriedade de navegação para as avaliações
