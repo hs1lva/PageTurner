@@ -118,8 +118,8 @@ namespace backend.Controllers
             utilizador.dataRegisto = DateTime.Now;
             await _context.SaveChangesAsync();
 
-            // Redirecionar para uma página de confirmação de email ou retornar uma mensagem de sucesso
-            return Ok("Email confirmado com sucesso.");
+            // Redirecionar para a página de login
+            return Redirect("http://localhost:3000/login");
         }
 
         /// <summary>
@@ -346,39 +346,40 @@ namespace backend.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
-            try{
-
-            
-            var user = await Utilizador.GetUtilizadorByLoginDTO(loginDTO, _context);
-            if (user == null)
+            try
             {
-                return Unauthorized("Dados invalidos."); // Utilizador incorreto
-            }
-    
-        
-
-            
-            // Verificar se a password está correta
-            var pass = Utilizador.CheckPassword(loginDTO.Password, user.password);
-            if (!pass.Result)
-            {
-                return Unauthorized("Dados invalidos."); // Password incorreta
-            }
-            
-    
 
 
-            
-           var token = Utilizador.Login(user);
-            if(token.ToString().IsNullOrEmpty())
-            {
-                return Unauthorized("Credenciais inválidas.");
-            }
-            var resp = new { Token = token };
+                var user = await Utilizador.GetUtilizadorByLoginDTO(loginDTO, _context);
+                if (user == null)
+                {
+                    return Unauthorized("Dados invalidos."); // Utilizador incorreto
+                }
 
-            // Response.Headers["Authorization"] = $"Bearer {token}";// Adicionar o token ao cabeçalho da resposta
 
-            return Ok(resp);
+
+
+                // Verificar se a password está correta
+                var pass = Utilizador.CheckPassword(loginDTO.Password, user.password);
+                if (!pass.Result)
+                {
+                    return Unauthorized("Dados invalidos."); // Password incorreta
+                }
+
+
+
+
+
+                var token = Utilizador.Login(user);
+                if (token.ToString().IsNullOrEmpty())
+                {
+                    return Unauthorized("Credenciais inválidas.");
+                }
+                var resp = new { Token = token };
+
+                // Response.Headers["Authorization"] = $"Bearer {token}";// Adicionar o token ao cabeçalho da resposta
+
+                return Ok(resp);
             }
             catch (Exception ex)
             {
