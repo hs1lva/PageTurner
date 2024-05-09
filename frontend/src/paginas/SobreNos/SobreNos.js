@@ -47,33 +47,36 @@ export default function Login() {
         <div className="forms">
           <div className="form-content">
             <div className="login-form">
-              <div className="title">Login</div>
+              <div className="title">Sobre Nós...</div>
               <form onSubmit={login}>
                 <div className="input-boxes">
-                  <div className="input-box">
-                    <i className="fas fa-envelope"></i>
-                    <input
-                      type="text"
-                      placeholder="Email"
-                      onChange={handlerUtilizadorChange}
-                      required
-                    />
+                  <div className="text">
+                    {" "}
+                    PageTurner é uma plataforma online onde os apaixonados por
+                    livros podem partilhar as suas experiências de leitura,
+                    descobrir novos títulos e interagir com outros membros da
+                    comunidade literária.{" "}
                   </div>
-                  <div className="input-box">
-                    <i className="fas fa-lock"></i>
-                    <input
-                      type="password"
-                      placeholder="Password"
-                      onChange={handlerPasswordChange}
-                      required
-                    />
+                  <br></br>
+                  <div className="title"> O que temos de novo? </div>
+                  <br></br>
+                  <div className="text">
+                    {" "}
+                    <p>- Registo de Leitores;</p>
+                    <p>- Biblioteca Pessoal;</p>
+                    <p>- Avaliação de Livros;</p>
+                    <p>- Comentários;</p>
+                    <p>- Recomendações;</p>
+                    <p>- Troca de Livros com outros Leitores;</p>{" "}
                   </div>
-                  <div className="button">
-                    <input type="submit" value="Entrar" />
-                  </div>
-                  <div className="text sign-up-text">
-                    Ainda não tem conta?{" "}
-                    <label htmlFor="flip">Registe-se já</label>
+                  <div className="text mt-10">
+                    Suporte:{" "}
+                    <a
+                      className="hover:underline text-blue-500"
+                      href="mailto:pageturner@outlook.pt"
+                    >
+                      pageturner@outlook.pt
+                    </a>
                   </div>
                 </div>
               </form>
