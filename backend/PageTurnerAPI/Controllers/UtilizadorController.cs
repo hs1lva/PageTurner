@@ -118,8 +118,8 @@ namespace backend.Controllers
             utilizador.dataRegisto = DateTime.Now;
             await _context.SaveChangesAsync();
 
-            // Retornar mensagem de sucesso e redirecionamento
-            return Ok(new { message = "Email confirmado com sucesso.", redirectTo = "http://localhost:3000/login" });
+            // Redirecionar para a página de login
+            return Redirect("http://localhost:3000/login");
         }
 
         /// <summary>
