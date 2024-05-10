@@ -14,6 +14,12 @@
   position: relative;
 }
 
+.form-wrapper {
+  position: relative;
+  width: 50%;
+  margin: 0 10px; /* Adicione uma margem horizontal */
+}
+
 .esquerda {
   position: relative;
   width: 50%;

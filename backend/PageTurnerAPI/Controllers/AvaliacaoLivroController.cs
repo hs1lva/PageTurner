@@ -51,11 +51,6 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAvaliacaoLivro(int id, AvaliacaoLivro avaliacaoLivroDTO)
         {
-            // Verifica se o ID na URL corresponde ao ID no request
-            if (id != avaliacaoLivroDTO.AvaliacaoId)
-            {
-                return BadRequest(new { Message = "O ID da avaliação na URL não corresponde ao ID no corpo da requisição." });
-            }
 
             // Busca a avaliação existente pelo ID
             var avaliacaoExistente = await _context.AvaliacaoLivro.FindAsync(id);

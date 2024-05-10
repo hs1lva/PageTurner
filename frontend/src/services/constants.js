@@ -1,0 +1,1 @@
+export const DEFAULT_BOOK_COVER = "/noimage.png";
