@@ -97,6 +97,11 @@ namespace backend.Controllers
             return livros;
         }
 
+        /// <summary>
+        /// Método para pesquisar um livro por qualquer termo na Open Library
+        /// </summary>
+        /// <param name="termo"></param>
+        /// <returns></returns>
         // GET: api/Livro/Pesquisar/OpenLibrary/{termo}
         [HttpGet("PesquisarLivro/OpenLibrary/{termo}")]
         public async Task<string> PesquisarLivroOL(string termo)
@@ -112,6 +117,11 @@ namespace backend.Controllers
             return livros;
         }
 
+        /// <summary>
+        /// Método para pesquisar um livro pelo título na Open Library
+        /// </summary>
+        /// <param name="titulo"></param>
+        /// <returns></returns>
         // GET: api/Livro/Pesquisar/OpenLibrary/{titulo}
         [HttpGet("PesquisarLivro/OpenLibrary/Titulo/{titulo}")]
         public async Task<string> PesquisarLivroTituloOL(string titulo)
@@ -127,6 +137,11 @@ namespace backend.Controllers
             return livros;
         }
 
+        /// <summary>
+        /// Método para pesquisar um livro pelo autor na Open Library
+        /// </summary>
+        /// <param name="autor"></param>
+        /// <returns></returns>
         // GET: api/Livro/Pesquisar/OpenLibrary/{autor}
         [HttpGet("PesquisarLivro/OpenLibrary/Autor/{autor}")]
         public async Task<string> PesquisarLivroAutorOL(string autor)
@@ -142,6 +157,11 @@ namespace backend.Controllers
             return livros;
         }
 
+        /// <summary>
+        /// Método para pesquisar um livro pelo género na Open Library
+        /// </summary>
+        /// <param name="genero"></param>
+        /// <returns></returns>
         // GET: api/Livro/Pesquisar/OpenLibrary/{genero}
         [HttpGet("PesquisarLivro/OpenLibrary/Genero/{genero}")]
         public async Task<string> PesquisarLivroGeneroOL(string genero)
