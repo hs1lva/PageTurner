@@ -8,10 +8,14 @@ import NewLogin from "./paginas/LogIn/NewLogin";
 import { RequireLoginRoute, RequireGuestRoute } from "./services/ProtectedRoute";
 import Livro from "./paginas/Livro/Livro";
 import Pagina404 from "./paginas/Erros/Pagina404";
+import PerfilLeitor from "./paginas/Leitor/PerfilLeitor";
+import EditarPerfil from "./paginas/Leitor/EditarPerfil";
+import {ToastContainer} from "react-toastify";
 
 function App() {
     return (
         <div>
+            <ToastContainer />
             <header>
                 <Header/>
             </header>
@@ -19,7 +23,9 @@ function App() {
                 <Route path="/" element={<Home/>}/>
                 <Route path="/login" element={<RequireGuestRoute Component={NewLogin}/>}/>
                 <Route path="/sobreNos" element={<RequireLoginRoute Component={SobreNos}/>}/>
+                <Route path="/editar-perfil" element={<RequireLoginRoute Component={EditarPerfil}/>}/>
                 <Route path="/leitor" element={<RequireLoginRoute Component={Leitor}/>}/>
+                <Route path="/leitor/:id" element={<RequireLoginRoute Component={PerfilLeitor}/>}/>
                 <Route path="/livro/:id" element={<RequireLoginRoute Component={Livro}/>}/>
                 <Route path="*" element={<Pagina404/>}/>
             </Routes>
