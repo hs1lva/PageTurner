@@ -8,6 +8,7 @@ import NewLogin from "./paginas/LogIn/NewLogin";
 import { RequireLoginRoute, RequireGuestRoute } from "./services/ProtectedRoute";
 import Livro from "./paginas/Livro/Livro";
 import Pagina404 from "./paginas/Erros/Pagina404";
+import pesquisaTitulo from "./paginas/Pesquisa/titulo.js";
 
 function App() {
     return (
@@ -21,6 +22,7 @@ function App() {
                 <Route path="/sobreNos" element={<RequireLoginRoute Component={SobreNos}/>}/>
                 <Route path="/leitor" element={<RequireLoginRoute Component={Leitor}/>}/>
                 <Route path="/livro/:id" element={<RequireLoginRoute Component={Livro}/>}/>
+                <Route path="/pesquisa" element={<RequireLoginRoute Component={pesquisaTitulo}/>}/>
                 <Route path="*" element={<Pagina404/>}/>
             </Routes>
         </div>

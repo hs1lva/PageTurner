@@ -28,7 +28,7 @@ export default function Avaliar({ livroId, media, setRefresh, refresh }) {
             .catch(error => {
                 console.error(error);
             });
-    }, [refresh]);
+    }, [refresh, user.user_id, livroId]);
 
     const handleAvaliacaoChange = (novaAvaliacao) => {
         setAvaliacao(novaAvaliacao);
