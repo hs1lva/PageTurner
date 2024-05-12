@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from "../../services/authService";
 import {url_server} from "../../contexto/url_servidor";
-
+import { toast } from "react-toastify";
 export default function LoginForm({onFlip}) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -34,6 +34,7 @@ export default function LoginForm({onFlip}) {
     if (response.ok) {
       const data = await response.json();
       setToken(data.token.result);
+      toast.success('Login successful');
       navigate('/');
     } else {
       console.error('Login failed');

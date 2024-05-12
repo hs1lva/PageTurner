@@ -54,7 +54,7 @@ export default function RegisterForm({onFlip}) {
           return;
         }
       }
-      alert('Utilizador criado com sucesso, valide a sua conta com o email que lhe foi enviado.');
+      toast.success('Utilizador criado com sucesso, valide a sua conta com o email que lhe foi enviado.');
     } catch (erro) {
       console.error(erro);
       // Tratar o erro de alguma forma, como exibir uma mensagem de erro para o utilizador
