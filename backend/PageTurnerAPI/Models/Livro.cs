@@ -1,18 +1,30 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace backend.Models;
 public class Livro
 {
     [Key]
     public int livroId { get; set; }
+    [JsonProperty("title")]
     public string tituloLivro { get; set; }
+    [JsonProperty("first_publish_year")]
     public int anoPrimeiraPublicacao { get; set; }
-    public string idiomaOriginalLivro { get; set; }
-
+    [JsonProperty("key")]
+    public string keyOL { get; set; }
+    [JsonProperty("capaSmall")]
+    public string capaSmall { get; set; }
+    [JsonProperty("capaMedium")]
+    public string capaMedium { get; set; }
+    [JsonProperty("capaLarge")]
+    public string capaLarge { get; set; }
     //chave estrangeira para  autorLivro
+    [JsonProperty("author_name")]
     public AutorLivro autorLivro { get; set; }
     //chave estrangeira para  generoLivro
+    [JsonProperty("subject")]
     public GeneroLivro generoLivro { get; set; }
 
     // Propriedade de navegação para as avaliações
@@ -75,7 +87,7 @@ public class Livro
                 LivroId = l.livroId,
                 TituloLivro = l.tituloLivro,
                 AnoPrimeiraPublicacao = l.anoPrimeiraPublicacao,
-                IdiomaOriginalLivro = l.idiomaOriginalLivro,
+                //IdiomaOriginalLivro = l.idiomaOriginalLivro,
                 AutorLivro = l.autorLivro,
                 GeneroLivro = l.generoLivro,
                 MediaAvaliacao = l.MediaAvaliacao(),
@@ -109,4 +121,24 @@ public class Livro
                         
         return livros;
     }
+
+    public static async Task<Livro> GetLivroByKey(string key, PageTurnerContext _context)
+    {
+        return await _context.Livro
+            .Include(l => l.autorLivro)
+            .Include(l => l.generoLivro)
+            .FirstOrDefaultAsync(l => l.keyOL == key);
+    }
+
+    public static int LivroExistsTitulo(string titulo, PageTurnerContext _context)
+    {
+        // Verificar se o livro já existe na base de dados
+        if (_context.Livro.Any(e => e.tituloLivro.ToLower() == titulo.ToLower()))
+        {
+            // Retornar o id do livro
+            return _context.Livro.FirstOrDefault(e => e.tituloLivro.ToLower() == titulo.ToLower()).livroId;
+        }
+        return 0;
+    }
+
 }

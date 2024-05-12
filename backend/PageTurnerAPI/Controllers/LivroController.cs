@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 /*public static List<LivroDTO> PesquisaLivroBd(string termo, PageTurnerContext context) { ... }*/
 namespace backend.Controllers
@@ -49,7 +51,7 @@ namespace backend.Controllers
                 LivroId = livro.livroId,
                 TituloLivro = livro.tituloLivro,
                 AnoPrimeiraPublicacao = livro.anoPrimeiraPublicacao,
-                IdiomaOriginalLivro = livro.idiomaOriginalLivro,
+                //IdiomaOriginalLivro = livro.idiomaOriginalLivro,
                 AutorLivro = livro.autorLivro,
                 GeneroLivro = livro.generoLivro,
                 MediaAvaliacao = livro.MediaAvaliacao(),
@@ -279,7 +281,7 @@ namespace backend.Controllers
             {
                 tituloLivro = livroDto.TituloLivro,
                 anoPrimeiraPublicacao = livroDto.AnoPrimeiraPublicacao,
-                idiomaOriginalLivro = livroDto.IdiomaOriginalLivro,
+                //idiomaOriginalLivro = livroDto.IdiomaOriginalLivro,
                 autorLivro = await _context.AutorLivro.FindAsync(livroDto.AutorLivroId),
                 generoLivro = await _context.GeneroLivro.FindAsync(livroDto.GeneroLivroId)
             };
@@ -316,7 +318,6 @@ namespace backend.Controllers
         private bool LivroExists(int id)
         {
             return _context.Livro.Any(e => e.livroId == id);
-        }
-
+        }        
     }
 }

@@ -49,10 +49,10 @@ namespace backend.Services
                                     $"https://covers.openlibrary.org/b/olid/{key}-L.jpg"
                                 };
 
-                                item["capas"] = JToken.FromObject(capas);
-                                // item["capa-small"] = capaSmall;
-                                // item["capa-medium"] = capaMedia;
-                                // item["capa-large"] = capaLarge;
+                                //item["capas"] = JToken.FromObject(capas);
+                                item["capaSmall"] = capas[0];
+                                item["capaMedium"] = capas[1];
+                                item["capaLarge"] = capas[2];
                             }
                         }
 
