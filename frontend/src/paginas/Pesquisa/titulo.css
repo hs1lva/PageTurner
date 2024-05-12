@@ -1,3 +1,21 @@
+.pesquisa-titulo{
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.container-pesquisa {
+  display: flex;
+  justify-content: center;
+  width: 90%;
+  background: #fff;
+  padding: 40px 30px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+  perspective: 2700px;
+  position: absolute;
+}
+
 .cards {
     display: flex;
     flex-wrap: wrap;
@@ -16,6 +34,7 @@
     padding: 16px;
     width: 300px;
     height: 450px;
+    text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
@@ -30,16 +49,25 @@
     height: 300px; 
     border-radius: 8px;
     object-fit: cover;
-    margin-bottom: 8px;
+    margin-bottom: 18px;
+    transition: transform 1s ease; 
   }
-  
+
+  .card img:hover {
+    transform: perspective(800px) rotateY(40deg) scale(1.15);
+  }
+
+  .card img:not(:hover) {
+    transform: perspective(800px) rotateY(0deg) scale(1);
+
+  }
+
   .card h3 {
     font-size: 18px;
     margin-bottom: 4px;
   }
   
   .card p {
-    text-align: center;
     font-size: 14px;
     color: #666;
   }

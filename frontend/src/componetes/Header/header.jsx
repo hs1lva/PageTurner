@@ -27,7 +27,7 @@ export default function Navbar() {
         e.target.search.value
       )
       .then((data) => {
-        navigate("/pesquisa", { state: { livros: data.docs } });
+        navigate("/pesquisa", { state: { livros: data.docs } }); // a ideia é utilizar o useLocation() para conseguir acesso aos dados.
       })
       .catch((error) => console.error(error));
     setIsLoading(false);
