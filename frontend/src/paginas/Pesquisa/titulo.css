@@ -1,9 +1,9 @@
-.pesquisa-titulo{
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    text-align: center;
+.pesquisa-titulo {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
 }
 .container-pesquisa {
   display: flex;
@@ -11,64 +11,73 @@
   width: 90%;
   background: #fff;
   padding: 40px 30px;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   perspective: 2700px;
   position: absolute;
 }
 
 .cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 10px;
-    margin-top: 10px;
-  }
-  
-  .card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 10px;
-    border-radius: 8px;
-    padding: 16px;
-    width: 300px;
-    height: 450px;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-  
-  .card img {
-    width: 200px; 
-    height: 300px; 
-    border-radius: 8px;
-    object-fit: cover;
-    margin-bottom: 18px;
-    transition: transform 1s ease; 
-  }
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
 
-  .card img:hover {
-    transform: perspective(800px) rotateY(40deg) scale(1.15);
-  }
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+  border-radius: 8px;
+  padding: 16px;
+  width: 300px;
+  height: 450px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-  .card img:not(:hover) {
-    transform: perspective(800px) rotateY(0deg) scale(1);
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
 
-  }
+.card img {
+  width: 200px;
+  height: 300px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-bottom: 18px;
+  transition: transform 1s ease;
+}
 
-  .card h3 {
-    font-size: 18px;
-    margin-bottom: 4px;
-  }
-  
-  .card p {
-    font-size: 14px;
-    color: #666;
-  }
-  
+.card img:hover {
+  transform: perspective(800px) rotateY(40deg) scale(1.15);
+}
+
+.card img:not(:hover) {
+  transform: perspective(800px) rotateY(0deg) scale(1);
+}
+
+.card h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.card p {
+  font-size: 14px;
+  color: #666;
+}
+
+.checkbox-card-titulo {
+  display: none;
+}
+.label-card-titulo {
+  cursor: pointer;
+}
+
+.label-card-titulo:hover :checked + img {
+  transform: perspective(800px) rotateY(-40deg) rotateX(20deg) scale(1.15);
+}

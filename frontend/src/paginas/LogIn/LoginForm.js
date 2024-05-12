@@ -67,7 +67,7 @@ export default function LoginForm({onFlip}) {
           <input type="submit" value="Entrar"/>
         </div>
         <div className="text sign-up-text">
-          Ainda não tem conta?{" "}
+          <p>Ainda não tem conta?{" "}</p>
           <label onClick={onFlip}>Registe-se já</label>
         </div>
       </div>

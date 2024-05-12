@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom"; // Esta importação é usada para conseguir aceder aos dados passados pelo useNavigate()
-                                                // Passa um estado para a próxima rota. O estado pode ser qualquer coisa, até o endereço anterior. 
+// Passa um estado para a próxima rota. O estado pode ser qualquer coisa, até o endereço anterior.
 import "./titulo.css";
 
 export default function Titulo() {
@@ -11,7 +11,10 @@ export default function Titulo() {
         <div className="cards">
           {livros.map((livro) => (
             <div className="card" key={livro.key}>
-              <img src={livro.capas[1]} alt={livro.title} />{" "}
+              <label className="label-card-titulo"> {/* // Invenções ;) mas se calhar nao vale a pena o esforço */}
+                <input className="checkbox-card-titulo" type="checkbox" />
+                <img src={livro.capas[1]} alt={livro.title} />{" "}
+              </label>
               {/* // Array 0 é a capa pequena, 1 é a média e 2 é a grande */}
               <h3>{livro.title}</h3>
               <p>{livro.author_name}</p>
