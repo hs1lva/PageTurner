@@ -12,18 +12,20 @@ export default function Leitor() {
     const {getUser} = useAuthStore();
     const user = getUser();
 
-    const apiService = new ApiService(url_server());
     const [isLoading, setIsLoading] = useState(true);
     const [userData, setUserData] = useState(null);
-
+    
     useEffect(() => {
+        const apiService = new ApiService(url_server()); // Movi esta linha para dentro do useEffect para nao dar aviso ESLint
+        
         apiService.get('/api/Utilizador', user.user_id)
             .then(data => {
                 setUserData(data);
                 setIsLoading(false);
             })
             .catch(error => console.error(error));
-    }, []);
+
+    }, [user, setIsLoading, setUserData]);
 
     if (!userData) {
         // ou um loading spinner

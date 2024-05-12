@@ -7,8 +7,6 @@ import LoadingModal from "../../componetes/Loading/loading";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { setter } from "../../contexto/tokenSlice";
-
 import useAuthStore from "../../services/authService";
 
 export default function Login() {

@@ -8,9 +8,11 @@ import NewLogin from "./paginas/LogIn/NewLogin";
 import { RequireLoginRoute, RequireGuestRoute } from "./services/ProtectedRoute";
 import Livro from "./paginas/Livro/Livro";
 import Pagina404 from "./paginas/Erros/Pagina404";
+import pesquisaTitulo from "./paginas/Pesquisa/titulo.js";
 import PerfilLeitor from "./paginas/Leitor/PerfilLeitor";
 import EditarPerfil from "./paginas/Leitor/EditarPerfil";
 import {ToastContainer} from "react-toastify";
+
 
 function App() {
     return (
@@ -27,6 +29,7 @@ function App() {
                 <Route path="/leitor" element={<RequireLoginRoute Component={Leitor}/>}/>
                 <Route path="/leitor/:id" element={<RequireLoginRoute Component={PerfilLeitor}/>}/>
                 <Route path="/livro/:id" element={<RequireLoginRoute Component={Livro}/>}/>
+                <Route path="/pesquisa" element={<RequireLoginRoute Component={pesquisaTitulo}/>}/>
                 <Route path="*" element={<Pagina404/>}/>
             </Routes>
         </div>

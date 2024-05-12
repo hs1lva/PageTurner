@@ -1,42 +1,9 @@
-import { useState } from "react";
 import imagem from "../../imagens/BanerCriarUser.png";
-import LoadingModal from "../../componetes/Loading/loading";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function Login() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [utilizador, setUtilizador] = useState("");
-  const [password, setPassword] = useState("");
+export default function SobreNos() {
+ 
 
-  const handlerUtilizadorChange = (event) => {
-    setUtilizador(event.target.value);
-  };
-
-  const handlerPasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
-
-  const login = async (e) => {
-    e.preventDefault();
-
-    console.log("Utilizador: " + utilizador);
-    console.log("Password: " + password);
-    try {
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        // Simulando sucesso
-        toast.success("Login efetuado com sucesso");
-      }, 3000);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  if (isLoading) {
-    return <LoadingModal showModal={isLoading} />;
-  }
 
   return (
     <div className="registar">
@@ -48,7 +15,7 @@ export default function Login() {
           <div className="form-content">
             <div className="login-form">
               <div className="title">Sobre Nós...</div>
-              <form onSubmit={login}>
+              <form >
                 <div className="input-boxes">
                   <div className="text">
                     {" "}

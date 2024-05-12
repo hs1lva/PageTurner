@@ -30,10 +30,10 @@ const NewLogin = () => {
                 <div className="forms">
                     <div className="form-content">
                         <div className="form-wrapper">
-                            <RegisterForm onFlip={handleFlip}/>
+                            <LoginForm onFlip={handleFlip}/>
                         </div>
                         <div className="form-wrapper">
-                            <LoginForm onFlip={handleFlip}/>
+                            <RegisterForm onFlip={handleFlip}/>
                         </div>
                     </div>
                 </div>
