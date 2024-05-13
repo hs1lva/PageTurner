@@ -31,12 +31,9 @@ export default function Leitor() {
         // ou um loading spinner
         return null;
     }
-
+    
     // TODO: buscar as estantes dos utilizadores e os livros, para ja fica um array vazio para nao dar erro
     const livros = [];
-
-    // TODO : Avatar deveria vir no request, temos esse campo ?
-    const avatar = '';
 
     const numAvaliacoes = userData.avaliacoes.length;
     const numComentarios = userData.comentarios.length;
@@ -48,7 +45,7 @@ export default function Leitor() {
     return (
         <div className="flex justify-center">
             <section className="m-10 mt-10 flex flex-col items-left w-3/4 bg-white p-10 shadow-xl rounded-lg">
-                <InfoLeitor nome={userData.nome} avatar={avatar} numAvaliacoes={numAvaliacoes}
+                <InfoLeitor nome={userData.nome} avatar={userData.fotoPerfil} numAvaliacoes={numAvaliacoes}
                             numComentarios={numComentarios} isEditable="true"/>
                 <h1 className="text-2xl mt-10 font-bold mb-4">AS MINHAS ESTANTES</h1>
                 <p className="text-xs">TODO: Encontrar a cor certa para as estantes</p>
