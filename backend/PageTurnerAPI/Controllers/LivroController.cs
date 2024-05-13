@@ -45,6 +45,11 @@ namespace backend.Controllers
                 return NotFound();
             }
 
+            var comentariosFiltrados = _context.ComentarioLivro
+                .Include(comentario => comentario.estadoComentario) 
+                .Where(comentario => comentario.estadoComentario != null && comentario.estadoComentario.estadoComentarioId == 3)
+                .ToList();
+
             // usamos o DTO para incluir a media de avaliação
             var livroDto = new LivroDTO
             {
@@ -55,7 +60,7 @@ namespace backend.Controllers
                 AutorLivro = livro.autorLivro,
                 GeneroLivro = livro.generoLivro,
                 MediaAvaliacao = livro.MediaAvaliacao(),
-                Comentarios = livro.Comentarios,
+                Comentarios = comentariosFiltrados,
                 Avaliacoes = livro.Avaliacoes
             };
 

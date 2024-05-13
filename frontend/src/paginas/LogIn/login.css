@@ -14,20 +14,12 @@
   position: relative;
 }
 
-.esquerda {
+.form-wrapper {
   position: relative;
   width: 50%;
-  height: 100%;
-  /* background-color: #53341C; */
-
+  margin: 0 10px; /* Adicione uma margem horizontal */
 }
-.direita {
-  position: relative;
-  width: 50%;
-  height: 100%;
-  /* background-color: #fff; */
 
-}
 
 .container {
   position: relative;
@@ -215,12 +207,25 @@
 .container #flip {
   display: none;
 }
-@media (max-width: 500px) {
+@media (max-width: 585px) {
   .container .cover {
     display: none;
-    /* flex-direction: column; */
-
   }
+
+  .form-content{
+    display: flex;
+    flex-direction: column;
+    animation: animacaoForms 0.5s ease, animacaoBlock 2s ease; /* Encadeie as duas animações */
+  }
+  .text{
+    display: none;
+  }
+
+  .form-wrapper{
+    width: 100%;
+    /* animation: animacaoForms 1s ease;  */
+  }
+  
   .form-content .login-form,
   .form-content .signup-form {
     width: 100%;
@@ -233,5 +238,25 @@
   }
   .container #flip:checked ~ .forms .login-form {
     display: none;
+  }
+
+  @keyframes animacaoForms {
+    from {
+      width: 0%;
+    }
+    to {
+      width: 100%;
+    }
+  }
+
+  @keyframes animacaoBlock {
+    from {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }

@@ -127,7 +127,7 @@ namespace backend.Controllers
             ComentarioLivro novoComentario = new ComentarioLivro
             {
                 comentario = comentarioDto.comentario,
-                dataComentario = comentarioDto.dataComentario,
+                dataComentario = DateTime.Now,
                 utilizadorId = comentarioDto.utilizadorId,
                 livroId = comentarioDto.livroId,
                 estadoComentario = estadoInicial

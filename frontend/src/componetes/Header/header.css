@@ -56,3 +56,9 @@
 }
 
 
+.input-pesquisa{
+    min-width: 160px;
+    width: 50%;
+    transition: animacaoPesquisa 5s ease;
+}
+
