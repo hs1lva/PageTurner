@@ -8,23 +8,15 @@ public class Livro
 {
     [Key]
     public int livroId { get; set; }
-    [JsonProperty("title")]
     public string tituloLivro { get; set; }
-    [JsonProperty("first_publish_year")]
     public int anoPrimeiraPublicacao { get; set; }
-    [JsonProperty("key")]
     public string keyOL { get; set; }
-    [JsonProperty("capaSmall")]
     public string capaSmall { get; set; }
-    [JsonProperty("capaMedium")]
     public string capaMedium { get; set; }
-    [JsonProperty("capaLarge")]
     public string capaLarge { get; set; }
     //chave estrangeira para  autorLivro
-    [JsonProperty("author_name")]
     public AutorLivro autorLivro { get; set; }
     //chave estrangeira para  generoLivro
-    [JsonProperty("subject")]
     public GeneroLivro generoLivro { get; set; }
 
     // Propriedade de navegação para as avaliações
@@ -128,6 +120,12 @@ public class Livro
             .Include(l => l.autorLivro)
             .Include(l => l.generoLivro)
             .FirstOrDefaultAsync(l => l.keyOL == key);
+    }
+
+    public static bool LivroExistsKey(string key, PageTurnerContext _context)
+    {
+        // Verificar se o livro já existe na base de dados
+        return _context.Livro.Any(e => e.keyOL == key);
     }
 
     public static int LivroExistsTitulo(string titulo, PageTurnerContext _context)

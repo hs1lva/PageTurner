@@ -400,7 +400,7 @@ namespace backend.Controllers
         }
         #endregion
 
-        public async Task triagemNovaEstanteAsync(EstanteCreateDTO estanteEntrada, [FromBody] JObject json) {
+        /*public async Task triagemNovaEstanteAsync(EstanteCreateDTO estanteEntrada, [FromBody] JObject json) {
 
             // Quero transformar o JSON recebido num objeto Livro
             // deserializar o JSON recebido
@@ -443,7 +443,7 @@ namespace backend.Controllers
                 _ = PostEstante(estanteSaida);
                 return;
             }
-        }
+        }*/
 
     }
 }

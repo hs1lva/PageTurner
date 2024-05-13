@@ -274,7 +274,67 @@ namespace backend.Controllers
         #region Métodos POST
         // POST: api/Livro
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("PostLivroOL")]
+        public async Task<ActionResult<Livro>> PostLivroOL(LivroOLDTO livroDto)
+        {
+            var autorLivro = await _context.AutorLivro.FindAsync(livroDto.AutorLivroNome);
+            System.Console.WriteLine("AutorLivro: " + autorLivro);
+            if (autorLivro == null)
+            {
+                AutorLivro novoAutorLivro = new AutorLivro
+                {
+                    autorLivroId = 10,
+                    nomeAutor = livroDto.AutorLivroNome
+                };
+                _context.AutorLivro.Add(novoAutorLivro);
+                await _context.SaveChangesAsync();
+            }
+
+            var generoLivro = await _context.GeneroLivro.FindAsync(livroDto.GeneroLivroNome);
+
+            if (generoLivro == null)
+            {
+                GeneroLivro novoGeneroLivro = new GeneroLivro
+                {
+                    generoId = 10,
+                    descricaoGenero = livroDto.GeneroLivroNome
+                };
+                _context.GeneroLivro.Add(novoGeneroLivro);
+                await _context.SaveChangesAsync();
+            }
+
+            var livro = new Livro
+            {
+                tituloLivro = livroDto.TituloLivro,
+                anoPrimeiraPublicacao = livroDto.AnoPrimeiraPublicacao,
+                keyOL = livroDto.KeyOL,
+                capaSmall = livroDto.CapaSmall,
+                capaMedium = livroDto.CapaMedium,
+                capaLarge = livroDto.CapaLarge,
+                autorLivro = await _context.AutorLivro.FindAsync(livroDto.AutorLivroNome),
+                generoLivro = await _context.GeneroLivro.FindAsync(livroDto.GeneroLivroNome)
+            };
+
+            if (livro == null)
+            {
+                return BadRequest();
+            }
+            else if (Livro.LivroExistsKey(livro.keyOL, _context))
+            {
+                return NoContent();
+            }
+            else
+            {
+                _context.Livro.Add(livro);
+                await _context.SaveChangesAsync();
+            }
+
+            return CreatedAtAction("GetLivro", new { id = livro.livroId }, livro);
+        }
+
+        // POST: api/Livro
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("PostLivro")]
         public async Task<ActionResult<Livro>> PostLivro(LivroCreateDTO livroDto)
         {
             var livro = new Livro
@@ -318,6 +378,6 @@ namespace backend.Controllers
         private bool LivroExists(int id)
         {
             return _context.Livro.Any(e => e.livroId == id);
-        }        
+        }
     }
 }
