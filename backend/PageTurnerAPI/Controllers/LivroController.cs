@@ -45,6 +45,11 @@ namespace backend.Controllers
                 return NotFound();
             }
 
+            var comentariosFiltrados = _context.ComentarioLivro
+                .Include(comentario => comentario.estadoComentario)
+                .Where(comentario => comentario.estadoComentario != null && comentario.estadoComentario.estadoComentarioId == 3)
+                .ToList();
+
             // usamos o DTO para incluir a media de avaliação
             var livroDto = new LivroDTO
             {
@@ -55,7 +60,7 @@ namespace backend.Controllers
                 AutorLivro = livro.autorLivro,
                 GeneroLivro = livro.generoLivro,
                 MediaAvaliacao = livro.MediaAvaliacao(),
-                Comentarios = livro.Comentarios,
+                Comentarios = comentariosFiltrados,
                 Avaliacoes = livro.Avaliacoes
             };
 
@@ -277,29 +282,31 @@ namespace backend.Controllers
         [HttpPost("PostLivroOL")]
         public async Task<ActionResult<Livro>> PostLivroOL(LivroOLDTO livroDto)
         {
-            var autorLivro = await _context.AutorLivro.FindAsync(livroDto.AutorLivroNome);
-            System.Console.WriteLine("AutorLivro: " + autorLivro);
-            if (autorLivro == null)
+            if (Livro.LivroExistsKey(livroDto.KeyOL, _context))
             {
-                AutorLivro novoAutorLivro = new AutorLivro
+                return NoContent();
+            }
+
+            var autor = await _context.AutorLivro.FirstOrDefaultAsync(a => a.nomeAutorNome == livroDto.AutorLivroNome[0]);
+            var genero = await _context.GeneroLivro.FirstOrDefaultAsync(g => g.descricaoGenero == livroDto.GeneroLivroNome[0]);
+
+            if (autor == null)
+            {
+                autor = new AutorLivro
                 {
-                    autorLivroId = 10,
-                    nomeAutor = livroDto.AutorLivroNome
+                    nomeAutorNome = livroDto.AutorLivroNome[0]
                 };
-                _context.AutorLivro.Add(novoAutorLivro);
+                _context.AutorLivro.Add(autor);
                 await _context.SaveChangesAsync();
             }
 
-            var generoLivro = await _context.GeneroLivro.FindAsync(livroDto.GeneroLivroNome);
-
-            if (generoLivro == null)
+            if (genero == null)
             {
-                GeneroLivro novoGeneroLivro = new GeneroLivro
+                genero = new GeneroLivro
                 {
-                    generoId = 10,
-                    descricaoGenero = livroDto.GeneroLivroNome
+                    descricaoGenero = livroDto.GeneroLivroNome[0]
                 };
-                _context.GeneroLivro.Add(novoGeneroLivro);
+                _context.GeneroLivro.Add(genero);
                 await _context.SaveChangesAsync();
             }
 
@@ -311,17 +318,13 @@ namespace backend.Controllers
                 capaSmall = livroDto.CapaSmall,
                 capaMedium = livroDto.CapaMedium,
                 capaLarge = livroDto.CapaLarge,
-                autorLivro = await _context.AutorLivro.FindAsync(livroDto.AutorLivroNome),
-                generoLivro = await _context.GeneroLivro.FindAsync(livroDto.GeneroLivroNome)
+                autorLivro = autor,
+                generoLivro = genero
             };
 
             if (livro == null)
             {
                 return BadRequest();
-            }
-            else if (Livro.LivroExistsKey(livro.keyOL, _context))
-            {
-                return NoContent();
             }
             else
             {

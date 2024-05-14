@@ -8,6 +8,6 @@ public class LivroOLDTO
     public string CapaSmall { get; set; }
     public string CapaMedium { get; set; }
     public string CapaLarge { get; set; }
-    public string AutorLivroNome { get; set; }
-    public string GeneroLivroNome { get; set; } 
+    public string[] AutorLivroNome { get; set; }
+    public string[] GeneroLivroNome { get; set; } 
 }
