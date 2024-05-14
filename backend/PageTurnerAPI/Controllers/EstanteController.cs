@@ -398,12 +398,13 @@ namespace backend.Controllers
 
             return NoContent(); // Se a estante for excluída com sucesso, retornar NoContent
         }
-        #endregion
 
-        public async Task triagemNovaEstanteAsync(EstanteCreateDTO estanteEntrada, [FromBody] JObject json) {
+        #endregion
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public async Task triagemNovaEstanteAsync([FromBody] EstanteCreateDTO estanteEntrada, [FromQuery] JObject json){
 
             // Quero transformar o JSON recebido num objeto Livro
-            // deserializar o JSON recebido
+            //deserializar o JSON recebido
             Livro livro = JsonConvert.DeserializeObject<Livro>(json.ToString());
 
             var livroKey = await Livro.GetLivroByKey(livro.keyOL, _context);

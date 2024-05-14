@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 export default function LoginForm({onFlip}) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { setToken } = useAuthStore();
 
@@ -19,6 +20,11 @@ export default function LoginForm({onFlip}) {
 
   const login = async (e) => {
     e.preventDefault();
+
+    if (loading) return;
+
+    setLoading(true);
+
 
     const response = await fetch(url_server() + "/api/Utilizador/Login", {
       method: 'POST',
@@ -34,11 +40,12 @@ export default function LoginForm({onFlip}) {
     if (response.ok) {
       const data = await response.json();
       setToken(data.token.result);
-      toast.success('Login successful');
+      toast.success('Login com sucesso');
       navigate('/');
     } else {
       console.error('Login failed');
     }
+    setLoading(false);
   };
 
   return (
