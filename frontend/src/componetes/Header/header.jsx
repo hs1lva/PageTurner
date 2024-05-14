@@ -67,7 +67,7 @@ export default function Navbar() {
               </li>
               <li>
                 <Link
-                  to={`/logout`}
+                  to={`/`}
                   className="nav-item2"
                   onClick={handleLogout}
                 >
