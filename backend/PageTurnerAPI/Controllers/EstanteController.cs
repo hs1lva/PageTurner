@@ -400,51 +400,6 @@ namespace backend.Controllers
         }
 
         #endregion
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public async Task triagemNovaEstanteAsync([FromBody] EstanteCreateDTO estanteEntrada, [FromQuery] JObject json){
-
-            // Quero transformar o JSON recebido num objeto Livro
-            //deserializar o JSON recebido
-            Livro livro = JsonConvert.DeserializeObject<Livro>(json.ToString());
-
-            var livroKey = await Livro.GetLivroByKey(livro.keyOL, _context);
-
-            var estanteSaida = new EstanteCreateDTO
-                            {
-                                livroId = livro.livroId,
-                                tipoEstanteId = estanteEntrada.tipoEstanteId,
-                                utilizadorId = estanteEntrada.utilizadorId
-                            };
-
-            // Verificar se o livro já existe na BD
-            if (livroKey != null)
-            {
-                // Livro já existe na BD
-                estanteSaida.livroId = livroKey.livroId;
-                
-                // Inserir o livro na estante do utilizador
-                _ = PostEstante(estanteSaida);
-                return;
-            }
-            else if (Livro.LivroExistsTitulo(livro.tituloLivro, _context) != 0)
-            {
-                // Livro já existe na BD
-                estanteSaida.livroId = Livro.LivroExistsTitulo(livro.tituloLivro, _context);
-                
-                // Inserir o livro na estante do utilizador
-                _ = PostEstante(estanteSaida);
-                return;        
-            }
-            else {
-                // Livro não existe na BD
-                // Adicionar livro à BD
-                _context.Livro.Add(livro);
-                await _context.SaveChangesAsync();
-                // Inserir o livro na estante do utilizador
-                _ = PostEstante(estanteSaida);
-                return;
-            }
-        }
 
     }
 }
