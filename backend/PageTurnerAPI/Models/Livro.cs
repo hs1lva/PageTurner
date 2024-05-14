@@ -130,6 +130,12 @@ public class Livro
             .FirstOrDefaultAsync(l => l.keyOL == key);
     }
 
+    public static bool LivroExistsKey(string key, PageTurnerContext _context)
+    {
+        // Verificar se o livro já existe na base de dados
+        return _context.Livro.Any(e => e.keyOL == key);
+    }
+
     public static int LivroExistsTitulo(string titulo, PageTurnerContext _context)
     {
         // Verificar se o livro já existe na base de dados
