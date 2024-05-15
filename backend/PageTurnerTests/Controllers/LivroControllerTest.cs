@@ -65,7 +65,10 @@ namespace PageTurnerTests.Controllers
                 Console.WriteLine("Lista de Livros Sugeridos:");
                 foreach (var livro in result)
                 {
-                    Console.WriteLine($"Livro ID: {livro.LivroId}, Título: {livro.TituloLivro}, Autor: {livro.AutorLivro.nomeAutorNome}, Género: {livro.GeneroLivro.descricaoGenero}");
+                    Console.WriteLine($"Livro ID: {livro.LivroId}");
+                    Console.WriteLine($"Título: {livro.TituloLivro}");
+                    Console.WriteLine($"Autor: {livro.AutorLivro.nomeAutorNome}");
+                    Console.WriteLine($"Género: {livro.GeneroLivro.descricaoGenero}");
                 }
             }
 
@@ -126,6 +129,7 @@ namespace PageTurnerTests.Controllers
                 if (result.Count == 0)
                 {
                     Console.WriteLine("A lista de livros sugeridos está vazia porque o livro 2 não pode ser recomendado pelo livro 1 devido a diferenças no autor e genero.");
+                    Console.WriteLine($"-------------------------------------------------");
                 }
             }
 
