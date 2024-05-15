@@ -133,7 +133,8 @@ namespace PageTurnerTests.Controllers
 
                     Console.WriteLine($"Livro com match: {livro.tituloLivro}");
                     Console.WriteLine($"Tipo de estante: {estante.tipoEstante.descricaoTipoEstante}");
-                    Console.WriteLine($"Usuário da outra estante: {utilizador.nome}");
+                    Console.WriteLine($"Utilizador da outra estante: {utilizador.nome}");
+                    Console.WriteLine($"-------------------------------------------------");
                 }
             }
 
@@ -211,7 +212,7 @@ namespace PageTurnerTests.Controllers
 
                     Console.WriteLine($"Livro com match: {livro.tituloLivro}");
                     Console.WriteLine($"Tipo de estante: {estante.tipoEstante.descricaoTipoEstante}");
-                    Console.WriteLine($"Usuário da outra estante: {utilizador.nome}");
+                    Console.WriteLine($"Utilizador da outra estante: {utilizador.nome}");
                 }
             }
 

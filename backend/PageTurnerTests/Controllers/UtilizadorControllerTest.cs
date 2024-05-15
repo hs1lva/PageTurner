@@ -137,6 +137,7 @@ namespace PageTurnerTests.Controllers
 
             // Mostrar mensagem de erro de teste na criação do utilizador no terminal
             Console.WriteLine("Erro ao criar utilizador! Username: " + utilizadorDTO.username + " já existe.");
+            Console.WriteLine($"-------------------------------------------------");
         }
     }
 }
