@@ -23,9 +23,9 @@ public class Troca
     #region Construtores
     private readonly PageTurnerContext _bd;
 
-    public Troca() { }
+    public Troca(){}
 
-    public Troca(DateTime dataPedidoTroca, Estante estanteId2, int estanteId,
+    public Troca(DateTime dataPedidoTroca, Estante estanteId2, int estanteId, 
                                     EstadoTroca estadoTroca)
     {
         this.dataPedidoTroca = dataPedidoTroca;
@@ -44,105 +44,104 @@ public class Troca
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     /// <exception cref="NotImplementedException"></exception>
-    // public async Task<ActionResult<List<Estante>>> ProcuraMatch(int minhaEstanteId, PageTurnerContext _bd)
-    // {   
+    public async Task<ActionResult<MatchDTO>> ProcuraMatch(int minhaEstanteId, PageTurnerContext _bd)
+    {   
+        // Esta função será chamada sempre que um utilizador adiciona um livro na estante de troca ou de desejos.
+        // Condições para ter match
+        // 1. O Utilizador tem de ter pelo menos uma estante de troca e uma estante de desejo.
 
-    //     // Procura se a estante é de se desejo ou de troca
-    //     // #TODO -> Mudar para função das estantes
-    //     var minhaEstante = await _bd.Estante
-    //         .Include(x => x.tipoEstante)
-    //         .Include(x => x.livro)
-    //         .Where(x => x.estanteId == minhaEstanteId)
-    //         .FirstOrDefaultAsync();
-
-    //     _ = minhaEstante ?? throw new Exception("Estante não existe");
-
-    //     if(minhaEstante.tipoEstante.descricaoTipoEstante == "Estante Desejos"){
-    //         // Fazer funcão para procurar match em estante de desejo
-    //         var listaEstantes = ProcuraMatchDesejos(minhaEstante, _bd).Result;
-
-    //         if(listaEstantes.Count == 0 ) throw new Exception("Não existe match");
-
-    //         return listaEstantes;
-    //     }else if(minhaEstante.tipoEstante.descricaoTipoEstante == "Estante Troca"){
-    //         // Fazer funcão para procurar match em estante de troca
-    //         var listaEstantes = ProcuraMatchTroca(minhaEstante, _bd).Result;
-    //         if(listaEstantes.Count == 0){
-    //             throw new Exception("Não existe match");
-    //         }
-    //         return listaEstantes;
-    //     }
-
-    //     return new BadRequestObjectResult(new { message = "Tipo de estante inválido" });  
-
-    // }
-
-    public async Task<ActionResult<List<Estante>>> ProcuraMatch(int minhaEstanteId, PageTurnerContext _bd)
-    {
-        // Procura se a estante é de desejo ou de troca
+        // Procura se a estante é de se desejo ou de troca
+        // #TODO -> Mudar para função das estantes
         var minhaEstante = await _bd.Estante
             .Include(x => x.tipoEstante)
             .Include(x => x.livro)
+            .Include(x => x.utilizador)
             .Where(x => x.estanteId == minhaEstanteId)
             .FirstOrDefaultAsync();
 
-        if (minhaEstante == null)
-        {
-            return new NotFoundResult(); // Retorna um 404 se a estante não for encontrada
-        }
+        _ = minhaEstante ?? throw new Exception("Estante não existe");
+        
+        if(minhaEstante.tipoEstante.descricaoTipoEstante == "Estante Desejos"){ // Verifica se o tipo de estante é de desejo
+            // Verifica se utilizador tem pelo menos uma estante de troca
+            var minhaEstanteTroca = await _bd.Estante
+                .Include(x => x.tipoEstante)
+                .Include(x => x.utilizador)
+                .Where(x => x.utilizador.utilizadorID == minhaEstante.utilizador.utilizadorID && 
+                            x.tipoEstante.descricaoTipoEstante == "Estante Troca")
+                .FirstOrDefaultAsync();
+            if(minhaEstanteTroca == null) throw new Exception("Utilizador não tem estante de troca, nõo pode existir match");
 
-        if (minhaEstante.tipoEstante.descricaoTipoEstante == "Estante Desejos")
-        {
-            // Fazer função para procurar match em estante de desejo
-            var listaEstantes = await ProcuraMatchDesejos(minhaEstante, _bd);
+            // Fazer funcão para procurar match em estante de desejo
+            var matchDTO = ProcuraMatchDesejos(minhaEstante, _bd).Result;
 
-            if (listaEstantes.Count == 0)
-            {
-                return new NotFoundResult(); // Retorna um 404 se não houver match
+            if(matchDTO == null ) throw new Exception("Não existe match");
+            
+            return matchDTO;
+        }else if(minhaEstante.tipoEstante.descricaoTipoEstante == "Estante Troca"){ // Verifica se o tipo de estante é de troca
+            // Verifica se utilizador tem pelo menos uma estante de desejo
+            var minhaEstanteDesejo = await _bd.Estante
+                .Include(x => x.tipoEstante)
+                .Include(x => x.utilizador)
+                .Where(x => x.utilizador.utilizadorID == minhaEstante.utilizador.utilizadorID && 
+                            x.tipoEstante.descricaoTipoEstante == "Estante Desejos")
+                .FirstOrDefaultAsync();
+            if(minhaEstanteDesejo == null) throw new Exception("Utilizador não tem estante de desejo, não pode existir match");
+
+            // Fazer funcão para procurar match em estante de troca
+            var matchDTO = ProcuraMatchTroca(minhaEstante, _bd).Result;
+            if(matchDTO == null){
+                throw new Exception("Não existe match");
             }
 
-            return new OkObjectResult(listaEstantes); // Retorna 200 (Ok) com a lista de estantes
+
+            return matchDTO;
+
+            // return listaEstantes;
         }
-        else if (minhaEstante.tipoEstante.descricaoTipoEstante == "Estante Troca")
-        {
-            // Fazer função para procurar match em estante de troca
-            var listaEstantes = await ProcuraMatchTroca(minhaEstante, _bd);
-
-            if (listaEstantes.Count == 0)
-            {
-                return new NotFoundResult(); // Retorna um 404 se não houver match
-            }
-
-            return new OkObjectResult(listaEstantes); // Retorna 200 (Ok) com a lista de estantes
-        }
-
-        return new BadRequestObjectResult(new { message = "Tipo de estante inválido" }); // Retorna um 400 (Bad Request)
+        
+        return new BadRequestObjectResult(new { message = "Tipo de estante inválido" });  
+    
     }
 
     /// <summary>
     /// Procura match quando leitor adiciona um livro na estante de troca
     /// </summary>
     /// <returns></returns>
-    public async Task<List<Estante>> ProcuraMatchTroca(Estante minhaEstante, PageTurnerContext _bd)
-    {
-
+    public async Task<MatchDTO> ProcuraMatchTroca(Estante minhaEstante, PageTurnerContext _bd){
+        
+        MatchDTO matchDTO = new MatchDTO();
         int livroId = minhaEstante.livro.livroId;
         // Procurar o livro nas estantes de desejos de todos os user
         var r = await ProcuraLivroEmEstante(livroId, "Estante Desejos", _bd);
-        if (r.Value == null) throw new Exception("Livro não existe em nenhuma estante de desejos");
-        var listUsersQuerLivro = r.Value;// Temos de fazer isto porque a funcao (ProcuraLivroEmEstante) é ActionResult
+        if (r.Value == null) throw new Exception("Livro não existe em nenhuma estante de desejos"); 
+        matchDTO.ListaEstantesComLivroQueEuQuero = r.Value;
+
+        // converter a lista de estantes em lista de utilizadores
+
+        var listUsersQuerLivro = await TransformaEstanteEmUtilizadores(r.Value, _bd);// Temos de fazer isto porque a funcao (ProcuraLivroEmEstante) é ActionResult
+        matchDTO.ListUsersTemLivroQueEuQuero = listUsersQuerLivro;
+
 
         // Transformar a minha estante de troca numa lista
-        var minhaEstanteList = new List<Estante>();
-        minhaEstanteList.Add(minhaEstante);
+        // var minhaEstanteList = new List<Estante>();
+        var minhaEstanteDesejosList = await _bd.Estante
+                                .Include(x => x.livro)
+                                .Include(x => x.utilizador)
+                                .Where(x => x.tipoEstante.descricaoTipoEstante == "Estante Desejos" && x.utilizador.utilizadorID == minhaEstante.utilizador.utilizadorID)
+                                .ToListAsync();
 
+
+
+        // minhaEstanteList.Add(minhaEstante);
+
+        //list de todas as minhas estantes de desejos
 
         // Procurar nas estantes de todos os utilizadores que tem o livro, se têm algum livro que está na minha estante
-        var a = await ProcuraLivroEmUtilizadores(listUsersQuerLivro, minhaEstanteList, "Estante Desejos", _bd);
+        var a = await ProcuraLivroEmUtilizadores(listUsersQuerLivro, minhaEstanteDesejosList, "Estante Troca", _bd);
         var listEstantesDosUsersQuerLivroETemLivrosQueMeInteressam = a.Value;
+        matchDTO.ListEstantesDosUsersQuerLivroETemLivrosQueMeInteressam = listEstantesDosUsersQuerLivroETemLivrosQueMeInteressam;
 
-
-        return listEstantesDosUsersQuerLivroETemLivrosQueMeInteressam ?? throw new Exception("Não existe match");
+        return matchDTO ?? throw new Exception("Não existe match");
     }
 
     /// <summary>
@@ -152,21 +151,26 @@ public class Troca
     /// <param name="_bd"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<List<Estante>> ProcuraMatchDesejos(Estante minhaEstanteDesejos, PageTurnerContext _bd)
-    {
+     public async Task<MatchDTO> ProcuraMatchDesejos(Estante minhaEstanteDesejos, PageTurnerContext _bd){
 
+        MatchDTO matchDTO = new MatchDTO();
         int livroId = minhaEstanteDesejos.livro.livroId;
         // Procurar o livro que eu desejo nas estantes de troca de todos os leitores
         var r = await ProcuraLivroEmEstante(livroId, "Estante Troca", _bd);
-        if (r.Value == null || r.Value.Count <= 0) throw new Exception("Livro não existe em nenhuma estante de troca");
-        var listUsersTemLivroQueEuQuero = r.Value;// Temos de fazer isto porque a funcao (ProcuraLivroEmEstante) é ActionResult
-
+        if (r.Value == null || r.Value.Count <= 0) throw new Exception("Livro não existe em nenhuma estante de troca"); 
+        // r -> mostra a lista de estantes que tem o livros que 'eu' quero
+        matchDTO.ListaEstantesComLivroQueEuQuero = r.Value;
+        // 
+        var listUsersTemLivroQueEuQuero =await TransformaEstanteEmUtilizadores(r.Value, _bd);// Temos de fazer isto porque a funcao (ProcuraLivroEmEstante) é ActionResult
+        matchDTO.ListUsersTemLivroQueEuQuero = listUsersTemLivroQueEuQuero;
 
         // #TODO -> Mudar para função das estantes
-        var listMinhaEstanteTrocas = await _bd.Estante
+        // Procura todas as trocas que o leitor tem na sua estante de troca, para que seja possivel 
+        // comparar com os livros que outros leitores tenham.
+        var listMinhaEstanteTrocas =  await _bd.Estante
             .Include(x => x.tipoEstante)
             .Include(x => x.utilizador)
-            .Where(x => x.tipoEstante.descricaoTipoEstante == "Estante Troca" &&
+            .Where(x => x.tipoEstante.descricaoTipoEstante == "Estante Troca" && 
                         x.utilizador.utilizadorID == minhaEstanteDesejos.utilizador.utilizadorID)
             .ToListAsync();
 
@@ -174,9 +178,9 @@ public class Troca
         var a = await ProcuraLivroEmUtilizadores(listUsersTemLivroQueEuQuero, listMinhaEstanteTrocas, "Estante Desejos", _bd);
 
         var listEstantesDosUsersQuerLivroETemLivrosQueMeInteressam = a.Value;
+        matchDTO.ListEstantesDosUsersQuerLivroETemLivrosQueMeInteressam = listEstantesDosUsersQuerLivroETemLivrosQueMeInteressam;
 
-
-        return listEstantesDosUsersQuerLivroETemLivrosQueMeInteressam ?? throw new Exception("Não existe match");
+        return matchDTO ?? throw new Exception("Não existe match");
 
     }
 
@@ -187,32 +191,74 @@ public class Troca
     /// <param name="estanteId"></param>
     /// <param name="_bd"></param>
     /// <returns>Retorna lista de utilizadores</returns>
-    public async Task<ActionResult<List<Utilizador>>> ProcuraLivroEmEstante(int livroId, string estanteProcura, PageTurnerContext _bd)
+    public async Task<ActionResult<List<Estante>>> ProcuraLivroEmEstante(int livroId, string estanteProcura, PageTurnerContext _bd)
     {
-
+        
         //verifica se o livro existe na estante
         //procura livro na estante, se existir devolve ou os utilizadores 
         List<Estante> resp = await _bd.Estante
             .Include(x => x.tipoEstante)
             .Include(x => x.utilizador)
-            .Where(x => x.tipoEstante.descricaoTipoEstante == estanteProcura &&
+            .Where(x => x.tipoEstante.descricaoTipoEstante == estanteProcura && 
                         x.livro.livroId == livroId)
             .ToListAsync();
+        if (resp == null || resp.Count <= 0)
+        {
+            // erro 
+            return null;
+        }
 
+        return resp;
+    }
+
+    /// <summary>
+    /// Transforma uma lista de estantes em uma lista de utilizadores
+    /// Verifica se o utilizador tem livros na estante 'oposta', sem isto a troca será sempre incompleta
+    /// </summary>
+    /// <param name="listaEstantes"></param>
+    /// <param name="_bd"></param>
+    /// <returns></returns>
+    public async Task<List<Utilizador>> TransformaEstanteEmUtilizadores(List<Estante> listaEstantes,  PageTurnerContext _bd)
+    {
         //converte a lista de estantes em uma lista de utilizadores
         List<Utilizador> listUser = new List<Utilizador>();
-        foreach (var item in resp)
+
+        // Faz uma iteração pela lista de estantes, filtra já os utilizadores que podem ter livros na estante 'oposta'        
+        foreach (var item in listaEstantes)
         {
-            listUser.Add(item.utilizador);
+            if(item.tipoEstante.descricaoTipoEstante == "Estante Troca"){ // Devemos mudar isto para enums...
+                // Procura se o utilizador tem livros na estante de desejos.
+                var estante = await _bd.Estante
+                    .Include(x => x.tipoEstante)
+                    .Include(x => x.utilizador)
+                    .Include(x => x.livro)
+                    .Where(x => x.tipoEstante.descricaoTipoEstante == "Estante Desejos" && // Devemos mudar isto para enums...
+                                x.utilizador.utilizadorID == item.utilizador.utilizadorID)
+                    .FirstOrDefaultAsync();
+                if (estante != null) listUser.Add(item.utilizador); 
+            }else{
+                // Procura se o utilizador tem livros na estante de troca.
+                var estante = await _bd.Estante
+                    .Include(x => x.tipoEstante)
+                    .Include(x => x.utilizador)
+                    .Include(x => x.livro)
+                    .Where(x => x.tipoEstante.descricaoTipoEstante == "Estante Troca" && // Devemos mudar isto para enums...
+                                x.utilizador.utilizadorID == item.utilizador.utilizadorID)
+                    .FirstOrDefaultAsync();
+                if (estante != null) listUser.Add(item.utilizador);
+            }
+
         }
-        return listUser;
+
+        return listUser; // retorna a lista de utilizadores, tem de estar assim para podermos usar o Task.
+
     }
 
 
-    public async Task<ActionResult<List<Estante>>> ProcuraLivroEmUtilizadores(List<Utilizador> listUsersTemLivroQueEuQuero,
-                                                    List<Estante> listMinhaEstanteTrocas,
-                                                    string estanteProcura, PageTurnerContext _bd)
-    {
+        public async Task<ActionResult<List<Estante>>> ProcuraLivroEmUtilizadores (List<Utilizador> listUsersTemLivroQueEuQuero, 
+                                                        List<Estante> listMinhaEstanteTrocas, 
+                                                        string estanteProcura, PageTurnerContext _bd)
+    {   
         //cria nova lista de utilizadores
         // List<Utilizador> novaLista = new List<Utilizador>();
 
@@ -222,11 +268,12 @@ public class Troca
         //percorre a lista de utilizadores
         foreach (var user in listUsersTemLivroQueEuQuero)
         {
-            // verifica 
+            // verifica na estante de procura (passado por parametros) 
             var estantes = await _bd.Estante
                 .Include(x => x.tipoEstante)
                 .Include(x => x.utilizador)
-                .Where(x => x.tipoEstante.descricaoTipoEstante == estanteProcura &&
+                .Include(x => x.livro)
+                .Where(x => x.tipoEstante.descricaoTipoEstante == estanteProcura && 
                             x.utilizador.utilizadorID == user.utilizadorID)
                 .ToListAsync();
 
@@ -234,8 +281,7 @@ public class Troca
             {   // Percorre a lista de estantes de procura 
                 foreach (var item in estantes)
                 {   // Percorre a lista da minha estante de troca 
-                    foreach (var minhaEstante in listMinhaEstanteTrocas)
-                    {
+                    foreach (var minhaEstante in listMinhaEstanteTrocas){
                         if (item.livro.livroId == minhaEstante.livro.livroId)
                         {
                             listaEstantes.Add(item); // Adiciona estantes à lista
@@ -293,10 +339,10 @@ public class Troca
         {
             //envia o email para o utilizador que solicitou a troca
             await _emailSender.SendEmailAsync(utilizadorSolicitaTroca.email, "Solicitacão de troca",
-                                            "O pedido de troca foi efetuado");
+                                            "O pedido de troca foi efetuado");            
             //envia o email para o utilizador para o utilizador que recebeu a troca
             await _emailSender.SendEmailAsync(utilizadorRecebeTroca.email, "Solicitacão de troca",
-                                            "O pedido de troca foi efetuado");
+                                            "O pedido de troca foi efetuado");   
             //adiciona a troca na bd
             _bd.Add(troca);
             await _bd.SaveChangesAsync();
@@ -462,7 +508,7 @@ public class Troca
         catch (Exception e)
         {
             throw new Exception(e.Message);
-
+            
         }
         return troca;
 
@@ -484,7 +530,7 @@ public class Troca
         {
             throw new Exception("Troca já foi recusada");
         }
-
+        
         if (troca == null)
         {
             throw new Exception("Troca não existe");
@@ -499,7 +545,7 @@ public class Troca
         try
         {
             _bd.Update(troca);
-            await _bd.SaveChangesAsync();
+            await _bd.SaveChangesAsync(); 
         }
         catch (Exception e)
         {
@@ -559,20 +605,18 @@ public class Troca
     /// <param name="_bd"></param>
     /// <returns>Retorna a troca, o utilizador que solicita a troca e o utilizador que recebe a troca</returns>
     /// <exception cref="Exception"></exception>
-    private async Task<ActionResult<(Troca?, Utilizador?, Utilizador?)>> ValidaTroca(Troca troca, PageTurnerContext _bd)
-    {
+    private async Task<ActionResult<(Troca?, Utilizador?, Utilizador?)>> ValidaTroca(Troca troca, PageTurnerContext _bd){
 
         Utilizador? utilizadorSolicitaTroca = await _bd.Utilizador
                                     .Where(x => x.utilizadorID == troca.estanteId2.utilizador.utilizadorID)
                                     .FirstOrDefaultAsync();
-
+        
 
         Estante? estante1 = await _bd.Estante
                                     .Where(x => x.estanteId == troca.estanteId)
                                     .FirstOrDefaultAsync();
         if (estante1 == null)
-        {
-            return (null, null, null);
+        {   return (null, null, null);
             throw new Exception("Estante não existe");
         }
 
@@ -585,20 +629,20 @@ public class Troca
             throw new Exception("Utilizador não existe");
         }
         //verifica se o utilizador tem a conta suspensa
-        if (utilizadorSolicitaTroca.estadoConta.descricaoEstadoConta == "Suspensa" ||
+        if(utilizadorSolicitaTroca.estadoConta.descricaoEstadoConta == "Suspensa" || 
             utilizadorRecebeTroca.estadoConta.descricaoEstadoConta == "Suspensa")
         {
             return (null, null, null);
             throw new Exception($"Utilizador não pode fazer trocas");
         }
-
+        
         // verifica se o livro existe
         var livro = await _bd.Livro
             .Where(x => x.livroId == troca.estanteId2.livro.livroId)
             .FirstOrDefaultAsync();
         if (livro == null)
         {
-            return (null, null, null);
+            return ( null, null, null);
             throw new Exception("Livro não existe");
         }
         /// verifica se a estante existe
@@ -607,7 +651,7 @@ public class Troca
             .FirstOrDefaultAsync();
         if (estante == null)
         {
-            return (null, null, null);
+            return ( null, null, null);
             throw new Exception("Estante não existe");
         }
 
@@ -618,10 +662,10 @@ public class Troca
 
         if (trocaExistente != null)
         {
-            return (null, null, null);
+            return ( null, null, null);
             throw new Exception("Troca já existe");
         }
-
+        
 
         return (troca, utilizadorSolicitaTroca, utilizadorRecebeTroca);
 

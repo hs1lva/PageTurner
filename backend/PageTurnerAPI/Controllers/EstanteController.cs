@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace backend.Controllers
 {
@@ -396,6 +398,8 @@ namespace backend.Controllers
 
             return NoContent(); // Se a estante for excluída com sucesso, retornar NoContent
         }
+
         #endregion
+
     }
 }

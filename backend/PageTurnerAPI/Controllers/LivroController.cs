@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 /*public static List<LivroDTO> PesquisaLivroBd(string termo, PageTurnerContext context) { ... }*/
 namespace backend.Controllers
@@ -44,7 +46,7 @@ namespace backend.Controllers
             }
 
             var comentariosFiltrados = _context.ComentarioLivro
-                .Include(comentario => comentario.estadoComentario) 
+                .Include(comentario => comentario.estadoComentario)
                 .Where(comentario => comentario.estadoComentario != null && comentario.estadoComentario.estadoComentarioId == 3)
                 .ToList();
 
@@ -54,7 +56,7 @@ namespace backend.Controllers
                 LivroId = livro.livroId,
                 TituloLivro = livro.tituloLivro,
                 AnoPrimeiraPublicacao = livro.anoPrimeiraPublicacao,
-                IdiomaOriginalLivro = livro.idiomaOriginalLivro,
+                //IdiomaOriginalLivro = livro.idiomaOriginalLivro,
                 AutorLivro = livro.autorLivro,
                 GeneroLivro = livro.generoLivro,
                 MediaAvaliacao = livro.MediaAvaliacao(),
@@ -277,14 +279,72 @@ namespace backend.Controllers
         #region Métodos POST
         // POST: api/Livro
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("PostLivroOL")]
+        public async Task<ActionResult<Livro>> PostLivroOL(LivroOLDTO livroDto)
+        {
+            if (Livro.LivroExistsKey(livroDto.KeyOL, _context))
+            {
+                return NoContent();
+            }
+
+            var autor = await _context.AutorLivro.FirstOrDefaultAsync(a => a.nomeAutorNome == livroDto.AutorLivroNome[0]);
+            var genero = await _context.GeneroLivro.FirstOrDefaultAsync(g => g.descricaoGenero == livroDto.GeneroLivroNome[0]);
+
+            if (autor == null)
+            {
+                autor = new AutorLivro
+                {
+                    nomeAutorNome = livroDto.AutorLivroNome[0]
+                };
+                _context.AutorLivro.Add(autor);
+                await _context.SaveChangesAsync();
+            }
+
+            if (genero == null)
+            {
+                genero = new GeneroLivro
+                {
+                    descricaoGenero = livroDto.GeneroLivroNome[0]
+                };
+                _context.GeneroLivro.Add(genero);
+                await _context.SaveChangesAsync();
+            }
+
+            var livro = new Livro
+            {
+                tituloLivro = livroDto.TituloLivro,
+                anoPrimeiraPublicacao = livroDto.AnoPrimeiraPublicacao,
+                keyOL = livroDto.KeyOL,
+                capaSmall = livroDto.CapaSmall,
+                capaMedium = livroDto.CapaMedium,
+                capaLarge = livroDto.CapaLarge,
+                autorLivro = autor,
+                generoLivro = genero
+            };
+
+            if (livro == null)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                _context.Livro.Add(livro);
+                await _context.SaveChangesAsync();
+            }
+
+            return CreatedAtAction("GetLivro", new { id = livro.livroId }, livro);
+        }
+
+        // POST: api/Livro
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("PostLivro")]
         public async Task<ActionResult<Livro>> PostLivro(LivroCreateDTO livroDto)
         {
             var livro = new Livro
             {
                 tituloLivro = livroDto.TituloLivro,
                 anoPrimeiraPublicacao = livroDto.AnoPrimeiraPublicacao,
-                idiomaOriginalLivro = livroDto.IdiomaOriginalLivro,
+                //idiomaOriginalLivro = livroDto.IdiomaOriginalLivro,
                 autorLivro = await _context.AutorLivro.FindAsync(livroDto.AutorLivroId),
                 generoLivro = await _context.GeneroLivro.FindAsync(livroDto.GeneroLivroId)
             };
@@ -321,7 +381,6 @@ namespace backend.Controllers
         private bool LivroExists(int id)
         {
             return _context.Livro.Any(e => e.livroId == id);
-        }
-
+        }        
     }
 }
