@@ -66,17 +66,53 @@ namespace backend.Controllers
             }
 
             // Em seguida, buscamos as estantes associadas ao utilizador
-            var estantes = await _context.Estante
+            // Em seguida, buscamos as estantes associadas ao utilizador
+            var estanteDesejos = await _context.Estante
                 .Include(e => e.livro)
                 .Include(e => e.tipoEstante)
-                .Where(e => e.utilizador.utilizadorID == id)
+                .Where(e => e.utilizador.utilizadorID == id && e.tipoEstante.tipoEstanteId == TipoEstantes.Desejos)
+                .Select(e => new
+                {
+                    e.estanteId,
+                    e.livro,
+                    e.tipoEstante,
+                })
                 .ToListAsync();
+
+            var estanteTroca = await _context.Estante
+                .Include(e => e.livro)
+                .Include(e => e.tipoEstante)
+                .Where(e => e.utilizador.utilizadorID == id && e.tipoEstante.tipoEstanteId == TipoEstantes.Troca)
+                .Select(e => new
+                {
+                    e.estanteId,
+                    e.livro,
+                    e.tipoEstante,
+                })
+                .ToListAsync();
+
+
+            var estantePessoal = await _context.Estante
+                .Include(e => e.livro)
+                .Include(e => e.tipoEstante)
+                .Where(e => e.utilizador.utilizadorID == id && e.tipoEstante.tipoEstanteId == TipoEstantes.Pessoal)
+                .Select(e => new
+                {
+                    e.estanteId,
+                    e.livro,
+                    e.tipoEstante,
+                })
+                .ToListAsync();
+
+
 
             // Agora, combinamos os resultados manualmente
             var resultado = new
             {
                 Utilizador = utilizador,
-                Estantes = estantes
+                EstanteTroca = estanteTroca,
+                EstanteDesejos = estanteDesejos,
+                EstantePessoal = estantePessoal
             };
 
             return Ok(resultado);
