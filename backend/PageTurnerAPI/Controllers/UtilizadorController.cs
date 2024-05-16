@@ -53,9 +53,10 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Utilizador>> GetUtilizador(int id)
         {
+            // Primeiro, buscamos o utilizador junto com seus comentários e avaliações
             var utilizador = await _context.Utilizador
                 .Include(u => u.Comentarios)
-                .ThenInclude(c => c.estadoComentario)
+                    .ThenInclude(c => c.estadoComentario)
                 .Include(u => u.Avaliacoes)
                 .FirstOrDefaultAsync(u => u.utilizadorID == id);
 
@@ -64,15 +65,23 @@ namespace backend.Controllers
                 return NotFound();
             }
 
-            // @TODO: faz sentido no get?
-            // Se a data de registo for NULL, o utilizador ainda não confirmou o email
-            //if (utilizador.dataRegisto == null)
-            //{
-            //    return BadRequest("Utilizador com email não confirmado.");
-            // }
+            // Em seguida, buscamos as estantes associadas ao utilizador
+            var estantes = await _context.Estante
+                .Include(e => e.livro)
+                .Include(e => e.tipoEstante)
+                .Where(e => e.utilizador.utilizadorID == id)
+                .ToListAsync();
 
-            return utilizador;
+            // Agora, combinamos os resultados manualmente
+            var resultado = new
+            {
+                Utilizador = utilizador,
+                Estantes = estantes
+            };
+
+            return Ok(resultado);
         }
+
 
         /// <summary>
         /// Obter um utilizador pelo username

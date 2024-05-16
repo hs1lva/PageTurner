@@ -33,6 +33,7 @@ export default function Leitor() {
     }
     
     // TODO: buscar as estantes dos utilizadores e os livros, para ja fica um array vazio para nao dar erro
+    
     const livros = [];
 
     const numAvaliacoes = userData.avaliacoes.length;
