@@ -31,41 +31,59 @@ namespace backend.Controllers
             return await _context.Livro.ToListAsync();
         }
 
-        // GET: api/Livro/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<LivroDTO>> GetLivro(int id)
+public async Task<ActionResult> GetLivro(int id)
+{
+    var livro = await _context.Livro
+        .Include(x => x.Comentarios)
+        .Include(x => x.Avaliacoes)
+        .Include(x => x.autorLivro)
+        .Include(x => x.generoLivro)
+        .FirstOrDefaultAsync(x => x.livroId == id);
+
+    if (livro == null)
+    {
+        return NotFound();
+    }
+
+    var comentariosFiltrados = await _context.ComentarioLivro
+        .Include(comentario => comentario.estadoComentario)
+        .Where(comentario => comentario.estadoComentario.estadoComentarioId == 3 && comentario.livroId == id)
+        .Select(c => new
         {
-            var livro = await _context.Livro
-                .Include(x => x.Comentarios)
-                .Include(x => x.Avaliacoes)
-                .FirstOrDefaultAsync(x => x.livroId == id);
+            c.comentarioId,
+            c.comentario,
+            c.dataComentario,
+            c.utilizadorId,
+            Utilizador = _context.Utilizador
+                                .Where(u => u.utilizadorID == c.utilizadorId)
+                                .Select(u => new
+                                {
+                                    u.nome,
+                                    u.fotoPerfil
+                                })
+                                .FirstOrDefault()
+        })
+        .ToListAsync();
 
-            if (livro == null)
-            {
-                return NotFound();
-            }
+    var livroDto = new
+    {
+        LivroId = livro.livroId,
+        TituloLivro = livro.tituloLivro,
+        AnoPrimeiraPublicacao = livro.anoPrimeiraPublicacao,
+        AutorLivro = livro.autorLivro,
+        GeneroLivro = livro.generoLivro,
+        MediaAvaliacao = livro.MediaAvaliacao(),
+        Comentarios = comentariosFiltrados,
+        Avaliacoes = livro.Avaliacoes,
+        CapaSmall = livro.capaSmall,
+        CapaMedium = livro.capaMedium,
+        CapaLarge = livro.capaLarge
+    };
 
-            var comentariosFiltrados = _context.ComentarioLivro
-                .Include(comentario => comentario.estadoComentario)
-                .Where(comentario => comentario.estadoComentario != null && comentario.estadoComentario.estadoComentarioId == 3)
-                .ToList();
+    return Ok(livroDto);
+}
 
-            // usamos o DTO para incluir a media de avaliação
-            var livroDto = new LivroDTO
-            {
-                LivroId = livro.livroId,
-                TituloLivro = livro.tituloLivro,
-                AnoPrimeiraPublicacao = livro.anoPrimeiraPublicacao,
-                //IdiomaOriginalLivro = livro.idiomaOriginalLivro,
-                AutorLivro = livro.autorLivro,
-                GeneroLivro = livro.generoLivro,
-                MediaAvaliacao = livro.MediaAvaliacao(),
-                Comentarios = comentariosFiltrados,
-                Avaliacoes = livro.Avaliacoes
-            };
-
-            return livroDto;
-        }
 
 
         /// <summary>
@@ -280,60 +298,71 @@ namespace backend.Controllers
         // POST: api/Livro
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("PostLivroOL")]
-        public async Task<ActionResult<Livro>> PostLivroOL(LivroOLDTO livroDto)
+        public async Task<ActionResult> PostLivroOL(LivroOLDTO livroDto)
         {
-            if (Livro.LivroExistsKey(livroDto.KeyOL, _context))
+            try
             {
-                return NoContent();
-            }
-
-            var autor = await _context.AutorLivro.FirstOrDefaultAsync(a => a.nomeAutorNome == livroDto.AutorLivroNome[0]);
-            var genero = await _context.GeneroLivro.FirstOrDefaultAsync(g => g.descricaoGenero == livroDto.GeneroLivroNome[0]);
-
-            if (autor == null)
-            {
-                autor = new AutorLivro
+                // Verificar se o livro já existe na base de dados
+                var existingBook = await _context.Livro.FirstOrDefaultAsync(x => x.keyOL == livroDto.KeyOL);
+                if (existingBook != null)
                 {
-                    nomeAutorNome = livroDto.AutorLivroNome[0]
-                };
-                _context.AutorLivro.Add(autor);
-                await _context.SaveChangesAsync();
-            }
+                    return Ok(new { LivroId = existingBook.livroId });
+                }
 
-            if (genero == null)
-            {
-                genero = new GeneroLivro
+                // Verificar se o nome do autor está disponível no DTO
+                var autorNome = livroDto.AutorLivroNome.FirstOrDefault();
+                AutorLivro autor = null;
+                if (!string.IsNullOrEmpty(autorNome))
                 {
-                    descricaoGenero = livroDto.GeneroLivroNome[0]
+                    autor = await _context.AutorLivro.FirstOrDefaultAsync(a => a.nomeAutorNome == autorNome);
+                    if (autor == null)
+                    {
+                        autor = new AutorLivro
+                        {
+                            nomeAutorNome = autorNome
+                        };
+                        _context.AutorLivro.Add(autor);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                // Verificar se o nome do gênero está disponível no DTO
+                var generoNome = livroDto.GeneroLivroNome.FirstOrDefault() ?? "Geral"; // Usar "Geral" se for nulo ou vazio
+                var genero = await _context.GeneroLivro.FirstOrDefaultAsync(g => g.descricaoGenero == generoNome);
+                if (genero == null)
+                {
+                    genero = new GeneroLivro
+                    {
+                        descricaoGenero = generoNome
+                    };
+                    _context.GeneroLivro.Add(genero);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Criar o novo livro com os dados fornecidos
+                var livro = new Livro
+                {
+                    tituloLivro = livroDto.TituloLivro,
+                    anoPrimeiraPublicacao = livroDto.AnoPrimeiraPublicacao,
+                    keyOL = livroDto.KeyOL,
+                    capaSmall = livroDto.CapaSmall ?? string.Empty,
+                    capaMedium = livroDto.CapaMedium ?? string.Empty,
+                    capaLarge = livroDto.CapaLarge ?? string.Empty,
+                    autorLivro = autor,
+                    generoLivro = genero
                 };
-                _context.GeneroLivro.Add(genero);
-                await _context.SaveChangesAsync();
-            }
 
-            var livro = new Livro
-            {
-                tituloLivro = livroDto.TituloLivro,
-                anoPrimeiraPublicacao = livroDto.AnoPrimeiraPublicacao,
-                keyOL = livroDto.KeyOL,
-                capaSmall = livroDto.CapaSmall,
-                capaMedium = livroDto.CapaMedium,
-                capaLarge = livroDto.CapaLarge,
-                autorLivro = autor,
-                generoLivro = genero
-            };
-
-            if (livro == null)
-            {
-                return BadRequest();
-            }
-            else
-            {
                 _context.Livro.Add(livro);
                 await _context.SaveChangesAsync();
-            }
 
-            return CreatedAtAction("GetLivro", new { id = livro.livroId }, livro);
+                return CreatedAtAction("GetLivro", new { id = livro.livroId }, new { LivroId = livro.livroId });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro inesperado: {ex.Message}");
+            }
         }
+
 
         // POST: api/Livro
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -381,6 +410,6 @@ namespace backend.Controllers
         private bool LivroExists(int id)
         {
             return _context.Livro.Any(e => e.livroId == id);
-        }        
+        }
     }
 }

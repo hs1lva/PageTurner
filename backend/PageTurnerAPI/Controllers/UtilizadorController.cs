@@ -53,7 +53,6 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Utilizador>> GetUtilizador(int id)
         {
-            // Primeiro, buscamos o utilizador junto com seus comentários e avaliações
             var utilizador = await _context.Utilizador
                 .Include(u => u.Comentarios)
                     .ThenInclude(c => c.estadoComentario)
@@ -65,8 +64,6 @@ namespace backend.Controllers
                 return NotFound();
             }
 
-            // Em seguida, buscamos as estantes associadas ao utilizador
-            // Em seguida, buscamos as estantes associadas ao utilizador
             var estanteDesejos = await _context.Estante
                 .Include(e => e.livro)
                 .Include(e => e.tipoEstante)
@@ -74,8 +71,15 @@ namespace backend.Controllers
                 .Select(e => new
                 {
                     e.estanteId,
-                    e.livro,
+                    livro = new
+                    {
+                        e.livro.livroId,
+                        e.livro.tituloLivro,
+                        e.livro.capaLarge,
+                        e.livro.autorLivro
+                    },
                     e.tipoEstante,
+                    e.utilizador.utilizadorID,
                 })
                 .ToListAsync();
 
@@ -86,11 +90,17 @@ namespace backend.Controllers
                 .Select(e => new
                 {
                     e.estanteId,
-                    e.livro,
+                    livro = new
+                    {
+                        e.livro.livroId,
+                        e.livro.tituloLivro,
+                        e.livro.capaLarge,
+                        e.livro.autorLivro
+                    },
                     e.tipoEstante,
+                    e.utilizador.utilizadorID,
                 })
                 .ToListAsync();
-
 
             var estantePessoal = await _context.Estante
                 .Include(e => e.livro)
@@ -99,11 +109,17 @@ namespace backend.Controllers
                 .Select(e => new
                 {
                     e.estanteId,
-                    e.livro,
+                    livro = new
+                    {
+                        e.livro.livroId,
+                        e.livro.tituloLivro,
+                        e.livro.capaLarge,
+                        e.livro.autorLivro
+                    },
                     e.tipoEstante,
+                    e.utilizador.utilizadorID,
                 })
                 .ToListAsync();
-
 
 
             // Agora, combinamos os resultados manualmente
