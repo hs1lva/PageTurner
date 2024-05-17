@@ -6,12 +6,12 @@ export default function InfoLivro({children, livro}) {
         <div className="flex w-1/2">
             <div className=" pl-4">
                 <h1 className="tracking-wide text-4xl font-bold text-yellow-900">{livro.tituloLivro.toUpperCase()}</h1>
-                <img className="mt-5 object-cover h-56 w-36 rounded-lg" src={livro.capaUrl || DEFAULT_BOOK_COVER}
+                <img className="mt-5 object-cover h-56 w-36 rounded-lg" src={livro.capaLarge || DEFAULT_BOOK_COVER}
                      alt="Capa do livro"/>
                 <ul className="mt-3 list-disc list-inside space-y-2 font-mono">
                    {children}
+                    <li className="text-sm">Autor: {livro.autorLivro.nomeAutorNome}</li>
                     <li className="text-sm">Ano de Publicação: {livro.anoPrimeiraPublicacao}</li>
-                    <li className="text-sm">Idioma Original: {livro.idiomaOriginalLivro}</li>
                 </ul>
             </div>
         </div>

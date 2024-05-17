@@ -16,7 +16,10 @@ export default function EditarPerfil() {
     useEffect(() => {
         apiService.get('/api/Utilizador', user.user_id)
             .then(data => {
-                setUserData(data);
+                const userData = data.utilizador;
+                // Format the date to "yyyy-MM-dd"
+                userData.dataNascimento = formatDate(userData.dataNascimento);
+                setUserData(userData);
             })
             .catch(error => console.error(error));
     }, []);
@@ -27,6 +30,14 @@ export default function EditarPerfil() {
             ...prevState,
             [name]: value,
         }));
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     };
 
     const handleSubmit = (event) => {

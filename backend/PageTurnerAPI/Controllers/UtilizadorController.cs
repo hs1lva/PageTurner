@@ -55,7 +55,7 @@ namespace backend.Controllers
         {
             var utilizador = await _context.Utilizador
                 .Include(u => u.Comentarios)
-                .ThenInclude(c => c.estadoComentario)
+                    .ThenInclude(c => c.estadoComentario)
                 .Include(u => u.Avaliacoes)
                 .FirstOrDefaultAsync(u => u.utilizadorID == id);
 
@@ -64,15 +64,76 @@ namespace backend.Controllers
                 return NotFound();
             }
 
-            // @TODO: faz sentido no get?
-            // Se a data de registo for NULL, o utilizador ainda não confirmou o email
-            //if (utilizador.dataRegisto == null)
-            //{
-            //    return BadRequest("Utilizador com email não confirmado.");
-            // }
+            var estanteDesejos = await _context.Estante
+                .Include(e => e.livro)
+                .Include(e => e.tipoEstante)
+                .Where(e => e.utilizador.utilizadorID == id && e.tipoEstante.tipoEstanteId == TipoEstantes.Desejos)
+                .Select(e => new
+                {
+                    e.estanteId,
+                    livro = new
+                    {
+                        e.livro.livroId,
+                        e.livro.tituloLivro,
+                        e.livro.capaLarge,
+                        e.livro.autorLivro
+                    },
+                    e.tipoEstante,
+                    e.utilizador.utilizadorID,
+                })
+                .ToListAsync();
 
-            return utilizador;
+            var estanteTroca = await _context.Estante
+                .Include(e => e.livro)
+                .Include(e => e.tipoEstante)
+                .Where(e => e.utilizador.utilizadorID == id && e.tipoEstante.tipoEstanteId == TipoEstantes.Troca)
+                .Select(e => new
+                {
+                    e.estanteId,
+                    livro = new
+                    {
+                        e.livro.livroId,
+                        e.livro.tituloLivro,
+                        e.livro.capaLarge,
+                        e.livro.autorLivro
+                    },
+                    e.tipoEstante,
+                    e.utilizador.utilizadorID,
+                })
+                .ToListAsync();
+
+            var estantePessoal = await _context.Estante
+                .Include(e => e.livro)
+                .Include(e => e.tipoEstante)
+                .Where(e => e.utilizador.utilizadorID == id && e.tipoEstante.tipoEstanteId == TipoEstantes.Pessoal)
+                .Select(e => new
+                {
+                    e.estanteId,
+                    livro = new
+                    {
+                        e.livro.livroId,
+                        e.livro.tituloLivro,
+                        e.livro.capaLarge,
+                        e.livro.autorLivro
+                    },
+                    e.tipoEstante,
+                    e.utilizador.utilizadorID,
+                })
+                .ToListAsync();
+
+
+            // Agora, combinamos os resultados manualmente
+            var resultado = new
+            {
+                Utilizador = utilizador,
+                EstanteTroca = estanteTroca,
+                EstanteDesejos = estanteDesejos,
+                EstantePessoal = estantePessoal
+            };
+
+            return Ok(resultado);
         }
+
 
         /// <summary>
         /// Obter um utilizador pelo username

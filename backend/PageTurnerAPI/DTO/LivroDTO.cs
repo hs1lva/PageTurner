@@ -11,4 +11,7 @@ public class LivroDTO
     public ICollection<ComentarioLivro> Comentarios { get; set; }
     public ICollection<AvaliacaoLivro> Avaliacoes { get; set; }
     public double? MediaAvaliacao { get; set; }
+    public string CapaSmall { get; set; }
+    public string CapaMedium { get; set; }
+    public string CapaLarge { get; set; }
 }

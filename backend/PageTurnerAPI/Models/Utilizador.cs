@@ -147,6 +147,18 @@ public class Utilizador
         return context.Utilizador.Any(u => u.username == username);
     }
 
+
+    /// <summary>
+    /// Verificar se o userId já existe
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="userid"></param>
+    /// <returns></returns>
+    public static bool UserIdExists(PageTurnerContext context, int utilizadorId)
+    {
+        return context.Utilizador.Any(u => u.utilizadorID == utilizadorId);
+    }
+
     /// <summary>
     /// Verificar se o email já existe
     /// </summary>

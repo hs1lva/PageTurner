@@ -1,10 +1,10 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import ApiService from "../../services/ApiService";
-import {url_server} from "../../contexto/url_servidor";
+import { url_server } from "../../contexto/url_servidor";
 import useAuthStore from "../../services/authService";
 import ReactStars from "react-rating-stars-component";
 
-export default function Avaliar({ livroId, media, setRefresh, refresh }) {
+export default function Avaliar({ livroId, media, setRefresh, refresh, data }) {
     const [avaliacao, setAvaliacao] = useState(null);
     const [avaliacaoExistente, setAvaliacaoExistente] = useState(null);
     const { getUser } = useAuthStore();
@@ -15,20 +15,15 @@ export default function Avaliar({ livroId, media, setRefresh, refresh }) {
     const ratingChanged = (newRating) => {
         handleAvaliacaoChange(newRating);
     };
-
     useEffect(() => {
-        apiService.get('/api/Utilizador', user.user_id)
-            .then(data => {
-                const avaliacao = data.avaliacoes.find(avaliacao => avaliacao.livroId === Number(livroId));
-                if (avaliacao) {
-                    setAvaliacao(avaliacao.nota);
-                    setAvaliacaoExistente(avaliacao);
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    }, [refresh, user.user_id, livroId]);
+        const avaliacao = data.utilizador.avaliacoes.find(avaliacao => avaliacao.livroId === Number(livroId));
+        if (avaliacao) {
+            setAvaliacao(avaliacao.nota);
+            setAvaliacaoExistente(avaliacao);
+        } else {
+            setAvaliacao(0);
+        }
+    }, [refresh, data.utilizador, livroId]);
 
     const handleAvaliacaoChange = (novaAvaliacao) => {
         setAvaliacao(novaAvaliacao);
@@ -61,16 +56,15 @@ export default function Avaliar({ livroId, media, setRefresh, refresh }) {
 
     return (
         <div className="flex items-center">
-            {avaliacao !== null && (
-                <ReactStars
-                    count={5}
-                    onChange={ratingChanged}
-                    size={24}
-                    activeColor="#ffd700"
-                    value={avaliacao}
-                />
-            )}
-            ({media})
+            <ReactStars
+                key={avaliacao} // Força a recriação do componente quando o valor muda
+                count={5}
+                onChange={ratingChanged}
+                size={24}
+                activeColor="#ffd700"
+                value={avaliacao}
+            />
+            {media !== null ? `(${media})` : "(Sem avaliações)"}
         </div>
     );
 }
