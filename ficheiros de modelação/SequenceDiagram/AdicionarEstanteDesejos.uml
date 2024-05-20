@@ -1,18 +1,25 @@
 @startuml
 actor Leitor as U
-participant "EstanteDesejos" AS ESD
-participant "EstanteTroca" AS EST
+participant "ControladorEstante" as CE
+participant "ContextoBD" as BD
 
-U -> ESD: AdicionaLivro(livro)
-ESD -> EST: VerificarLivroExisteEstante(livro)
-EST -> EST: VerificaLivroExiste(livro)
-alt Existe
-    EST --> ESD: "Existe"
-    ESD --> U:  "Livro já existe na estante de troca."
-else Nao Existe
-    EST --> ESD: "Nao existe"
-    ESD -> ESD: AdicionaLivro(livro)
-    ESD --> U: "Livro Adicionado"
+U -> CE: PostEstante(estante)
+CE -> BD: ObterEstanteExistente(estante.livroId, estante.utilizadorId, estante.tipoEstanteId)
+alt estanteExistente != null and estanteExistente.livroNaEstante == true
+    CE --> U: BadRequest("O livro já se encontra na estante do utilizador")
+else estanteExistente != null and estanteExistente.livroNaEstante == false
+    CE -> BD: AlterarEstadoEstanteBD(estanteExistente.estanteId)
+    alt atualizacaoSucesso
+        CE --> U: CreatedAtAction("GetEstante", { id = estanteExistente.estanteId }, estanteExistente)
+    else
+        CE --> U: StatusCode(500, "Ocorreu um erro ao atualizar o estado da estante")
+    end
+else
+    CE -> BD: CriarNovaEstante(estante)
+    alt novaEstante != null
+        CE --> U: CreatedAtAction("GetEstante", { id = novaEstante.estanteId }, novaEstante)
+    else
+        CE --> U: BadRequest()
+    end
 end
-
 @enduml

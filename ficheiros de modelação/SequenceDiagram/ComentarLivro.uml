@@ -1,21 +1,44 @@
 @startuml
 actor Leitor as U
-participant "Livro" as S
-participant "ServicoBD" as BD
+participant "ControladorComentario" as CC
+participant "ContextoBD" as BD
 
-U -> S: InsereComentario(comentario) 
-activate S
-S -> BD: VerificaComentario(comentario)
+U -> CC: PostComentarioLivro(comentarioDto)
+activate CC
+
+CC -> BD: EstadoComentario.FirstOrDefaultAsync("Pendente")
 activate BD
-BD -> BD: VerificaListaDePalavras(comentario)
-alt Comentário não tem palavras proibidas
-    BD --> S: "Comentário Válido"
-    S -> S: AdicionaComentario(comentario)
-    S --> U: "Confirma adição do comentário"
-else Comentário tem palavras proibidas
-    BD --> S: "Comentário Inválido"
-    S --> U: "Mostra mensagem de erro"
+alt Estado 'Pendente' não encontrado
+    BD --> CC: null
+    CC --> U: BadRequest("Estado padrão 'Pendente' não encontrado.")
+    deactivate BD
+    deactivate CC
+else Estado 'Pendente' encontrado
+    BD --> CC: estadoInicial
+    CC -> BD: Livro.Include(Comentarios).FirstOrDefaultAsync(comentarioDto.livroId)
+    BD -> BD: Utilizador.FindAsync(comentarioDto.utilizadorId)
+    alt Utilizador não encontrado
+        BD --> CC: null
+        CC --> U: NotFound("Utilizador com ID {comentarioDto.utilizadorId} não encontrado.")
+        deactivate BD
+        deactivate CC
+    else Utilizador encontrado
+        BD --> CC: user
+        alt Livro não encontrado
+            BD --> CC: null
+            CC --> U: NotFound("Livro com ID {comentarioDto.livroId} não encontrado.")
+            deactivate BD
+            deactivate CC
+        else Livro encontrado
+            BD --> CC: livro
+            CC -> CC: Cria novoComentario
+            CC -> BD: Add(novoComentario)
+            BD -> BD: SaveChangesAsync()
+            CC -> novoComentario: VerificarEAtualizarComentario()
+            CC --> U: CreatedAtAction("GetComentarioLivro", { id = novoComentario.comentarioId }, novoComentario)
+            deactivate BD
+            deactivate CC
+        end
+    end
 end
-deactivate BD
-deactivate S
 @enduml
