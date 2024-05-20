@@ -48,7 +48,7 @@ public async Task<ActionResult> GetLivro(int id)
 
     var comentariosFiltrados = await _context.ComentarioLivro
         .Include(comentario => comentario.estadoComentario)
-        .Where(comentario => comentario.estadoComentario.estadoComentarioId == 3 && comentario.livroId == id)
+        .Where(comentario => comentario.estadoComentario.descricaoEstadoComentario == "Ativo" && comentario.livroId == id)
         .Select(c => new
         {
             c.comentarioId,
