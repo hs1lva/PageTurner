@@ -16,8 +16,9 @@ export default function Navbar() {
   return (
       <div className="nav-container">
         <nav className="nav-bar">
+          <Link to={`/`}>
           <img src={imagem} width="100px" alt="" className="imagem" />
-          <div className="input-pesquisa">
+          </Link>          <div className="input-pesquisa">
             <BarraPesquisa />
           </div>
           <ul className="nav-items">
