@@ -30,7 +30,7 @@ export default function Livro() {
         apiService.get('/api/Livro', id)
             .then(data => {
                 setLivro(data);
-                setComentarios(data.comentarios.slice(0, 10)); // Carregar os primeiros 10 comentários
+                setComentarios(data.comentarios.sort((a, b) => new Date(b.dataComentario) - new Date(a.dataComentario)).slice(0, 10)); // Carregar os primeiros 10 comentários ordenados por data
                 setHasMore(data.comentarios.length > 10);
             })
             .catch(error => {
