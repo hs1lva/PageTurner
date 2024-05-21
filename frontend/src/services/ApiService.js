@@ -27,7 +27,11 @@ class ApiService {
 
     async get(endpoint, id) {
         try {
-            const response = await this.http.get(`${endpoint}/${id}`);
+            if (id != null) {
+                const response = await this.http.get(`${endpoint}/${id}`);
+                return response.data;
+            }
+            const response = await this.http.get(endpoint);
             return response.data;
         } catch (error) {
             throw new Error(`GET request failed: ${error.response.status}`);

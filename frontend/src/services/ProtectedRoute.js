@@ -13,5 +13,5 @@ export const RequireGuestRoute = ({ Component }) => {
   const store = useAuthStore();
   const isAuthenticated = store.isAuthenticated();
 
-  return isAuthenticated ? <Navigate to="/Leitor" /> : <Component />;
+  return isAuthenticated ? <Navigate to="/" /> : <Component />;
 };

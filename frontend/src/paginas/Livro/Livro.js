@@ -88,7 +88,7 @@ export default function Livro() {
                 <Avaliar livroId={livro.livroId} media={livro.mediaAvaliacao} setRefresh={setRefresh} refresh={refresh} data={utilizador} />
             </InfoLivro>
             <div className="flex-col justify-around w-96 space-y-8">
-                <h1 className="text-2xl mt-10 font-bold mb-4">Comentários</h1>
+                <h1 className="text-2xl mt-10 font-bold mb-4">Comentários ({livro.comentarios.length})</h1>
                 <Comentar livroId={livro.livroId} onNewComment={handleNewComment} />
                 <InfiniteScroll
                     dataLength={comentarios.length}

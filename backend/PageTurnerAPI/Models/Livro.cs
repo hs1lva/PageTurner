@@ -92,7 +92,10 @@ public class Livro
                 GeneroLivro = l.generoLivro,
                 MediaAvaliacao = l.MediaAvaliacao(),
                 Comentarios = l.Comentarios,
-                Avaliacoes = l.Avaliacoes
+                Avaliacoes = l.Avaliacoes,
+                CapaSmall = l.capaSmall,
+                CapaMedium = l.capaMedium,
+                CapaLarge = l.capaLarge
             }).ToList();
 
             return livrosSugeridosDTO;

@@ -411,5 +411,35 @@ public async Task<ActionResult> GetLivro(int id)
         {
             return _context.Livro.Any(e => e.livroId == id);
         }
+
+        [HttpGet("Top5Livros")]
+        public async Task<ActionResult<IEnumerable<LivroDTO>>> GetTop5Livros()
+        {
+            var livros = await _context.Livro
+                .Include(l => l.autorLivro)
+                .Include(l => l.generoLivro)
+                .Include(l => l.Avaliacoes)
+                .ToListAsync();
+
+            var top5Livros = livros
+                .OrderByDescending(l => l.MediaAvaliacao())
+                .Take(5)
+                .Select(l => new LivroDTO
+                {
+                    LivroId = l.livroId,
+                    TituloLivro = l.tituloLivro,
+                    AnoPrimeiraPublicacao = l.anoPrimeiraPublicacao,
+                    AutorLivro = l.autorLivro,
+                    GeneroLivro = l.generoLivro,
+                    MediaAvaliacao = l.MediaAvaliacao(),
+                    CapaSmall = l.capaSmall,
+                    CapaMedium = l.capaMedium,
+                    CapaLarge = l.capaLarge
+                })
+                .ToList();
+
+            return Ok(top5Livros);
+        }
+
     }
 }
