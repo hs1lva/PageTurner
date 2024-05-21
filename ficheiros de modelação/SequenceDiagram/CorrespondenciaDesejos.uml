@@ -1,36 +1,77 @@
 @startuml
-actor Leitor as L
-participant "EstanteDesejos" AS ESD
-participant "Repositorio" as REP
-participant "SistemaMatching" as SM
+actor Leitor as U
+participant "ControladorEstante" as CE
+participant "ContextoBD" as BD
+participant "Troca" as T
 
-L -> ESD: AdicionaLivroNaListaDeDesejos(livro)
-ESD -> REP: VerificaListaTrocaLeitor()
-REP -> ESD: ListaTrocaLeitor(livrosTroca)
-alt Leitor Tem Livros na Estante de Troca
-    ESD -> REP: VerificaExistenciaLivroEmTrocasDeOutros(livro)
-    REP -> REP: VerificaLivro(livro)
-    alt Livro Existe nas Trocas de Outro Leitor
-        REP --> ESD: "LivroEncontradoNasTrocas"
-        ESD -> SM: ProcurarMatchesDesejo(livro)
-        SM -> REP: ObtemLivrosDesejadosDosLeitoresInteressados(livro)
-        REP -> SM: LivrosDesejadosDisponiveis(livrosDesejados)
-        SM -> SM: EncontrarMatches(livrosTroca, livrosDesejados)
-        alt Existem Matches
-            SM --> ESD: "MatchesEncontrados"
-            ESD --> L: "NotificaMatchesEncontrados"
-        else Nenhum Match
-            SM --> ESD: "NenhumMatch"
-            ESD -> ESD: AdicionaLivro(livro) 
-            ESD --> L: "LivroAdicionadoNaListaDeDesejosSemMatches"
+U -> CE: GET /check-match/{estanteId}
+activate CE
+CE -> T: new Troca()
+CE -> T: ProcuraMatch(estanteId, _context)
+activate T
+T -> BD: Estante.Include(tipoEstante, livro, utilizador).Where(estanteId)
+activate BD
+alt Estante não existe
+    BD --> T: null
+    T --> CE: Exception("Estante não existe")
+    CE --> U: Error 500
+    deactivate BD
+    deactivate T
+    deactivate CE
+else Estante existe
+    BD --> T: minhaEstante
+    alt minhaEstante.tipoEstante == "Estante Desejos"
+        T -> BD: Estante.Include(tipoEstante, utilizador).Where(utilizadorID, "Estante Troca")
+        alt Utilizador não tem estante de troca
+            BD --> T: null
+            T --> CE: Exception("Utilizador não tem estante de troca, não pode existir match")
+            CE --> U: Error 500
+            deactivate BD
+            deactivate T
+            deactivate CE
+        else Utilizador tem estante de troca
+            BD --> T: minhaEstanteTroca
+            T -> T: ProcuraMatchDesejos(minhaEstante, _context)
+            alt Match não encontrado
+                T --> CE: Exception("Não existe match")
+                CE --> U: Error 500
+                deactivate BD
+                deactivate T
+                deactivate CE
+            else Match encontrado
+                T --> CE: matchDTO
+                CE --> U: Ok(matchDTO)
+                deactivate BD
+                deactivate T
+                deactivate CE
+            end
         end
-    else Livro Não Existe nas Trocas de Outros
-        REP --> ESD: "NenhumLivroNasTrocas"
-        ESD -> ESD: AdicionaLivro(livro)
-        ESD --> L: "LivroAdicionadoNaListaDeDesejosSemMatches"
+    else minhaEstante.tipoEstante == "Estante Troca"
+        T -> BD: Estante.Include(tipoEstante, utilizador).Where(utilizadorID, "Estante Desejos")
+        alt Utilizador não tem estante de desejo
+            BD --> T: null
+            T --> CE: Exception("Utilizador não tem estante de desejo, não pode existir match")
+            CE --> U: Error 500
+            deactivate BD
+            deactivate T
+            deactivate CE
+        else Utilizador tem estante de desejo
+            BD --> T: minhaEstanteDesejo
+            T -> T: ProcuraMatchTroca(minhaEstante, _context)
+            alt Match não encontrado
+                T --> CE: Exception("Não existe match")
+                CE --> U: Error 500
+                deactivate BD
+                deactivate T
+                deactivate CE
+            else Match encontrado
+                T --> CE: matchDTO
+                CE --> U: Ok(matchDTO)
+                deactivate BD
+                deactivate T
+                deactivate CE
+            end
+        end
     end
-else Leitor Não Tem Livros na Estante de Troca
-    ESD -> ESD: AdicionaLivro(livro)
-    ESD --> L: "LivroAdicionadoNaListaDeDesejosMasSemLivrosParaTroca"
 end
 @enduml
