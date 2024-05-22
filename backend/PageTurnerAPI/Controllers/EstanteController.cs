@@ -412,8 +412,18 @@ namespace backend.Controllers
                 return BadRequest();
             }
 
+                // Obter o tipo de estante com base na descrição
+            var tipoEstante = await _context.TipoEstante
+                                    .FirstOrDefaultAsync(te => te.descricaoTipoEstante == estante.tipoEstanteDescricao);
+
+             if (tipoEstante == null)
+            {
+                return BadRequest("Tipo de estante inválido.");
+            }
+
+
             //verificar se já existe uma estante do mesmo tipo com o mesmo livro do mesmo usuário
-            var estanteExistente = await Estante.ObterEstanteExistente(_context, estante.livroId, estante.utilizadorId, estante.tipoEstanteId);
+            var estanteExistente = await Estante.ObterEstanteExistente(_context, estante.livroId, estante.utilizadorId, tipoEstante.tipoEstanteId);
 
             if (estanteExistente != null && estanteExistente.livroNaEstante == true)
             {
@@ -433,14 +443,16 @@ namespace backend.Controllers
             }
             else
             {
-                var novaEstante = await Estante.CriarNovaEstante(_context, estante);
+                var novaEstante = new EstanteSubmitDTO { livroId = estante.livroId, tipoEstanteId = tipoEstante.tipoEstanteId, utilizadorId = estante.utilizadorId };
 
-                if (novaEstante == null)
+                var estanteSubmit = await Estante.CriarNovaEstante(_context, novaEstante);
+
+                if (estanteSubmit == null)
                 {
                     return BadRequest();
                 }
 
-                return CreatedAtAction("GetEstante", new { id = novaEstante.estanteId }, novaEstante);
+                return CreatedAtAction("GetEstante", new { id = estanteSubmit.estanteId }, estanteSubmit);
             }
         }
         #endregion

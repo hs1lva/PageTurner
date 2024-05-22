@@ -19,7 +19,7 @@ function App() {
     return (
         <div>
             <SearchProvider>
-                <ToastContainer />
+                <ToastContainer position={"top-center"} />
                 <header>
                     <Header />
                 </header>

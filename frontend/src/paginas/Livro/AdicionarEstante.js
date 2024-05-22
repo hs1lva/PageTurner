@@ -4,7 +4,7 @@ import ApiService from "../../services/ApiService";
 import { url_server } from "../../contexto/url_servidor";
 import { toast } from 'react-toastify';
 
-export default function AdicionarEstante({ tipoEstanteNome, data, livroId, nomeEstante }) {
+export default function AdicionarEstante({ tipoEstanteNome, data, livroId, nomeEstante, onAddEstante }) {
     const [isInEstante, setIsInEstante] = useState(false);
 
     useEffect(() => {
@@ -14,6 +14,8 @@ export default function AdicionarEstante({ tipoEstanteNome, data, livroId, nomeE
             estantes = data.estanteDesejos || [];
         } else if (tipoEstanteNome === 'pessoal') {
             estantes = data.estantePessoal || [];
+        } else if (tipoEstanteNome === 'troca') {
+            estantes = data.estanteTroca || [];
         }
 
         const estanteExistente = estantes.some(estante => {
@@ -27,15 +29,9 @@ export default function AdicionarEstante({ tipoEstanteNome, data, livroId, nomeE
 
     const handleAdicionarEstante = () => {
         const apiService = new ApiService(url_server());
-        const tipoEstanteId = tipoEstanteNome === 'desejos' ? 1 : tipoEstanteNome === 'pessoal' ? 3 : null;
-
-        if (tipoEstanteId === null) {
-            toast.error("Tipo de estante inválido.");
-            return;
-        }
 
         const postData = {
-            tipoEstanteId,
+            tipoEstanteDescricao: tipoEstanteNome,
             utilizadorId: data.utilizador.utilizadorID,
             livroId
         };
@@ -43,6 +39,7 @@ export default function AdicionarEstante({ tipoEstanteNome, data, livroId, nomeE
         apiService.post('/api/Estante', postData)
             .then(response => {
                 if (response) {
+                    onAddEstante(); // refresh visual
                     setIsInEstante(true);
                     toast.success("Livro adicionado com sucesso!");
                 }

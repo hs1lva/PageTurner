@@ -68,8 +68,13 @@ export default function Livro() {
         );
     }
 
-    const handleNewComment = () => {
+    const handleRefresh = () => {
         setRefresh(prevRefresh => !prevRefresh); //  função que atualiza o refresh, para passarmos para os comentários
+    };
+
+    // Função para verificar se o livro está na estante pessoal
+    const naEstantePessoal = () => {
+        return utilizador.estantePessoal.some(estante => estante.livro.livroId === livro.livroId);
     };
 
     // Renderizar o componente
@@ -83,13 +88,16 @@ export default function Livro() {
             <div className="flex space-x-4 mb-4">
             </div>
             <InfoLivro livro={livro}>
-                <AdicionarEstante tipoEstanteNome="desejos" data={utilizador} livroId={livro.livroId} nomeEstante="Desejos" /> {/* Estante de Desejos */}
-                <AdicionarEstante tipoEstanteNome="pessoal" data={utilizador} livroId={livro.livroId} nomeEstante="Pessoal" /> {/* Estante Pessoal */}
+                <AdicionarEstante onAddEstante={handleRefresh} tipoEstanteNome="desejos" data={utilizador} livroId={livro.livroId} nomeEstante="Desejos" /> {/* Estante de Desejos */}
+                <AdicionarEstante onAddEstante={handleRefresh} tipoEstanteNome="pessoal" data={utilizador} livroId={livro.livroId} nomeEstante="Pessoal" /> {/* Estante Pessoal */}
+                {naEstantePessoal() && (
+                    <AdicionarEstante onAddEstante={handleRefresh} tipoEstanteNome="troca" data={utilizador} livroId={livro.livroId} nomeEstante="Troca" />
+                    )}
                 <Avaliar livroId={livro.livroId} media={livro.mediaAvaliacao} setRefresh={setRefresh} refresh={refresh} data={utilizador} />
             </InfoLivro>
             <div className="flex-col justify-around w-96 space-y-8">
                 <h1 className="text-2xl mt-10 font-bold mb-4">Comentários ({livro.comentarios.length})</h1>
-                <Comentar livroId={livro.livroId} onNewComment={handleNewComment} />
+                <Comentar livroId={livro.livroId} onNewComment={handleRefresh} />
                 <InfiniteScroll
                     dataLength={comentarios.length}
                     next={fetchMoreComentarios}

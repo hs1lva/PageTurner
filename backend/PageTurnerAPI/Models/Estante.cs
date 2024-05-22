@@ -139,7 +139,7 @@ public class Estante
     /// <param name="context"></param>
     /// <param name="estante"></param>
     /// <returns></returns>
-    public static async Task<Estante> CriarNovaEstante(PageTurnerContext context, EstanteCreateDTO estante)
+    public static async Task<Estante> CriarNovaEstante(PageTurnerContext context, EstanteSubmitDTO estante)
     {
         var novaEstante = new Estante
         {

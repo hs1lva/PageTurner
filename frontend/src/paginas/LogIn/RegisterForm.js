@@ -48,12 +48,11 @@ export default function RegisterForm({onFlip}) {
       if (!resposta.ok) {
         // Fazer paginas para erros e direcionar para lá
         if (resposta.status === 409) {
-          console.log("Utilizador já existe");
-          toast.error("Error Notification !");
-          alert("Utilizador já existe, altere o username ou email.");
+          toast.error("Utilizador já existe, altere o username ou email.");
           return;
         }
       }
+      onFlip();
       toast.success('Utilizador criado com sucesso, valide a sua conta com o email que lhe foi enviado.');
     } catch (erro) {
       console.error(erro);
