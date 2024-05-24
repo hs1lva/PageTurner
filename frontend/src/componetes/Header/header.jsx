@@ -23,7 +23,7 @@ export default function Navbar() {
           </div>
           <ul className="nav-items">
             <li>
-              <Link to={`/SobreNos`} className="nav-item1">
+              <Link to={`/SobreNos`} className="nav-item1 text-red-400">
                 Sobre
               </Link>
             </li>

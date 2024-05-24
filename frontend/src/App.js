@@ -14,6 +14,8 @@ import { ToastContainer } from "react-toastify";
 import EstantePage from "./paginas/Leitor/EstantePage";
 import Titulo from "./paginas/Pesquisa/Titulo.js";
 import { SearchProvider } from "./contexto/SearchContext";
+import MatchesPage from "./paginas/Trocas/MatchesPage";
+import TrocaPage from "./paginas/Trocas/TrocaPage";
 
 function App() {
     return (
@@ -31,6 +33,8 @@ function App() {
                     <Route path="/leitor" element={<RequireLoginRoute Component={Leitor} />} />
                     <Route path="/leitor/:id" element={<RequireLoginRoute Component={PerfilLeitor} />} />
                     <Route path="/livro/:id" element={<RequireLoginRoute Component={Livro} />} />
+                    <Route path="/matches" element={<RequireLoginRoute Component={MatchesPage} />} />
+                    <Route path="/troca/:id" element={<RequireLoginRoute Component={TrocaPage} />} />
                     <Route path="/pesquisa" element={<RequireLoginRoute Component={Titulo} />} />
                     <Route path="/estantes/:tipo/:userId" element={<RequireLoginRoute Component={EstantePage} />} />
                     <Route path="*" element={<Pagina404 />} />

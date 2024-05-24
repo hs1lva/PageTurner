@@ -3,12 +3,11 @@ import { useParams } from 'react-router-dom';
 import ApiService from '../../services/ApiService';
 import { url_server } from "../../contexto/url_servidor";
 import InfoLivro from "./InfoLivro";
-import ComentariosLivro from "./ComentariosLivro"; // Corrigido o nome do import
+import ComentariosLivro from "./ComentariosLivro";
 import Comentar from "./Comentar";
 import Avaliar from "./Avaliar";
 import AdicionarEstante from "./AdicionarEstante";
 import useAuthStore from "../../services/authService";
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
@@ -84,7 +83,6 @@ export default function Livro() {
 
     return (
         <div className="m-10 mt-20 flex flex-col items-left">
-            <ToastContainer />
             <div className="flex space-x-4 mb-4">
             </div>
             <InfoLivro livro={livro}>

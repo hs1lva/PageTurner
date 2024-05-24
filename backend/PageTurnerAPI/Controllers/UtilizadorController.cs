@@ -67,7 +67,7 @@ namespace backend.Controllers
             var estanteDesejos = await _context.Estante
                 .Include(e => e.livro)
                 .Include(e => e.tipoEstante)
-                .Where(e => e.utilizador.utilizadorID == id && e.tipoEstante.descricaoTipoEstante == TipoEstantes.Desejos)
+                .Where(e => e.utilizador.utilizadorID == id && e.tipoEstante.descricaoTipoEstante == TipoEstantes.Desejos && e.livroNaEstante)
                 .Select(e => new
                 {
                     e.estanteId,
@@ -86,7 +86,7 @@ namespace backend.Controllers
             var estanteTroca = await _context.Estante
                 .Include(e => e.livro)
                 .Include(e => e.tipoEstante)
-                .Where(e => e.utilizador.utilizadorID == id && e.tipoEstante.descricaoTipoEstante == TipoEstantes.Troca)
+                .Where(e => e.utilizador.utilizadorID == id && e.tipoEstante.descricaoTipoEstante == TipoEstantes.Troca && e.livroNaEstante)
                 .Select(e => new
                 {
                     e.estanteId,
@@ -105,7 +105,7 @@ namespace backend.Controllers
             var estantePessoal = await _context.Estante
                 .Include(e => e.livro)
                 .Include(e => e.tipoEstante)
-                .Where(e => e.utilizador.utilizadorID == id && e.tipoEstante.descricaoTipoEstante == TipoEstantes.Pessoal)
+                .Where(e => e.utilizador.utilizadorID == id && e.tipoEstante.descricaoTipoEstante == TipoEstantes.Pessoal && e.livroNaEstante)
                 .Select(e => new
                 {
                     e.estanteId,

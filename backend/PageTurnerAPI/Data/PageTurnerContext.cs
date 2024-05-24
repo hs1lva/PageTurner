@@ -45,6 +45,19 @@ public class PageTurnerContext : DbContext, IPageTurnerContext
             .WithMany(c => c.comentarioConteudoOfensivo)
             .HasForeignKey(cco => cco.conteudoOfensivoId);
 
+        modelBuilder.Entity<Troca>()
+           .HasOne(t => t.Estante)
+           .WithMany()
+           .HasForeignKey(t => t.estanteId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Troca>()
+            .HasOne(t => t.Estante2)
+            .WithMany()
+            .HasForeignKey(t => t.estanteId2)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        base.OnModelCreating(modelBuilder);
 
     }
 }
