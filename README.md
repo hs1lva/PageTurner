@@ -23,3 +23,5 @@ Na raiz do projeto PageTurner
 cd frontend
 npm start
 
+4º Ver BD?
+Utilizámos Azure Data Studio e podemos aceder conforme readme explicado na pasta database
